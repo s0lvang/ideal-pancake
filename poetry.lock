@@ -659,6 +659,17 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "pyedflib"
+version = "0.1.18"
+description = "library to read/write EDF+/BDF+ files"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = ">=1.9.1"
+
+[[package]]
 name = "pygments"
 version = "2.7.1"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -893,7 +904,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "a2a96650f8cfcc83c56cf5b6db2261ca5488128abaf2dc2049967b8078386b6f"
+content-hash = "382a911a2ad87faed383742f7d6b69f57ac9120f17a8ace224fb54292bbdd3f4"
 
 [metadata.files]
 appdirs = [
@@ -1278,6 +1289,19 @@ ptyprocess = [
 pycparser = [
     {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
     {file = "pycparser-2.20.tar.gz", hash = "sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0"},
+]
+pyedflib = [
+    {file = "pyEDFlib-0.1.18-cp27-cp27m-win32.whl", hash = "sha256:e9ed3bbdca3898e179ee9facec3feefcf4bb3a5acef5c99caf08333f1df4087f"},
+    {file = "pyEDFlib-0.1.18-cp27-cp27m-win_amd64.whl", hash = "sha256:1f186b8837d8b604918b38cf602d27e121cfe958e1abf61c6c0d240bf2c1a8a6"},
+    {file = "pyEDFlib-0.1.18-cp35-cp35m-win32.whl", hash = "sha256:d8d1c19b5d9acb440e7e97a8d142f69c9ffd4c401ad22d467c45716a9b7af111"},
+    {file = "pyEDFlib-0.1.18-cp35-cp35m-win_amd64.whl", hash = "sha256:d218dfa971ea30331772998032cf7710aa35e028245a33cd5c41922406792093"},
+    {file = "pyEDFlib-0.1.18-cp36-cp36m-win32.whl", hash = "sha256:aa7c86434b35952eaf4296532ee363a8987151c4edd8190b449f977f6c2d298f"},
+    {file = "pyEDFlib-0.1.18-cp36-cp36m-win_amd64.whl", hash = "sha256:9fa0c5999c4a056c0348839066dbd0cdfbe9de4e261008806afc45f5a9e8273d"},
+    {file = "pyEDFlib-0.1.18-cp37-cp37m-win32.whl", hash = "sha256:74e2621e7b13cf85478d401a2b6cf3986b3bf9ed5880c4a1020c2668c1f726e4"},
+    {file = "pyEDFlib-0.1.18-cp37-cp37m-win_amd64.whl", hash = "sha256:065be8c17b96eae236487206ba888a3518dab7854fe11adbdaad267b000936f0"},
+    {file = "pyEDFlib-0.1.18-cp38-cp38-win32.whl", hash = "sha256:1a805a4eba94a3fe9fdd938afa0f72eeb4f78f86b8d60b21a21ddeace0a40bf7"},
+    {file = "pyEDFlib-0.1.18-cp38-cp38-win_amd64.whl", hash = "sha256:7f9d4dba64dec2758b0c415c2bc4e39d37e33e3143df0e3558fe9c2deb9defea"},
+    {file = "pyEDFlib-0.1.18.tar.gz", hash = "sha256:63a14d025ccf2296891ffe8e64d74021bd9d4443392395e7961be549df467a57"},
 ]
 pygments = [
     {file = "Pygments-2.7.1-py3-none-any.whl", hash = "sha256:307543fe65c0947b126e83dd5a61bd8acbd84abec11f43caebaf5534cbc17998"},
