@@ -85,5 +85,6 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
 
+
 echo "Running command: $CMD"
-eval "$CMD"
+dephell deps convert && eval "$CMD"
