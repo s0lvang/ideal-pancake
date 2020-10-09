@@ -23,5 +23,6 @@ setup(
     packages=['trainer'],
     package_dir={"": "."},
     package_data={},
-    install_requires=['black', 'cloudml-hypertune', 'google-api-python-client', 'jupyter==1.*,>=1.0.0', 'matplotlib==3.*,>=3.3.2', 'numpy==1.*,>=1.19.2', 'pandas==1.*,>=1.1.2', 'pandas-gbq==0.14.0', 'pyedflib==0.*,>=0.1.18', 'scikit-learn==0.*,>=0.23.2', 'scikit-plot', 'seaborn==0.*,>=0.9.0', 'six==1.*,>=1.13.0', 'tensorflow==2.2.0', 'xlrd==1.*,>=1.2.0'],
+    install_requires=['cloudml-hypertune', 'google-api-python-client', 'matplotlib==3.*,>=3.3.2', 'numpy==1.*,>=1.19.2', 'pandas==1.*,>=1.1.2', 'pandas-gbq==0.14.0', 'pyedflib==0.*,>=0.1.18', 'scikit-learn==0.*,>=0.23.2', 'scikit-plot', 'seaborn==0.*,>=0.9.0', 'six==1.*,>=1.13.0', 'tensorflow==2.2.0', 'xlrd==1.*,>=1.2.0'],
+    extras_require={"dev": ["black", "jupyter==1.*,>=1.0.0"]},
 )
