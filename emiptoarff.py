@@ -4,8 +4,8 @@ import arff
 import pandas
 from itertools import takewhile
 
-directory = "datasets/emip_datasets/rawdata"
-destination_directory = "datasets/emip_datasets/arff"
+directory = "datasets/emip_dataset/rawdata"
+destination_directory = "datasets/emip_dataset/arff"
 
 pathlist = Path(directory).rglob("*.tsv")
 
@@ -32,15 +32,17 @@ def create_metadata(comments):
 
 def convert_tsv_to_arff(path):
     df = pandas.read_csv(path, comment="#", sep="\t")
-    df["avg_x"] = df[["R Raw X [px]", "L Raw X [px]"]].mean(axis=1)
-    df["avg_y"] = df[["R Raw Y [px]", "L Raw Y [px]"]].mean(axis=1)
-    df["avg_confidence"] = df[["R Validity", "L Validity"]].mean(axis=1)
-    df = df.filter(["Time", "avg_x", "avg_y", "avg_confidence"])
+    df["x"] = df[["R Raw X [px]", "L Raw X [px]"]].mean(axis=1)
+    df["y"] = df[["R Raw Y [px]", "L Raw Y [px]"]].mean(axis=1)
+    df["confidence"] = df[["R Validity", "L Validity"]].mean(axis=1)
+    df = df.filter(["Time", "x", "y", "confidence"])
     destination = os.path.join(destination_directory, os.path.splitext(os.path.basename(path))[0] + ".arff")
-    arff.dump(destination, df.values, relation="relation name", names=df.columns)
+    arff.dump(destination, df.values, relation="relation_name", names=df.columns)
     comments = get_comments(path)
     metadata = create_metadata(comments)
-    with open(destination,"r") as f: data = f.read()
+    with open(destination,"r") as f:
+        data = f.read().replace("@attribute", "@ATTRIBUTE").replace("@relation","@RELATION").replace("@data","@DATA").replace("real", "NUMERIC")
+
     with open(destination,"w") as f: f.write(metadata+data)
      
 
