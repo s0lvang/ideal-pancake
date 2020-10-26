@@ -11,9 +11,11 @@ numpy = "^1.19.2"
 pandas = "^1.1.2"
 matplotlib = "^3.3.2"
 pyEDFlib = "^0.1.18"
+sklearn = "^0.0"
+statsmodels = "^0.12.0"
+arch = "^4.15"
 xlrd = "^1.2.0"
 scikit-learn = "^0.23.2"
-cloudml-hypertune = "*"
 scikit-plot = "*"
 tensorflow = "2.2.0"
 google-api-python-client = "*"
@@ -21,6 +23,8 @@ six = "^1.13.0"
 pandas-gbq="0.14.0"
 seaborn = "^0.9.0"
 arff = "^0.9"
+cloudml-hypertune = {version = "^0.1.0-alpha.6", allow-prereleases = true}
+scipy = {version = "1.4.1", allow-prereleases = true}
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
