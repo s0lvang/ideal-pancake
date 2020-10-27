@@ -32,7 +32,7 @@ CATEGORICAL_FEATURES = [
 
 FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
-LABEL = 'species'
+LABEL = 'expertise_programming'
 
 METRIC_FILE_NAME = 'eval_metrics.joblib'
 MODEL_FILE_NAME = 'model.joblib'
