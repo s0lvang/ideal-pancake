@@ -19,8 +19,10 @@ tensorflow = "2.2.0"
 google-api-python-client = "*"
 six = "^1.13.0"
 pandas-gbq="0.14.0"
-seaborn = "^0.9.0"
 google-cloud-storage = "^1.32.0"
+sktime = "^0.4.3"
+tsfresh = "^0.17.0"
+numba = "^0.51.2"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

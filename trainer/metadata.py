@@ -19,10 +19,7 @@
 CSV_COLUMNS = None  # Schema of the data. Necessary for data stored in GCS
 
 NUMERIC_FEATURES = [
-    'sepal_length',
-    'sepal_width',
-    'petal_length',
-    'petal_width',
+    'R Mapped Diameter [mm]'
 ]
 
 # TODO(cfezequiel): Use an example dataset with categorical features.

@@ -23,9 +23,10 @@ import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import metadata
 from google.cloud import storage
+import numpy as np
 
 
-def data_train_test_split(dataset):
+def data_train_test_split(dataset, labels):
     """Split the DataFrame two subsets for training and testing.
 
     Args:
@@ -39,11 +40,11 @@ def data_train_test_split(dataset):
     """
 
     columns_to_use = metadata.FEATURE_COLUMNS
-    subject_with_columns_to_use = [(df[columns_to_use], label) for df, label in dataset]
+    dataset_with_columns_to_use = dataset[columns_to_use]
 
-    train, test = model_selection.train_test_split(subject_with_columns_to_use)
-    x_train, y_train = map(list, zip(*train))
-    x_test, y_test = map(list, zip(*test))
+    x_train, x_test, y_train, y_test = model_selection.train_test_split(
+        dataset_with_columns_to_use, labels
+    )
     return x_train, y_train, x_test, y_test
 
 
@@ -53,6 +54,7 @@ def get_header(file):
     header = dict(filter(lambda x: len(x) == 2, headerList))
     split_on_tab = lambda x: x.split("\t")[1:]
     header = {k: split_on_tab(v) for k, v in header.items()}
+    file.seek(0, 0)
     return header
 
 
@@ -64,34 +66,34 @@ def read_emip_from_gcs():
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
 
-
-    subjects = {}
+    dataset = pd.DataFrame()
     metadata_emip = None
     label_column = metadata.LABEL
-    blobs = filter(lambda file: file.name != prefix, bucket.list_blobs(prefix=prefix, delimiter="/"))
-    for blob in blobs: 
+    labels = [] 
+    blobs = list(bucket.list_blobs(delimiter="/"))
+    files = filter(
+        lambda file: file.name != prefix and "metadata" not in file.name, blobs
+    )
+    metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
+    with download_or_read_from_disk(metadata_emip) as f:
+        metadata_emip = pd.read_csv(f)
+    for blob in [*files]:
         with download_or_read_from_disk(blob) as f:
-            # Assume there is no header
-            if "metadata" in blob.name.lower():
-                metadata_emip = pd.read_csv(f)
-            else:
-                subject_id = get_header(f)["Subject"][0]
-                print(subject_id)
-                subjects[subject_id] = pd.read_csv(f, comment="#", sep="\t")
-    # makes format (df, label)
-    subjects_with_labels = [
-        (v, metadata_emip.loc[int(k), label_column]) for k, v in subjects.items()
-    ]
-    print(len(subjects_with_labels), "length")
-    print(subjects_with_labels)
-    return subjects_with_labels
+            subject_id = get_header(f)["Subject"][0]
+            csv = pd.read_csv(f, sep="\t", comment="#")
+            new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
+            dataset = dataset.append(new_row, ignore_index=True)
+            labels.append(metadata_emip.loc[int(subject_id)-1, label_column])
+            print(labels)
+    return dataset, np.array(labels)
+
 
 def download_or_read_from_disk(blob):
     dataset_dir = os.path.join(blob.bucket.name, blob.name.split("/")[0])
     destination_file_name = os.path.join(dataset_dir, os.path.basename(blob.name))
-    if(not os.path.isdir(dataset_dir)):
+    if not os.path.isdir(dataset_dir):
         os.makedirs(dataset_dir)
-    if(not os.path.isfile(destination_file_name)):
+    if not os.path.isfile(destination_file_name):
         blob.download_to_filename(destination_file_name)
     return open(destination_file_name, "r")
 

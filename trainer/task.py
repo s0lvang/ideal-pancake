@@ -29,7 +29,7 @@ from trainer import model
 from trainer import utils
 
 
-def _train_and_evaluate(estimator, dataset, output_dir):
+def _train_and_evaluate(estimator, dataset, labels, output_dir):
   """Runs model training and evaluation.
 
   Args:
@@ -41,11 +41,11 @@ def _train_and_evaluate(estimator, dataset, output_dir):
   Returns:
     None
   """
-  x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset)
+  x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset, labels)
   estimator.fit(x_train, y_train)
 
   # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-  scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=3)
+  scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=2)
 
   logging.info(scores)
 
@@ -75,13 +75,13 @@ def run_experiment(flags):
   """Testbed for running model training and evaluation."""
   # Get data for training and evaluation
 
-  dataset = utils.read_emip_from_gcs()
+  dataset, labels = utils.read_emip_from_gcs()
 
   # Get model
   estimator = model.get_estimator(flags)
 
   # Run training and evaluation
-  _train_and_evaluate(estimator, dataset, flags.job_dir)
+  _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
 
 
 def _parse_args(argv):
