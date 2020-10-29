@@ -19,7 +19,8 @@
 CSV_COLUMNS = None  # Schema of the data. Necessary for data stored in GCS
 
 NUMERIC_FEATURES = [
-    'R Mapped Diameter [mm]'
+    'R Mapped Diameter [mm]',
+    'L Mapped Diameter [mm]'
 ]
 
 # TODO(cfezequiel): Use an example dataset with categorical features.
@@ -34,9 +35,3 @@ LABEL = 'expertise_programming'
 METRIC_FILE_NAME = 'eval_metrics.joblib'
 MODEL_FILE_NAME = 'model.joblib'
 
-BASE_QUERY = '''
-    SELECT
-      *
-    FROM
-      `{table}`
-  '''

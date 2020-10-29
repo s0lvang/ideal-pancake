@@ -26,6 +26,8 @@ sktime = "^0.4.3"
 tsfresh = "^0.17.0"
 numba = "^0.51.2"
 scipy = {version = "1.4.1", allow-prereleases = true}
+sktime-dl = "^0.1.0"
+google-cloud-core = "^1.4.3"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
