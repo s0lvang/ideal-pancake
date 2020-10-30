@@ -84,7 +84,6 @@ def read_emip_from_gcs():
             new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
             dataset = dataset.append(new_row, ignore_index=True)
             labels.append(metadata_emip.loc[int(subject_id)-1, label_column])
-            print(labels)
     return dataset, np.array(labels)
 
 

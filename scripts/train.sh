@@ -31,11 +31,11 @@
 #   $3: (Optional) Whether to run `train` or `hptuning`.
 #   $4: (Optional) additional arguments to pass to the trainer.
 
-
 INPUT=$1
 RUN_ENV=$2
 RUN_TYPE=$3
 EXTRA_TRAINER_ARGS=$4
+IMAGE_URI=eu.gcr.io/$PROJECT_ID/trainer:0.1
 
 if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
   RUN_ENV=local;
@@ -46,7 +46,7 @@ if [[ ! "$RUN_TYPE" =~ ^(train|hptuning)$ ]]; then
 fi
 
 NOW="$(date +"%Y%m%d_%H%M%S")"
-JOB_PREFIX="sklearn_template"
+JOB_PREFIX="hardcore_ml_shit"
 
 JOB_NAME="${JOB_PREFIX}_${RUN_TYPE}_${NOW}"
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
@@ -65,10 +65,12 @@ echo "$RUN_ENV"
 if [ "$RUN_ENV" = 'remote' ]; then
   RUN_ENV_ARGS="jobs submit training $JOB_NAME \
     --region $REGION \
-    --config $CONFIG_FILE \
+    --master-image-uri $IMAGE_URI \
     "
 else  # assume `local`
-  RUN_ENV_ARGS="local train"
+  RUN_ENV_ARGS="local train \
+	  --package-path $PACKAGE_PATH \
+	  --module-name $MAIN_TRAINER_MODULE"
 fi
 
 # Specify arguments to pass to the trainer module (trainer/task.py)
@@ -78,13 +80,14 @@ TRAINER_ARGS="\
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \
   --job-dir $JOB_DIR \
-  --package-path $PACKAGE_PATH \
-  --module-name $MAIN_TRAINER_MODULE \
   -- \
   $TRAINER_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
 
-
+if [ "$RUN_ENV" = 'remote' ]; then
+	eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
+else
 echo "Running command: $CMD"
-dephell deps convert --from-format=poetry --to=setuppy && eval "$CMD"
+eval "$CMD"
+fi
