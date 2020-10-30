@@ -1,4 +1,4 @@
 trainingInput:
   scaleTier: STANDARD_1
-  runtimeVersion: "2.2"
+  runtimeVersion: "2.1"
   pythonVersion: "3.7" 

@@ -23,13 +23,14 @@ import sys
 import hypertune
 import numpy as np
 from sklearn import model_selection
+from sklearn.metrics import classification_report
 
 from trainer import metadata
 from trainer import model
 from trainer import utils
 
 
-def _train_and_evaluate(estimator, dataset, output_dir):
+def _train_and_evaluate(estimator, dataset, labels, output_dir):
   """Runs model training and evaluation.
 
   Args:
@@ -41,14 +42,15 @@ def _train_and_evaluate(estimator, dataset, output_dir):
   Returns:
     None
   """
-  x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset)
+  x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset, labels)
   estimator.fit(x_train, y_train)
 
+  prediction = estimator.predict(x_val)
   # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-  scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=3)
+  scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=2)
 
   logging.info(scores)
-
+  print(classification_report(y_val, prediction))
   # Write model and eval metrics to `output_dir`
   model_output_path = os.path.join(
       output_dir, 'model', metadata.MODEL_FILE_NAME)
@@ -75,14 +77,13 @@ def run_experiment(flags):
   """Testbed for running model training and evaluation."""
   # Get data for training and evaluation
 
-  dataset = utils.read_df_from_bigquery(
-      flags.input, num_samples=flags.num_samples)
+  dataset, labels = utils.read_emip_from_gcs()
 
   # Get model
   estimator = model.get_estimator(flags)
 
   # Run training and evaluation
-  _train_and_evaluate(estimator, dataset, flags.job_dir)
+  _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
 
 
 def _parse_args(argv):

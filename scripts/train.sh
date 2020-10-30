@@ -87,4 +87,4 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
 
 
 echo "Running command: $CMD"
-dephell deps convert && eval "$CMD"
+dephell deps convert --from-format=poetry --to=setuppy && eval "$CMD"
