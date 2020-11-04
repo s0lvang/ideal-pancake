@@ -59,10 +59,8 @@ def get_header(file):
 
 
 def read_emip_from_gcs():
-    file_pattern = "g://emip/test_folder"
-    # Download the files to local /tmp/ folder
     bucket_name = "emip"
-    prefix = "test_folder/"
+    directory_name = "test_folder/"
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
 
@@ -72,7 +70,7 @@ def read_emip_from_gcs():
     labels = [] 
     blobs = list(bucket.list_blobs(delimiter="/"))
     files = filter(
-        lambda file: file.name != prefix and "metadata" not in file.name, blobs
+        lambda file: file.name != directory_name and "metadata" not in file.name, blobs
     )
     metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
     with download_or_read_from_disk(metadata_emip) as f:
