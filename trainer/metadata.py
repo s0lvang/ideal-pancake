@@ -19,9 +19,7 @@
 CSV_COLUMNS = None  # Schema of the data. Necessary for data stored in GCS
 
 NUMERIC_FEATURES = [
-    'R Mapped Diameter [mm]',
-    'L Mapped Diameter [mm]',
-    'Pupil Confidence',
+    'Pupil.size',
 ]
 
 # TODO(cfezequiel): Use an example dataset with categorical features.
@@ -31,7 +29,7 @@ CATEGORICAL_FEATURES = [
 
 FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
-LABEL = 'visual_aid'
+LABEL = 'Score.1'
 
 METRIC_FILE_NAME = 'eval_metrics.joblib'
 MODEL_FILE_NAME = 'model.joblib'

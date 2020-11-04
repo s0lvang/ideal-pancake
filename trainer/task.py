@@ -77,7 +77,7 @@ def run_experiment(flags):
   """Testbed for running model training and evaluation."""
   # Get data for training and evaluation
 
-  dataset, labels = utils.read_emip_from_gcs()
+  dataset, labels = utils.read_jetris_from_gcs()
 
   # Get model
   estimator = model.get_estimator(flags)
