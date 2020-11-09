@@ -42,15 +42,15 @@ def _train_and_evaluate(estimator, dataset, labels, output_dir):
     Returns:
       None
     """
-    x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset, labels)
+    x_train, y_train, x_test, y_test = utils.data_train_test_split(dataset, labels)
     estimator.fit(x_train, y_train)
 
-    prediction = estimator.predict(x_val)
+    prediction = estimator.predict(x_test)
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-    scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=2)
+    scores = model_selection.cross_val_score(estimator, x_test, y_test, cv=2)
 
     logging.info(scores)
-    print(classification_report(y_val, prediction))
+    print(classification_report(y_test, prediction))
     # Write model and eval metrics to `output_dir`
     model_output_path = os.path.join(output_dir, "model", metadata.MODEL_FILE_NAME)
 
