@@ -12,7 +12,7 @@ from sktime.classification.compose import TimeSeriesForestClassifier
 from sktime.transformers.series_as_features.compose import ColumnConcatenator
 from sktime.classification.dictionary_based import BOSSEnsemble
 
-from sktime.transformers.series_as_features.interpolate import TSInterpolator 
+from sktime.transformers.series_as_features.interpolate import TSInterpolator
 
 
 def get_estimator(flags):
