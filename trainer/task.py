@@ -30,6 +30,19 @@ from trainer import model
 from trainer import utils
 
 
+def run_experiment(flags):
+    """Testbed for running model training and evaluation."""
+    # Get data for training and evaluation
+
+    dataset, labels = utils.read_emip_from_gcs()
+
+    # Get model
+    estimator = model.get_estimator(flags)
+
+    # Run training and evaluation
+    _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
+
+
 def _train_and_evaluate(estimator, dataset, labels, output_dir):
     """Runs model training and evaluation.
 
@@ -72,19 +85,6 @@ def _train_and_evaluate(estimator, dataset, labels, output_dir):
         metric_value=np.mean(scores),
         global_step=1000,
     )
-
-
-def run_experiment(flags):
-    """Testbed for running model training and evaluation."""
-    # Get data for training and evaluation
-
-    dataset, labels = utils.read_emip_from_gcs()
-
-    # Get model
-    estimator = model.get_estimator(flags)
-
-    # Run training and evaluation
-    _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
 
 
 def _parse_args(argv):
