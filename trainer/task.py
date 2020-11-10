@@ -34,7 +34,9 @@ def run_experiment(flags):
     """Testbed for running model training and evaluation."""
     dataset, labels = utils.read_emip_from_gcs()
     filtered_data = get_data_from_feature_selection(dataset)
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(dataset, labels)
+    x_train, x_test, y_train, y_test = model_selection.train_test_split(
+        filtered_data, labels
+    )
     pipeline = model.build_pipeline(flags)
     pipeline.fit(x_train, y_train)
     scores = evaluate_model(pipeline, x_test, y_test)
