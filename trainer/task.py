@@ -33,12 +33,12 @@ from trainer import utils
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
     dataset, labels = utils.read_emip_from_gcs()
-    estimator = model.get_estimator(flags)
+    pipeline = model.get_estimator(flags)
     filtered_data = get_data_from_feature_selection(dataset)
     x_train, y_train, x_test, y_test = utils.split_data(filtered_data, labels)
-    estimator.fit(x_train, y_train)
-    scores = evaluate_model(estimator, x_test, y_test)
-    store_model_and_metrics(estimator, scores, flags.job_dir)
+    pipeline.fit(x_train, y_train)
+    scores = evaluate_model(pipeline, x_test, y_test)
+    store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     # Tuning hyperparameters, currently unused
     # hypertune(scores)
