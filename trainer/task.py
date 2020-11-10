@@ -32,15 +32,57 @@ from trainer import utils
 
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
-    # Get data for training and evaluation
-
     dataset, labels = utils.read_emip_from_gcs()
-
-    # Get model
     estimator = model.get_estimator(flags)
+    filtered_data = get_data_from_feature_selection(dataset)
+    x_train, y_train, x_test, y_test = utils.split_data(filtered_data, labels)
+    estimator.fit(x_train, y_train)
+    scores = evaluate_model(estimator, x_test, y_test)
+    store_model_and_metrics(estimator, scores, flags.job_dir)
 
-    # Run training and evaluation
-    _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
+    # Tuning hyperparameters, currently unused
+    # hypertune(scores)
+
+
+def get_data_from_feature_selection(dataset):
+    columns_to_use = metadata.FEATURE_COLUMNS
+    return dataset[columns_to_use]
+
+
+# This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
+def evaluate_model(model, x_test, y_test):
+    prediction = model.predict(x_test)
+    print(classification_report(y_test, prediction))
+    # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
+    scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
+    logging.info(scores)
+
+    return scores
+
+
+# Write model and eval metrics to `output_dir`
+def store_model_and_metrics(model, metrics, output_dir):
+    model_output_path = os.path.join(output_dir, "model", metadata.MODEL_FILE_NAME)
+    metric_output_path = os.path.join(
+        output_dir, "experiment", metadata.METRIC_FILE_NAME
+    )
+
+    utils.dump_object(model, model_output_path)
+    utils.dump_object(metrics, metric_output_path)
+
+
+def hypertune(metrics):
+    # The default name of the metric is training/hptuning/metric.
+    # We recommend that you assign a custom name
+    # The only functional difference is that if you use a custom name,
+    # you must set the hyperparameterMetricTag value in the
+    # HyperparameterSpec object in your job request to match your chosen name.
+    hpt = hypertune.HyperTune()
+    hpt.report_hyperparameter_tuning_metric(
+        hyperparameter_metric_tag="my_metric_tag",
+        metric_value=np.mean(metrics),
+        global_step=1000,
+    )
 
 
 def _train_and_evaluate(estimator, dataset, labels, output_dir):
@@ -55,36 +97,6 @@ def _train_and_evaluate(estimator, dataset, labels, output_dir):
     Returns:
       None
     """
-    x_train, y_train, x_test, y_test = utils.data_train_test_split(dataset, labels)
-    estimator.fit(x_train, y_train)
-
-    prediction = estimator.predict(x_test)
-    print(classification_report(y_test, prediction))
-
-    # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-    scores = model_selection.cross_val_score(estimator, x_test, y_test, cv=2)
-    logging.info(scores)
-
-    # Write model and eval metrics to `output_dir`
-    model_output_path = os.path.join(output_dir, "model", metadata.MODEL_FILE_NAME)
-    metric_output_path = os.path.join(
-        output_dir, "experiment", metadata.METRIC_FILE_NAME
-    )
-
-    utils.dump_object(estimator, model_output_path)
-    utils.dump_object(scores, metric_output_path)
-
-    # The default name of the metric is training/hptuning/metric.
-    # We recommend that you assign a custom name
-    # The only functional difference is that if you use a custom name,
-    # you must set the hyperparameterMetricTag value in the
-    # HyperparameterSpec object in your job request to match your chosen name.
-    hpt = hypertune.HyperTune()
-    hpt.report_hyperparameter_tuning_metric(
-        hyperparameter_metric_tag="my_metric_tag",
-        metric_value=np.mean(scores),
-        global_step=1000,
-    )
 
 
 def _parse_args(argv):
