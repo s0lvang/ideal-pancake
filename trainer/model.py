@@ -15,33 +15,17 @@ from sktime.classification.dictionary_based import BOSSEnsemble
 from sktime.transformers.series_as_features.interpolate import TSInterpolator
 
 
-def get_estimator(flags):
-    """Generate ML Pipeline which include both pre-processing and model training.
-
-    Args:
-      flags: (argparse.ArgumentParser), parameters passed from command-line
-
-    Returns:
-      sklearn.pipeline.Pipeline
-    """
-
-    classifier = TimeSeriesForestClassifier(
-        n_estimators=flags.n_estimators,
-    )
+def build_pipeline(flags):
+    transform = TSInterpolator(400)
 
     preprocessor = ColumnConcatenator()
-    clf = ColumnEnsembleClassifier(
-        estimators=[
-            ("TSF0", TimeSeriesForestClassifier(n_estimators=100), [0]),
-            ("BOSSEnsemble3", BOSSEnsemble(max_ensemble_size=5), [3]),
-        ]
-    )
-    estimator = pipeline.Pipeline(
+
+    classifier = TimeSeriesForestClassifier(n_estimators=flags.n_estimators)
+
+    return pipeline.Pipeline(
         [
-            ("transform", TSInterpolator(400)),
+            ("transform", transform),
             ("preprocessor", preprocessor),
             ("classifier", classifier),
         ]
     )
-
-    return estimator

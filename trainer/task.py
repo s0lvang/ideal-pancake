@@ -33,7 +33,7 @@ from trainer import utils
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
     dataset, labels = utils.read_emip_from_gcs()
-    pipeline = model.get_estimator(flags)
+    pipeline = model.build_pipeline(flags)
     filtered_data = get_data_from_feature_selection(dataset)
     x_train, y_train, x_test, y_test = utils.split_data(filtered_data, labels)
     pipeline.fit(x_train, y_train)
