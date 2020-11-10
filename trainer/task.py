@@ -85,20 +85,6 @@ def hypertune(metrics):
     )
 
 
-def _train_and_evaluate(estimator, dataset, labels, output_dir):
-    """Runs model training and evaluation.
-
-    Args:
-      estimator: (pipeline.Pipeline), Pipeline instance, assemble pre-processing
-        steps and model training
-      dataset: (pandas.DataFrame), DataFrame containing training data
-      output_dir: (string), directory that the trained model will be exported
-
-    Returns:
-      None
-    """
-
-
 def _parse_args(argv):
     """Parses command-line arguments."""
 
