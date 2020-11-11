@@ -8,15 +8,6 @@ from trainer import metadata
 from google.cloud import storage
 import numpy as np
 
-def filter_columns(dataset):
-    columns_to_use = metadata.FEATURE_COLUMNS + ['Time', 'id']
-    dataset_with_columns_to_use = dataset[columns_to_use]
-    return dataset_with_columns_to_use
-
-def fillNan(dataset):
-    for key in dataset.keys():
-        dataset[key].fillna(method="ffill")
-
 
 def get_header(file):
     headiter = takewhile(lambda s: s.startswith("##"), file)
@@ -51,7 +42,9 @@ def read_emip_from_gcs():
             csv = pd.read_csv(f, sep="\t", comment="#")
             csv["id"] = int(subject_id)
             dataset = dataset.append(csv, ignore_index=True)
-            labels.at[int(subject_id)] = metadata_emip.loc[int(subject_id) - 1, label_column]
+            labels.at[int(subject_id)] = metadata_emip.loc[
+                int(subject_id) - 1, label_column
+            ]
     return dataset, labels
 
 

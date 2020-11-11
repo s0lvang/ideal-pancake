@@ -12,7 +12,6 @@ data = pd.read_csv("./jetris/ALLCombinedVariables_timeseriesPupilEvolution.csv")
 unique_game_ids = data["gameID"].unique()
 
 for id in unique_game_ids:
-  print(id)
-  frame = data.loc[data['gameID'] == id]
-  frame.to_csv(f"jetris/games_raw/{id}.csv")
-
+    print(id)
+    frame = data.loc[data["gameID"] == id]
+    frame.to_csv(f"jetris/games_raw/{id}.csv")
