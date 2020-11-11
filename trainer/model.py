@@ -1,44 +1,50 @@
 import logging
 import os
 
-import numpy as np
-
-from sklearn import compose
 from sklearn import ensemble
-from sklearn import impute
 from sklearn import pipeline
-from sklearn import preprocessing
+from sklearn.preprocessing import FunctionTransformer
+from trainer import metadata
+from trainer import utils
+from tsfresh.transformers import FeatureAugmenter
+from tsfresh.feature_extraction import MinimalFCParameters
+
 from sklearn import model_selection
 from sklearn.metrics import classification_report
 
-from trainer import metadata
-from trainer import utils
 
-from sktime.classification.compose import ColumnEnsembleClassifier
-from sktime.classification.compose import TimeSeriesForestClassifier
-from sktime.transformers.series_as_features.compose import ColumnConcatenator
-from sktime.classification.dictionary_based import BOSSEnsemble
-from sktime.transformers.series_as_features.interpolate import TSInterpolator
+def print_and_return(data):
+    print(data)
+    return data
+
+
+def set_dataset(model, dataset):
+    model.set_params(augmenter__timeseries_container=dataset)
 
 
 def build_pipeline(flags):
-    transform = TSInterpolator(400)
 
-    preprocessor = ColumnConcatenator()
-
-    classifier = TimeSeriesForestClassifier(n_estimators=flags.n_estimators)
+    classifier = ensemble.RandomForestClassifier(n_estimators=flags.n_estimators)
 
     return pipeline.Pipeline(
         [
-            ("transform", transform),
-            ("preprocessor", preprocessor),
+            (
+                "augmenter",
+                FeatureAugmenter(
+                    column_id="id",
+                    column_sort="Time",
+                    default_fc_parameters=MinimalFCParameters(),
+                ),
+            ),
+            ("printer", FunctionTransformer(print_and_return, print_and_return)),
             ("classifier", classifier),
         ]
     )
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, y_test):
+def evaluate_model(model, x_test, y_test, dataset_test):
+    set_dataset(model, dataset_test)
     prediction = model.predict(x_test)
     print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)

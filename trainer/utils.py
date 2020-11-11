@@ -1,7 +1,6 @@
 import os
 from itertools import takewhile
 import pandas as pd
-from sklearn import model_selection
 import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import metadata
@@ -28,7 +27,7 @@ def read_emip_from_gcs():
     dataset = pd.DataFrame()
     metadata_emip = None
     label_column = metadata.LABEL
-    labels = []
+    labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/"))
     files = filter(
         lambda file: file.name != directory_name and "metadata" not in file.name, blobs
@@ -40,10 +39,12 @@ def read_emip_from_gcs():
         with download_or_read_from_disk(blob) as f:
             subject_id = get_header(f)["Subject"][0]
             csv = pd.read_csv(f, sep="\t", comment="#")
-            new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
-            dataset = dataset.append(new_row, ignore_index=True)
-            labels.append(metadata_emip.loc[int(subject_id) - 1, label_column])
-    return dataset, np.array(labels)
+            csv["id"] = int(subject_id)
+            dataset = dataset.append(csv, ignore_index=True)
+            labels.at[int(subject_id)] = metadata_emip.loc[
+                int(subject_id) - 1, label_column
+            ]
+    return dataset, labels
 
 
 def read_jetris_from_gcs():
