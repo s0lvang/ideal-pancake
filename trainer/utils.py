@@ -8,27 +8,14 @@ from trainer import metadata
 from google.cloud import storage
 import numpy as np
 
-
-def data_train_test_split(dataset, labels):
-    """Split the DataFrame two subsets for training and testing.
-
-    Args:
-      dataset: [(df, label)]
-
-    Returns:
-     x_train list of dataframes of eyetracking data with columns selected
-     y_train list of labels
-     x_test dataframe of eyetracking data with columns selected
-     y_test list of labels
-    """
-
-    columns_to_use = metadata.FEATURE_COLUMNS
+def filter_columns(dataset):
+    columns_to_use = metadata.FEATURE_COLUMNS + ['Time', 'id']
     dataset_with_columns_to_use = dataset[columns_to_use]
+    return dataset_with_columns_to_use
 
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(
-        dataset_with_columns_to_use, labels
-    )
-    return x_train, y_train, x_test, y_test
+def fillNan(dataset):
+    for key in dataset.keys():
+        dataset[key].fillna(method="ffill")
 
 
 def get_header(file):
@@ -50,7 +37,7 @@ def read_emip_from_gcs():
     dataset = pd.DataFrame()
     metadata_emip = None
     label_column = metadata.LABEL
-    labels = [] 
+    labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/"))
     files = filter(
         lambda file: file.name != directory_name and "metadata" not in file.name, blobs
@@ -62,10 +49,10 @@ def read_emip_from_gcs():
         with download_or_read_from_disk(blob) as f:
             subject_id = get_header(f)["Subject"][0]
             csv = pd.read_csv(f, sep="\t", comment="#")
-            new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
-            dataset = dataset.append(new_row, ignore_index=True)
-            labels.append(metadata_emip.loc[int(subject_id)-1, label_column])
-    return dataset, np.array(labels)
+            csv["id"] = int(subject_id)
+            dataset = dataset.append(csv, ignore_index=True)
+            labels.at[int(subject_id)] = metadata_emip.loc[int(subject_id) - 1, label_column]
+    return dataset, labels
 
 
 def read_jetris_from_gcs():
@@ -77,20 +64,22 @@ def read_jetris_from_gcs():
     dataset = pd.DataFrame()
     labels = []
     blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
-    files = filter(
-        lambda file: file.name != directory_name, blobs
-    )
+    files = filter(lambda file: file.name != directory_name, blobs)
     for blob in files:
         with download_or_read_from_disk(blob) as f:
             csv = pd.read_csv(f, comment="#")
-            csv = csv[csv["Pupil.initial"] != "saccade"] # this drops all lines that are saccades, we should do something smarter here.
+            csv = csv[
+                csv["Pupil.initial"] != "saccade"
+            ]  # this drops all lines that are saccades, we should do something smarter here.
             game_id = csv["gameID"][0]
             new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
             dataset = dataset.append(new_row, ignore_index=True)
             labels.append(csv["Score.1"].iloc[-1])
     average_score = sum(labels) / len(labels)
     print(average_score)
-    categorical_labels = list(map(lambda score: "high" if (score > average_score) else "low", labels))
+    categorical_labels = list(
+        map(lambda score: "high" if (score > average_score) else "low", labels)
+    )
     return dataset, np.array(categorical_labels)
 
 
