@@ -9,28 +9,6 @@ from google.cloud import storage
 import numpy as np
 
 
-def data_train_test_split(dataset, labels):
-    """Split the DataFrame two subsets for training and testing.
-
-    Args:
-      dataset: [(df, label)]
-
-    Returns:
-     x_train list of dataframes of eyetracking data with columns selected
-     y_train list of labels
-     x_test dataframe of eyetracking data with columns selected
-     y_test list of labels
-    """
-
-    columns_to_use = metadata.FEATURE_COLUMNS
-    dataset_with_columns_to_use = dataset[columns_to_use]
-
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(
-        dataset_with_columns_to_use, labels
-    )
-    return x_train, y_train, x_test, y_test
-
-
 def get_header(file):
     headiter = takewhile(lambda s: s.startswith("##"), file)
     headerList = list(map(lambda x: x.strip("##").strip().split(":"), headiter))

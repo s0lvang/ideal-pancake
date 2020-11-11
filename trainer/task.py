@@ -20,71 +20,7 @@ import logging
 import os
 import sys
 
-import hypertune
-import numpy as np
-from sklearn import model_selection
-from sklearn.metrics import classification_report
-
-from trainer import metadata
-from trainer import model
-from trainer import utils
-
-
-def _train_and_evaluate(estimator, dataset, labels, output_dir):
-    """Runs model training and evaluation.
-
-    Args:
-      estimator: (pipeline.Pipeline), Pipeline instance, assemble pre-processing
-        steps and model training
-      dataset: (pandas.DataFrame), DataFrame containing training data
-      output_dir: (string), directory that the trained model will be exported
-
-    Returns:
-      None
-    """
-    x_train, y_train, x_val, y_val = utils.data_train_test_split(dataset, labels)
-    estimator.fit(x_train, y_train)
-
-    prediction = estimator.predict(x_val)
-    # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-    scores = model_selection.cross_val_score(estimator, x_val, y_val, cv=2)
-
-    logging.info(scores)
-    print(classification_report(y_val, prediction))
-    # Write model and eval metrics to `output_dir`
-    model_output_path = os.path.join(output_dir, "model", metadata.MODEL_FILE_NAME)
-
-    metric_output_path = os.path.join(
-        output_dir, "experiment", metadata.METRIC_FILE_NAME
-    )
-
-    utils.dump_object(estimator, model_output_path)
-    utils.dump_object(scores, metric_output_path)
-
-    # The default name of the metric is training/hptuning/metric.
-    # We recommend that you assign a custom name
-    # The only functional difference is that if you use a custom name,
-    # you must set the hyperparameterMetricTag value in the
-    # HyperparameterSpec object in your job request to match your chosen name.
-    hpt = hypertune.HyperTune()
-    hpt.report_hyperparameter_tuning_metric(
-        hyperparameter_metric_tag="my_metric_tag",
-        metric_value=np.mean(scores),
-        global_step=1000,
-    )
-
-
-def run_experiment(flags):
-    """Testbed for running model training and evaluation."""
-    # Get data for training and evaluation
-
-    dataset, labels = utils.read_emip_from_gcs()
-
-    # Get model
-    estimator = model.get_estimator(flags)
-
-    # Run training and evaluation
-    _train_and_evaluate(estimator, dataset, labels, flags.job_dir)
+from trainer import experiment
 
 
 def _parse_args(argv):
@@ -166,7 +102,7 @@ def main():
 
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-    run_experiment(flags)
+    experiment.run_experiment(flags)
 
 
 if __name__ == "__main__":
