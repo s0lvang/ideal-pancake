@@ -5,38 +5,54 @@ from sklearn import model_selection
 from trainer import metadata
 from trainer import model
 from trainer import utils
-import hypertune
-import numpy as np
-from sklearn import model_selection
-from sklearn.metrics import classification_report
 import pandas as pd
-from trainer import metadata
-from trainer import model
-from trainer import utils
 
 
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
     dataset, labels = utils.read_emip_from_gcs()
-    filtered_data = get_data_from_feature_selection(dataset).dropna()
-
-    X = pd.DataFrame(index=labels.index).astype("int64")
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(X, labels)
-
-    df_ts_train = filtered_data[filtered_data["id"].isin(y_train.index)]
-    df_ts_test = filtered_data[filtered_data["id"].isin(y_test.index)]
+    filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
+    (
+        indices_train,
+        indices_test,
+        labels_train,
+        labels_test,
+        dataset_train,
+        dataset_test,
+    ) = train_test_split(filtered_data, labels)
 
     pipeline = model.build_pipeline(flags)
-    pipeline.set_params(augmenter__timeseries_container=df_ts_train)
-    pipeline.fit(x_train, y_train)
+    model.set_dataset(pipeline, dataset_train)
+    pipeline.fit(indices_train, labels_train)
 
-    scores = model.evaluate_model(pipeline, x_test, y_test, df_ts_test)
+    scores = model.evaluate_model(pipeline, indices_test, labels_test, dataset_test)
     model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
 
 def get_data_from_feature_selection(dataset):
     columns_to_use = metadata.FEATURE_COLUMNS + ["Time", "id"]
     return dataset[columns_to_use]
+
+
+def train_test_split(filtered_data, labels):
+    indices = pd.DataFrame(index=labels.index).astype("int64")
+    (
+        indices_train,
+        indices_test,
+        labels_train,
+        labels_test,
+    ) = model_selection.train_test_split(indices, labels)
+
+    dataset_train = filtered_data[filtered_data["id"].isin(indices_train.index)]
+    dataset_test = filtered_data[filtered_data["id"].isin(indices_test.index)]
+    return (
+        indices_train,
+        indices_test,
+        labels_train,
+        labels_test,
+        dataset_train,
+        dataset_test,
+    )
 
 
 def hypertune(metrics):

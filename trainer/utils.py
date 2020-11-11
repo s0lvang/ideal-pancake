@@ -1,7 +1,6 @@
 import os
 from itertools import takewhile
 import pandas as pd
-from sklearn import model_selection
 import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import metadata

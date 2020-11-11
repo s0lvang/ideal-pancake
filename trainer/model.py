@@ -18,6 +18,10 @@ def print_and_return(data):
     return data
 
 
+def set_dataset(model, dataset):
+    model.set_params(augmenter__timeseries_container=dataset)
+
+
 def build_pipeline(flags):
 
     classifier = ensemble.RandomForestClassifier(n_estimators=flags.n_estimators)
@@ -39,8 +43,8 @@ def build_pipeline(flags):
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, y_test, df_ts_test):
-    model.set_params(augmenter__timeseries_container=df_ts_test)
+def evaluate_model(model, x_test, y_test, dataset_test):
+    set_dataset(model, dataset_test)
     prediction = model.predict(x_test)
     print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
