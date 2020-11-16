@@ -12,7 +12,6 @@ from tsfresh.feature_extraction import MinimalFCParameters
 from sklearn import model_selection
 from sklearn.metrics import classification_report
 
-
 def print_and_return(data):
     print(data)
     return data
@@ -33,7 +32,7 @@ def build_pipeline(flags):
                 FeatureAugmenter(
                     column_id="id",
                     column_sort="Time",
-                    default_fc_parameters=MinimalFCParameters(),
+                    default_fc_parameters=metadata.TSFRESH_FEATURES,
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return, print_and_return)),
