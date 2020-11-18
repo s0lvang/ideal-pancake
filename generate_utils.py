@@ -36,11 +36,11 @@ def read_emip_from_gcs():
     headers = []
     labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/"))
-    files = filter(lambda file: "metadata" not in file.name, blobs)
+    files = blobs
     metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
     with download_or_read_from_disk(metadata_emip) as f:
         metadata_emip = pd.read_csv(f)
-    for blob in [*files][3:4]:
+    for blob in [*files]:
         with download_or_read_from_disk(blob) as f:
             header = get_header(f)
             csv = pd.read_csv(f, sep="\t", comment="#")
@@ -49,24 +49,34 @@ def read_emip_from_gcs():
     return dataset, headers, metadata_emip
 
 
+def mm_to_px(mm):
+    dpi = 94
+    return int(mm * dpi / 25.4)
+
+
 def main():
     dataset, comments, metadata = read_emip_from_gcs()
     for data, comment in zip(dataset, comments):
-        n = 1000
+        print("hel")
+        n = 10000000
         data["x"] = data[["R Raw X [px]", "L Raw X [px]"]].mean(axis=1)
         data["y"] = data[["R Raw Y [px]", "L Raw Y [px]"]].mean(axis=1)
-        data_chunks = [data[i:i+n] for i in range(0,data.shape[0],n)]
+        data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
         for index, data_chunk in enumerate(data_chunks):
-            display_width = int(comment["Calibration Area"][0])
-            display_height = int(comment["Calibration Area"][1])
+            display_width = int(
+                comment["Calibration Area"][0]
+            )  # mm_to_px(int(comment["Stimulus Dimension [mm]"][0]))
+            display_height = int(
+                comment["Calibration Area"][1]
+            )  # mm_to_px(int(comment["Stimulus Dimension [mm]"][1]))
             alpha = 0.5
-            output_name = f"images/{index}.jpg"
+            output_name = f"images/{comment['Subject']}_{index if index > 9 else '0'+str(index)}.jpg"
             background_image = "vehicle_java.jpg"
             ngaussian = 200
-            sd = None
-            gaze_data = [
-                tuple(row) for row in data_chunk[["x", "y"]].to_numpy()
-            ]
+            sd = 33
+            data_chunk = data_chunk[data_chunk["y"].notna()]
+            data_chunk = data_chunk[data_chunk["x"].notna()]
+            gaze_data = [tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()]
 
             draw_heatmap(
                 gaze_data,

@@ -157,10 +157,11 @@ def draw_heatmap(gazepoints, dispsize, imagefile=None, alpha=0.5, savefilename=N
                 vadj[1] = gwh - int(y - dispsize[1])
             # add adjusted Gaussian to the current heatmap
             try:
-                heatmap[y:y + vadj[1], x:x + hadj[1]] += gaus[vadj[0]:vadj[1], hadj[0]:hadj[1]] * gazepoints[i][2]
+                heatmap[y:y + vadj[1], x:x + hadj[1]] += gaus[vadj[0]:vadj[1], hadj[0]:hadj[1]] * 1
             except:
                 # fixation was probably outside of display
-                pass
+                print("halla")
+                #pass
         else:
             # add Gaussian to the current heatmap
             y = int(y)
@@ -169,7 +170,7 @@ def draw_heatmap(gazepoints, dispsize, imagefile=None, alpha=0.5, savefilename=N
     # resize heatmap
     heatmap = heatmap[strt:dispsize[1] + strt, strt:dispsize[0] + strt]
     # remove zeros
-    lowbound = numpy.mean(heatmap[heatmap > 0])
+    lowbound = numpy.median(heatmap[heatmap > 0])
     heatmap[heatmap < lowbound] = numpy.NaN
     # draw heatmap on top of image
     ax.imshow(heatmap, cmap='jet', alpha=alpha)
@@ -179,6 +180,6 @@ def draw_heatmap(gazepoints, dispsize, imagefile=None, alpha=0.5, savefilename=N
     ax.invert_yaxis()
     # save the figure if a file name was provided
     if savefilename != None:
-        fig.savefig(savefilename)
+        fig.savefig(savefilename, dpi=33)
 
     return fig
