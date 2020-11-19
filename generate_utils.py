@@ -2,8 +2,10 @@ import pandas as pd
 from google.cloud import storage
 from itertools import takewhile
 import os
-
+import numpy as np
 from misc.gazeheatplot import draw_heatmap
+from misc.heatmap import Heatmapper
+from PIL import Image
 
 
 def get_header(file):
@@ -70,23 +72,19 @@ def main():
                 comment["Calibration Area"][1]
             )  # mm_to_px(int(comment["Stimulus Dimension [mm]"][1]))
             alpha = 0.5
-            output_name = f"images/{comment['Subject']}_{index if index > 9 else '0'+str(index)}.jpg"
+            output_name = f"images/{comment['Subject']}_{index if index > 9 else '0'+str(index)}.png"
             background_image = "vehicle_java.jpg"
             ngaussian = 200
             sd = 33
             data_chunk = data_chunk[data_chunk["y"].notna()]
             data_chunk = data_chunk[data_chunk["x"].notna()]
-            gaze_data = [tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()]
-
-            draw_heatmap(
-                gaze_data,
-                (display_width, display_height),
-                alpha=alpha,
-                savefilename=output_name,
-                imagefile=background_image,
-                gaussianwh=ngaussian,
-                gaussiansd=sd,
-            )
+            gaze_data = [
+                tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()
+            ]
+            img = Image.open(background_image)
+            heatmapper = Heatmapper()
+            heatmap = heatmapper.heatmap_on_img(gaze_data, img)
+            heatmap.save(output_name)
 
 
 main()
