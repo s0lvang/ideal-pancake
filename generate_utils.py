@@ -38,7 +38,7 @@ def read_emip_from_gcs():
     headers = []
     labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/"))
-    files = blobs
+    files = filter(lambda file: "metadata" not in file.name, blobs)
     metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
     with download_or_read_from_disk(metadata_emip) as f:
         metadata_emip = pd.read_csv(f)
