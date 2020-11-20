@@ -20,7 +20,6 @@ def run_experiment(flags):
         dataset_train,
         dataset_test,
     ) = train_test_split(filtered_data, labels)
-
     pipeline = model.build_pipeline(flags)
     model.set_dataset(pipeline, dataset_train)
     pipeline.fit(indices_train, labels_train)
@@ -42,7 +41,6 @@ def train_test_split(filtered_data, labels):
         labels_train,
         labels_test,
     ) = model_selection.train_test_split(indices, labels)
-
     dataset_train = filtered_data[filtered_data["id"].isin(indices_train.index)]
     dataset_test = filtered_data[filtered_data["id"].isin(indices_test.index)]
     return (

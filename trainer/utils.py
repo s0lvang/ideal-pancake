@@ -47,6 +47,32 @@ def read_emip_from_gcs():
     return dataset, labels
 
 
+def read_jetris_local():
+    labels = pd.Series()
+    dataset = pd.DataFrame()
+    directory_name = "jetris/game_raw/"
+    files = [
+        f
+        for f in os.listdir(directory_name)
+        if os.path.isfile(os.path.join(directory_name, f))
+    ]
+    for filename in files:
+        with open(directory_name + filename, "r") as f:
+            csv = pd.read_csv(f, comment="#")
+            csv = csv[
+                csv["Pupil.initial"] != "saccade"
+            ]  # this drops all lines that are saccades, we should do something smarter here.
+            game_id = csv["gameID"][0]
+            dataset = dataset.append(csv, ignore_index=True)
+            labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
+    average_score = sum(labels) / len(labels)
+    categorical_labels = list(
+        map(lambda score: "high" if (score > average_score) else "low", labels)
+    )
+    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
+    return dataset, labels
+
+
 def read_jetris_from_gcs():
     bucket_name = "jetris"
     directory_name = "game_raw/"
