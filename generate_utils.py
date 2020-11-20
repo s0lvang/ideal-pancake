@@ -59,29 +59,22 @@ def mm_to_px(mm):
 def main():
     dataset, comments, metadata = read_emip_from_gcs()
     for data, comment in zip(dataset, comments):
-        print("hel")
-        n = 10000000
         data["x"] = data[["R Raw X [px]", "L Raw X [px]"]].mean(axis=1)
         data["y"] = data[["R Raw Y [px]", "L Raw Y [px]"]].mean(axis=1)
+        n = 1000
         data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
+        directory = f"images/{comment['Subject'][0]}"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         for index, data_chunk in enumerate(data_chunks):
-            display_width = int(
-                comment["Calibration Area"][0]
-            )  # mm_to_px(int(comment["Stimulus Dimension [mm]"][0]))
-            display_height = int(
-                comment["Calibration Area"][1]
-            )  # mm_to_px(int(comment["Stimulus Dimension [mm]"][1]))
-            alpha = 0.5
-            output_name = f"images/{comment['Subject']}_{index if index > 9 else '0'+str(index)}.png"
+            output_name = f"images/{comment['Subject'][0]}/{index if index > 9 else '0'+str(index)}.png"
             background_image = "vehicle_java.jpg"
-            ngaussian = 200
-            sd = 33
             data_chunk = data_chunk[data_chunk["y"].notna()]
             data_chunk = data_chunk[data_chunk["x"].notna()]
             gaze_data = [
                 tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()
             ]
-            img = Image.open(background_image)
+            img = Image.new('RGB', (1000, 1200))
             heatmapper = Heatmapper()
             heatmap = heatmapper.heatmap_on_img(gaze_data, img)
             heatmap.save(output_name)
