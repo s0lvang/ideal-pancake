@@ -54,7 +54,7 @@ def read_jetris_from_gcs():
     bucket = storage_client.get_bucket(bucket_name)
 
     dataset = pd.DataFrame()
-    labels = []
+    labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
     files = filter(lambda file: file.name != directory_name, blobs)
     for blob in files:
@@ -64,15 +64,15 @@ def read_jetris_from_gcs():
                 csv["Pupil.initial"] != "saccade"
             ]  # this drops all lines that are saccades, we should do something smarter here.
             game_id = csv["gameID"][0]
-            new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
-            dataset = dataset.append(new_row, ignore_index=True)
-            labels.append(csv["Score.1"].iloc[-1])
+            dataset = dataset.append(csv, ignore_index=True)
+            labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
     average_score = sum(labels) / len(labels)
-    print(average_score)
+    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
+
     categorical_labels = list(
         map(lambda score: "high" if (score > average_score) else "low", labels)
     )
-    return dataset, np.array(categorical_labels)
+    return dataset, labels
 
 
 def download_or_read_from_disk(blob):
