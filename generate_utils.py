@@ -51,22 +51,33 @@ def read_emip_from_gcs():
     return dataset, headers, metadata_emip
 
 
-def mm_to_px(mm):
-    dpi = 94
-    return int(mm * dpi / 25.4)
+def average_if_not_zero(left, right):
+    if right > 0 and left > 0:
+        return (left + right) / 2
+    elif right > 0:
+        return right
+    return left
 
 
 def main():
     dataset, comments, metadata = read_emip_from_gcs()
     for data, comment in zip(dataset, comments):
-        data["x"] = data[["R Raw X [px]", "L Raw X [px]"]].mean(axis=1)
-        data["y"] = data[["R Raw Y [px]", "L Raw Y [px]"]].mean(axis=1)
+        data = data[["R Raw X [px]", "L Raw X [px]", "R Raw Y [px]", "L Raw Y [px]"]]
+        data = data[(data.T != 0).any()]
+        data["x"] = data.apply(
+            lambda x: average_if_not_zero(x["R Raw X [px]"], x["L Raw X [px]"]), axis=1
+        )
+        data["y"] = data.apply(
+            lambda x: average_if_not_zero(x["R Raw Y [px]"], x["L Raw Y [px]"]), axis=1
+        )
+
         n = 1000
         data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
         directory = f"images/{comment['Subject'][0]}"
         if not os.path.exists(directory):
             os.makedirs(directory)
         for index, data_chunk in enumerate(data_chunks):
+            print("halla")
             output_name = f"images/{comment['Subject'][0]}/{index if index > 9 else '0'+str(index)}.png"
             background_image = "vehicle_java.jpg"
             data_chunk = data_chunk[data_chunk["y"].notna()]
@@ -74,7 +85,8 @@ def main():
             gaze_data = [
                 tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()
             ]
-            img = Image.new('RGB', (1000, 1200))
+
+            img = Image.new("RGB", (1200, 1000))
             heatmapper = Heatmapper()
             heatmap = heatmapper.heatmap_on_img(gaze_data, img)
             heatmap.save(output_name)
