@@ -70,6 +70,12 @@ def main():
         data["y"] = data.apply(
             lambda x: average_if_not_zero(x["R Raw Y [px]"], x["L Raw Y [px]"]), axis=1
         )
+        data["x"] = (
+            (data["x"] - data["x"].min()) / (data["x"].max() - data["x"].min())
+        ) * 1000
+        data["y"] = (
+            (data["y"] - data["y"].min()) / (data["y"].max() - data["y"].min())
+        ) * 1000
 
         n = 1000
         data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
@@ -77,8 +83,8 @@ def main():
         if not os.path.exists(directory):
             os.makedirs(directory)
         for index, data_chunk in enumerate(data_chunks):
-            print("halla")
             output_name = f"images/{comment['Subject'][0]}/{index if index > 9 else '0'+str(index)}.png"
+            print(output_name)
             background_image = "vehicle_java.jpg"
             data_chunk = data_chunk[data_chunk["y"].notna()]
             data_chunk = data_chunk[data_chunk["x"].notna()]
@@ -86,7 +92,7 @@ def main():
                 tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()
             ]
 
-            img = Image.new("RGB", (1200, 1000))
+            img = Image.new("RGB", (1000, 1000))
             heatmapper = Heatmapper()
             heatmap = heatmapper.heatmap_on_img(gaze_data, img)
             heatmap.save(output_name)
