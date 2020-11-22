@@ -6,6 +6,8 @@ import tensorflow.compat.v1.gfile as gfile
 from trainer import metadata
 from google.cloud import storage
 import numpy as np
+import cv2
+from trainer.metadata import LABEL
 
 
 def get_header(file):
@@ -42,7 +44,7 @@ def read_emip_from_gcs():
             csv["id"] = int(subject_id)
             dataset = dataset.append(csv, ignore_index=True)
             labels.at[int(subject_id)] = metadata_emip.loc[
-                int(subject_id) - 1, label_column
+                metadata_emip["id"] == int(subject_id) - 1, label_column
             ]
     return dataset, labels
 
@@ -83,6 +85,30 @@ def download_or_read_from_disk(blob):
     if not os.path.isfile(destination_file_name):
         blob.download_to_filename(destination_file_name)
     return open(destination_file_name, "r")
+
+
+def read_heatmaps():
+    directory_name = "images"
+    label_column = LABEL
+    metadata = pd.read_csv("emip/emip_metadata.csv/emip_metadata.csv")
+    images = np.array([])
+    labels = np.array([])
+    subject_directories = os.listdir(directory_name)
+    for subject_directory in subject_directories[0:20]:
+        subject_id = int(subject_directory)
+        print(subject_id)
+        subject_directory = os.path.join(directory_name, subject_directory)
+        print(subject_directory)
+        print(os.listdir(subject_directory))
+        frames_for_subjects = np.array(
+            [cv2.imread(os.path.join(subject_directory, file)) for file in os.listdir(subject_directory)]
+        )
+        print(frames_for_subjects.shape)
+        label = metadata.loc[metadata["id"] == int(subject_id), label_column]
+        images = np.concatenate((images, np.array([frames_for_subjects]))) if images.size else np.array([frames_for_subjects])
+        print(images.shape)
+        labels = np.hstack((labels, label))
+    return images, labels
 
 
 def upload_to_gcs(local_path, gcs_path):

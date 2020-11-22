@@ -77,7 +77,7 @@ def main():
             (data["y"] - data["y"].min()) / (data["y"].max() - data["y"].min())
         ) * 1000
 
-        n = 1000
+        n = len(data)//30
         data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
         directory = f"images/{comment['Subject'][0]}"
         if not os.path.exists(directory):

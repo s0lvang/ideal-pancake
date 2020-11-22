@@ -27,6 +27,8 @@ numba = "^0.51.2"
 scipy = {version = "1.4.1", allow-prereleases = true}
 google-cloud-core = "^1.4.3"
 cloudml-hypertune = "^0.1.0-alpha.6"
+Keras = "^2.4.3"
+opencv-python = "^4.4.0"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

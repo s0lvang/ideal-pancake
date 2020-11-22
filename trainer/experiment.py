@@ -5,6 +5,7 @@ from sklearn import model_selection
 from trainer import metadata
 from trainer import model
 from trainer import utils
+from trainer.cnnlstm.lstm import create_model
 import pandas as pd
 
 
@@ -53,6 +54,24 @@ def train_test_split(filtered_data, labels):
         dataset_train,
         dataset_test,
     )
+
+
+def run_lstm_experiment(flags):
+    dataset, labels = utils.read_heatmaps()
+    (
+        videos_train,
+        videos_test,
+        labels_train,
+        labels_test,
+    ) = model.model_selection.train_test_split(dataset, labels)
+    print(dataset.shape)
+    pipeline = model.build_lstm_pipeline(dataset.shape[1:])
+    pipeline.fit(videos_train, labels_train)
+
+    scores = model.evaluate_model(pipeline, videos_test, labels_test)
+    model.store_model_and_metrics(pipeline, scores, flags.job_dir)
+
+    return scores
 
 
 def hypertune(metrics):
