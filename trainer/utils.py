@@ -8,6 +8,7 @@ from google.cloud import storage
 import numpy as np
 import cv2
 from trainer.metadata import LABEL
+from sklearn.preprocessing import OneHotEncoder
 
 
 def get_header(file):
@@ -101,14 +102,28 @@ def read_heatmaps():
         print(subject_directory)
         print(os.listdir(subject_directory))
         frames_for_subjects = np.array(
-            [cv2.imread(os.path.join(subject_directory, file)) for file in os.listdir(subject_directory)]
+            [
+                cv2.imread(os.path.join(subject_directory, file))
+                for file in os.listdir(subject_directory)
+            ]
         )
         print(frames_for_subjects.shape)
         label = metadata.loc[metadata["id"] == int(subject_id), label_column]
-        images = np.concatenate((images, np.array([frames_for_subjects]))) if images.size else np.array([frames_for_subjects])
+        images = (
+            np.concatenate((images, np.array([frames_for_subjects])))
+            if images.size
+            else np.array([frames_for_subjects])
+        )
         print(images.shape)
         labels = np.hstack((labels, label))
-    return images, labels
+    return images, one_hot_encode_labels(labels)
+
+
+def one_hot_encode_labels(labels):
+    encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
+    encoded_labels = list(map(lambda label: encoding[label.lower()], labels))
+    print(encoded_labels)
+    return np.eye(len(encoding.keys()))[encoded_labels]
 
 
 def upload_to_gcs(local_path, gcs_path):

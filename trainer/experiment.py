@@ -65,7 +65,7 @@ def run_lstm_experiment(flags):
         labels_test,
     ) = model.model_selection.train_test_split(dataset, labels)
     print(dataset.shape)
-    pipeline = model.build_lstm_pipeline(dataset.shape[1:])
+    pipeline = model.build_lstm_pipeline(dataset.shape[1:], classes=len(labels[0]))
     pipeline.fit(videos_train, labels_train)
 
     scores = model.evaluate_model(pipeline, videos_test, labels_test)
