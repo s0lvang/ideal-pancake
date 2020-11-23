@@ -33,9 +33,9 @@ def create_model(frames, width, height, channels, classes):
         lr=0.002
     )
     model.compile(
-        loss="categorical_crossentropy",
+        loss="sparse_categorical_crossentropy",
         optimizer=optimizer,
-        metrics=["categorical_accuracy"],
+        metrics=["accuracy"],
     )
     print(model.summary())
     return model

@@ -46,7 +46,7 @@ def build_pipeline(flags):
 
 def build_lstm_pipeline(shape, classes):
     model_factory = create_model_factory(classes=classes, *shape)
-    classifier = KerasClassifier(build_fn=model_factory, epochs=10, batch_size=5, verbose=2)
+    classifier = KerasClassifier(build_fn=model_factory, epochs=1, batch_size=5, verbose=2)
     return pipeline.Pipeline(
         [
             ("classifier", classifier),
@@ -62,9 +62,9 @@ def evaluate_model(model, x_test, y_test, dataset_test=None):
     print(len(y_test))
     print(len(x_test))
     print(len(prediction))
-    print(prediction.T)
+    print(prediction)
     print(y_test)
-    print(classification_report(y_test, prediction.T))
+    print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
     scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
     logging.info(scores)

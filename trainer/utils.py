@@ -119,8 +119,8 @@ def read_heatmaps():
 
 def one_hot_encode_labels(labels):
     encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
-    encoded_labels = list(map(lambda label: encoding[label.lower()], labels))
-    return np.eye(len(encoding.keys()))[encoded_labels]
+    return np.array(list(map(lambda label: encoding[label.lower()], labels)))
+    #return np.eye(len(encoding.keys()))[encoded_labels]
 
 
 def decode_one_hot_encoded(labels):
