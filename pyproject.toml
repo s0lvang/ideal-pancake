@@ -6,7 +6,7 @@ authors = ["s0lvang <august.s.solvang@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.9"
 numpy = "^1.19.2"
 pandas = "^1.1.2"
 matplotlib = "^3.3.2"
@@ -17,7 +17,7 @@ arch = "^4.15"
 xlrd = "^1.2.0"
 scikit-learn = "^0.23.2"
 scikit-plot = "*"
-tensorflow = "2.2.0"
+tensorflow = "^2.2.0"
 google-api-python-client = "*"
 six = "^1.13.0"
 pandas-gbq="0.14.0"
@@ -29,6 +29,7 @@ google-cloud-core = "^1.4.3"
 cloudml-hypertune = "^0.1.0-alpha.6"
 Keras = "^2.4.3"
 opencv-python = "^4.4.0"
+scikeras = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

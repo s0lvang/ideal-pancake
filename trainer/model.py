@@ -6,10 +6,10 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import metadata
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model
+from trainer.cnnlstm.lstm import create_model, create_model_factory
 from tsfresh.transformers import FeatureAugmenter
 from tsfresh.feature_extraction import MinimalFCParameters
-from keras.wrappers.scikit_learn import KerasClassifier
+from scikeras.wrappers import KerasClassifier
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
@@ -45,8 +45,8 @@ def build_pipeline(flags):
 
 
 def build_lstm_pipeline(shape, classes):
-    model = create_model(classes=classes, *shape)
-    classifier = KerasClassifier(model, epochs=100, batch_size=500, verbose=0)
+    model_factory = create_model_factory(classes=classes, *shape)
+    classifier = KerasClassifier(build_fn=model_factory, epochs=10, batch_size=5, verbose=2)
     return pipeline.Pipeline(
         [
             ("classifier", classifier),
@@ -59,7 +59,12 @@ def evaluate_model(model, x_test, y_test, dataset_test=None):
     if dataset_test:
         set_dataset(model, dataset_test)
     prediction = model.predict(x_test)
-    print(classification_report(y_test, prediction))
+    print(len(y_test))
+    print(len(x_test))
+    print(len(prediction))
+    print(prediction.T)
+    print(y_test)
+    print(classification_report(y_test, prediction.T))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
     scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
     logging.info(scores)

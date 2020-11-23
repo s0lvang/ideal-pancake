@@ -1,11 +1,15 @@
 from keras.applications.vgg16 import VGG16
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras.layers import Dense, Input
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
 from keras.optimizers import Nadam
-import tensorflow as tf
+
+
+def create_model_factory(frames, channels, width, height, classes):
+    return lambda: create_model(frames, channels, width, height, classes)
+
 
 def create_model(frames, channels, width, height, classes):
     video = Input(shape=(frames, channels, width, height))
@@ -28,5 +32,5 @@ def create_model(frames, channels, width, height, classes):
         optimizer=optimizer,
         metrics=["categorical_accuracy"],
     )
-    model(tf.ones((1, frames, channels, width, height)))
+    print(model.summary())
     return model
