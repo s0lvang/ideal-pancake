@@ -95,12 +95,10 @@ def read_heatmaps():
     images = np.array([])
     labels = np.array([])
     subject_directories = os.listdir(directory_name)
-    for subject_directory in subject_directories[0:100]:
+    for subject_directory in subject_directories[0:20]:
         subject_id = int(subject_directory)
-        print(subject_id)
         subject_directory = os.path.join(directory_name, subject_directory)
         print(subject_directory)
-        print(sorted(os.listdir(subject_directory)))
         frames_for_subjects = np.array(
             [
                 cv2.resize(
@@ -109,14 +107,12 @@ def read_heatmaps():
                 for file in sorted(os.listdir(subject_directory))
             ]
         )
-        print(frames_for_subjects.shape)
         label = metadata.loc[metadata["id"] == int(subject_id), label_column]
         images = (
             np.concatenate((images, np.array([frames_for_subjects])))
             if images.size
             else np.array([frames_for_subjects])
         )
-        print(images.shape)
         labels = np.hstack((labels, label))
     return images, one_hot_encode_labels(labels)
 
@@ -124,14 +120,12 @@ def read_heatmaps():
 def one_hot_encode_labels(labels):
     encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
     encoded_labels = list(map(lambda label: encoding[label.lower()], labels))
-    print(encoded_labels)
     return np.eye(len(encoding.keys()))[encoded_labels]
 
 
 def decode_one_hot_encoded(labels):
     encoding = ["none", "low", "medium", "high"]
-    value_encoded_labels = list(map(lambda label: np.where(label == 1), labels))
-    return list(map(lambda label: encoding[label], value_encoded_labels))
+    return list(map(lambda label: encoding[np.argmax(label)], labels))
 
 
 def upload_to_gcs(local_path, gcs_path):
