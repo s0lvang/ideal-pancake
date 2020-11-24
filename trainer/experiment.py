@@ -10,7 +10,7 @@ import pandas as pd
 
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
-    dataset, labels = utils.read_jetris_from_gcs()
+    dataset, labels = utils.jetris(force_local_files=True, force_gcs_download=False)
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,

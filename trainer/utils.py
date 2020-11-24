@@ -33,10 +33,10 @@ def read_emip_from_gcs():
         lambda file: file.name != directory_name and "metadata" not in file.name, blobs
     )
     metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
-    with download_or_read_from_disk(metadata_emip) as f:
+    with cached_download_data(metadata_emip) as f:
         metadata_emip = pd.read_csv(f)
     for blob in [*files]:
-        with download_or_read_from_disk(blob) as f:
+        with cached_download_data(blob) as f:
             subject_id = get_header(f)["Subject"][0]
             csv = pd.read_csv(f, sep="\t", comment="#")
             csv["id"] = int(subject_id)
@@ -47,66 +47,93 @@ def read_emip_from_gcs():
     return dataset, labels
 
 
-def read_jetris_local():
-    labels = pd.Series()
-    dataset = pd.DataFrame()
-    directory_name = "jetris/game_raw/"
-    files = [
-        f
-        for f in os.listdir(directory_name)
-        if os.path.isfile(os.path.join(directory_name, f))
-    ]
-    for filename in files:
-        with open(directory_name + filename, "r") as f:
-            csv = pd.read_csv(f, comment="#")
-            csv = csv[
-                csv["Pupil.initial"] != "saccade"
-            ]  # this drops all lines that are saccades, we should do something smarter here.
-            game_id = csv["gameID"][0]
-            dataset = dataset.append(csv, ignore_index=True)
-            labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
-    average_score = sum(labels) / len(labels)
-    categorical_labels = list(
-        map(lambda score: "high" if (score > average_score) else "low", labels)
+def jetris(force_local_files, force_gcs_download):
+    if force_local_files and force_gcs_download:
+        raise ValueError(
+            "Both force_local_files and force_gcs_download cannot be true at the same time."
+        )
+    file_references = get_jetris_file_references(force_local_files)
+    dataset, labels = prepare_jetris_files(
+        file_references, force_local_files, force_gcs_download
     )
-    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
     return dataset, labels
 
 
-def read_jetris_from_gcs():
-    bucket_name = "jetris"
+def get_jetris_file_references(force_local_files):
+    data_context = "jetris"
     directory_name = "game_raw/"
+    if force_local_files:
+        file_references = get_file_names_from_directory(
+            f"{data_context}/{directory_name}"
+        )
+    else:
+        file_references = get_blobs_from_gcs(
+            bucket_name=data_context, directory_name=directory_name
+        )
+    return file_references
+
+
+def get_file_names_from_directory(directory_name):
+    file_names = [
+        f"{directory_name}{file_name}"
+        for file_name in os.listdir(directory_name)
+        if os.path.isfile(os.path.join(directory_name, file_name))
+    ]
+    return file_names
+
+
+def get_blobs_from_gcs(bucket_name, directory_name):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
-
-    dataset = pd.DataFrame()
-    labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
-    files = filter(lambda file: file.name != directory_name, blobs)
-    for blob in files:
-        with download_or_read_from_disk(blob) as f:
-            csv = pd.read_csv(f, comment="#")
-            csv = csv[
-                csv["Pupil.initial"] != "saccade"
-            ]  # this drops all lines that are saccades, we should do something smarter here.
-            game_id = csv["gameID"][0]
-            dataset = dataset.append(csv, ignore_index=True)
-            labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
-    average_score = sum(labels) / len(labels)
-    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
+    file_references = filter(lambda file: file.name != directory_name, blobs)
+    return file_references
 
-    categorical_labels = list(
-        map(lambda score: "high" if (score > average_score) else "low", labels)
-    )
+
+def prepare_jetris_files(files, force_local_files, force_gcs_download):
+    labels = pd.Series()
+    dataset = pd.DataFrame()
+    for file_reference in files:
+        with get_files(file_reference, force_local_files, force_gcs_download) as f:
+            dataset, labels = prepare_jetris_file(f, dataset, labels)
+    # labels = convert_labels_to_categorical()
+    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
     return dataset, labels
 
 
-def download_or_read_from_disk(blob):
+def get_files(file_reference, force_local_files, force_gcs_download):
+    if force_local_files:
+        print(file_reference)
+        return open(file_reference, "r")
+    else:
+        return cached_download_data(file_reference, force_gcs_download)
+
+
+def prepare_jetris_file(f, dataset, labels):
+    csv = pd.read_csv(f, comment="#")
+    csv = csv[
+        csv["Pupil.initial"] != "saccade"
+    ]  # this drops all lines that are saccades, we should do something smarter here.
+    game_id = csv["gameID"][0]
+    dataset = dataset.append(csv, ignore_index=True)
+    labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
+    return dataset, labels
+
+
+def convert_labels_to_categorical(labels):
+    average_score = sum(labels) / len(labels)
+    categorical_labels = list(
+        map(lambda score: "high" if (score > average_score) else "low", labels)
+    )
+    return categorical_labels
+
+
+def cached_download_data(blob, force_gcs_download):
     dataset_dir = os.path.join(blob.bucket.name, blob.name.split("/")[0])
     destination_file_name = os.path.join(dataset_dir, os.path.basename(blob.name))
     if not os.path.isdir(dataset_dir):
         os.makedirs(dataset_dir)
-    if not os.path.isfile(destination_file_name):
+    if not os.path.isfile(destination_file_name) or force_gcs_download:
         blob.download_to_filename(destination_file_name)
     return open(destination_file_name, "r")
 
