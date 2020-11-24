@@ -46,7 +46,7 @@ def build_pipeline(flags):
 
 def build_lstm_pipeline(shape, classes):
     model_factory = create_model_factory(classes=classes, *shape)
-    classifier = KerasClassifier(build_fn=model_factory, epochs=1, batch_size=5, verbose=2)
+    classifier = KerasClassifier(build_fn=model_factory, epochs=10, batch_size=5, verbose=2)
     return pipeline.Pipeline(
         [
             ("classifier", classifier),

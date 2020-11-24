@@ -95,7 +95,7 @@ def read_heatmaps():
     images = np.array([])
     labels = np.array([])
     subject_directories = os.listdir(directory_name)
-    for subject_directory in subject_directories[0:20]:
+    for subject_directory in subject_directories:
         subject_id = int(subject_directory)
         subject_directory = os.path.join(directory_name, subject_directory)
         print(subject_directory)

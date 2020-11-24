@@ -4,7 +4,7 @@ from keras.layers import Dense, Input
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
-from keras.optimizers import SGD
+from keras.optimizers import Adam
 
 
 def create_model_factory(frames, channels, width, height, classes):
@@ -29,8 +29,8 @@ def create_model(frames, width, height, channels, classes):
     hidden_layer = Dense(1024, activation="relu")(encoded_sequence)
     outputs = Dense(classes, activation="softmax")(hidden_layer)
     model = Model(video, outputs)
-    optimizer = SGD(
-        lr=0.002
+    optimizer = Adam(
+        lr=0.0002
     )
     model.compile(
         loss="sparse_categorical_crossentropy",
