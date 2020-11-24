@@ -114,18 +114,17 @@ def read_heatmaps():
             else np.array([frames_for_subjects])
         )
         labels = np.hstack((labels, label))
-    return images, one_hot_encode_labels(labels)
+    return images, encode_labels(labels)
 
 
-def one_hot_encode_labels(labels):
+def encode_labels(labels):
     encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
     return np.array(list(map(lambda label: encoding[label.lower()], labels)))
-    # return np.eye(len(encoding.keys()))[encoded_labels]
 
 
-def decode_one_hot_encoded(labels):
+def decode_labels(labels):
     encoding = ["none", "low", "medium", "high"]
-    return list(map(lambda label: encoding[np.argmax(label)], labels))
+    return list(map(lambda label: encoding[label], labels))
 
 
 def preprocess_for_imagenet(dataset):
