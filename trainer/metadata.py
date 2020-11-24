@@ -16,6 +16,8 @@ MODEL_FILE_NAME = "model.joblib"
 
 TSFRESH_FEATURES = {
     "length": None,
-    "fft_aggregated": [{"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]],
+    "fft_aggregated": [
+        {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+    ],
     "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
 }

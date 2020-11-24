@@ -55,6 +55,23 @@ def train_test_split(filtered_data, labels):
     )
 
 
+def run_lstm_experiment(flags):
+    dataset, labels = utils.read_heatmaps()
+    (
+        videos_train,
+        videos_test,
+        labels_train,
+        labels_test,
+    ) = model.model_selection.train_test_split(dataset, labels)
+    pipeline = model.build_lstm_pipeline(dataset.shape[1:], classes=4)
+    pipeline.fit(videos_train, labels_train)
+
+    scores = model.evaluate_model(pipeline, videos_test, labels_test)
+    model.store_model_and_metrics(pipeline, scores, flags.job_dir)
+
+    return scores
+
+
 def hypertune(metrics):
     # The default name of the metric is training/hptuning/metric.
     # We recommend that you assign a custom name

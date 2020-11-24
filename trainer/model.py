@@ -6,11 +6,13 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import metadata
 from trainer import utils
+from trainer.cnnlstm.lstm import create_model_factory
 from tsfresh.transformers import FeatureAugmenter
-from tsfresh.feature_extraction import MinimalFCParameters
+from scikeras.wrappers import KerasClassifier
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
+
 
 def print_and_return(data):
     print(data)
@@ -35,16 +37,36 @@ def build_pipeline(flags):
                     default_fc_parameters=metadata.TSFRESH_FEATURES,
                 ),
             ),
-            ("printer", FunctionTransformer(print_and_return, print_and_return)),
+            ("printer", FunctionTransformer(print_and_return)),
+            ("classifier", classifier),
+        ]
+    )
+
+
+def build_lstm_pipeline(shape, classes):
+    model_factory = create_model_factory(classes=classes, *shape)
+    preprocessing = FunctionTransformer(utils.preprocess_for_imagenet, check_inverse=False)
+    classifier = KerasClassifier(
+        build_fn=model_factory, epochs=1, batch_size=5, verbose=2
+    )
+    return pipeline.Pipeline(
+        [
+            ("preprocess", preprocessing),
             ("classifier", classifier),
         ]
     )
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, y_test, dataset_test):
-    set_dataset(model, dataset_test)
+def evaluate_model(model, x_test, y_test, dataset_test=None):
+    if dataset_test:
+        set_dataset(model, dataset_test)
     prediction = model.predict(x_test)
+    print(len(y_test))
+    print(len(x_test))
+    print(len(prediction))
+    print(prediction)
+    print(y_test)
     print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
     scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
