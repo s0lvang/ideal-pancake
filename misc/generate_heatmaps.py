@@ -80,7 +80,7 @@ def preprocess_data(data):
         (data["y"] - data["y"].min()) / (data["y"].max() - data["y"].min())
     ) * 1000
 
-    return data
+    return data[["x", "y"]]
 
 
 def main():
@@ -100,7 +100,7 @@ def main():
 
             print(output_name)
 
-            gaze_data = [tuple(map(int, row)) for row in frame[["x", "y"]].to_numpy()]
+            gaze_data = [tuple(map(int, row)) for row in frame.to_numpy()]
             img = Image.new("RGB", (1000, 1000))
 
             heatmapper = Heatmapper()
