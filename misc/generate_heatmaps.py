@@ -2,9 +2,7 @@ import pandas as pd
 from google.cloud import storage
 from itertools import takewhile
 import os
-import numpy as np
-from misc.gazeheatplot import draw_heatmap
-from misc.heatmap import Heatmapper
+from heatmappy.heatmap import Heatmapper
 from PIL import Image
 
 
@@ -36,13 +34,12 @@ def read_emip_from_gcs():
     dataset = []
     metadata_emip = None
     headers = []
-    labels = pd.Series()
     blobs = list(bucket.list_blobs(delimiter="/"))
     files = filter(lambda file: "metadata" not in file.name, blobs)
     metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
     with download_or_read_from_disk(metadata_emip) as f:
         metadata_emip = pd.read_csv(f)
-    for blob in [*files]:
+    for blob in [*files][0:1]:
         with download_or_read_from_disk(blob) as f:
             header = get_header(f)
             csv = pd.read_csv(f, sep="\t", comment="#")
@@ -59,40 +56,53 @@ def average_if_not_zero(left, right):
     return left
 
 
+def preprocess_data(data):
+    data = data[["R Raw X [px]", "L Raw X [px]", "R Raw Y [px]", "L Raw Y [px]"]]
+    data = data[(data.T != 0).any()]  # Remove rows with all zeros
+
+    # Take a conditional average of left eye and right eye
+    data["x"] = data.apply(
+        lambda x: average_if_not_zero(x["R Raw X [px]"], x["L Raw X [px]"]), axis=1
+    )
+    data["y"] = data.apply(
+        lambda x: average_if_not_zero(x["R Raw Y [px]"], x["L Raw Y [px]"]), axis=1
+    )
+
+    # Remove nan_values
+    data = data[data["x"].notna()]
+    data = data[data["y"].notna()]
+
+    # Normalize columns in range 1000
+    data["x"] = (
+        (data["x"] - data["x"].min()) / (data["x"].max() - data["x"].min())
+    ) * 1000
+    data["y"] = (
+        (data["y"] - data["y"].min()) / (data["y"].max() - data["y"].min())
+    ) * 1000
+
+    return data
+
+
 def main():
     dataset, comments, metadata = read_emip_from_gcs()
+    number_of_frames = 30
     for data, comment in zip(dataset, comments):
-        data = data[["R Raw X [px]", "L Raw X [px]", "R Raw Y [px]", "L Raw Y [px]"]]
-        data = data[(data.T != 0).any()]
-        data["x"] = data.apply(
-            lambda x: average_if_not_zero(x["R Raw X [px]"], x["L Raw X [px]"]), axis=1
-        )
-        data["y"] = data.apply(
-            lambda x: average_if_not_zero(x["R Raw Y [px]"], x["L Raw Y [px]"]), axis=1
-        )
-        data["x"] = (
-            (data["x"] - data["x"].min()) / (data["x"].max() - data["x"].min())
-        ) * 1000
-        data["y"] = (
-            (data["y"] - data["y"].min()) / (data["y"].max() - data["y"].min())
-        ) * 1000
-
-        n = len(data)//30
-        data_chunks = [data[i : i + n] for i in range(0, data.shape[0], n)]
+        processed_data = preprocess_data(data)
+        n = len(processed_data) // number_of_frames
+        frames = [
+            processed_data[i : i + n] for i in range(0, processed_data.shape[0], n)
+        ]
         directory = f"images/{comment['Subject'][0]}"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        for index, data_chunk in enumerate(data_chunks):
-            output_name = f"images/{comment['Subject'][0]}/{index if index > 9 else '0'+str(index)}.png"
-            print(output_name)
-            background_image = "vehicle_java.jpg"
-            data_chunk = data_chunk[data_chunk["y"].notna()]
-            data_chunk = data_chunk[data_chunk["x"].notna()]
-            gaze_data = [
-                tuple(map(int, row)) for row in data_chunk[["x", "y"]].to_numpy()
-            ]
+        for index, frame in enumerate(frames):
+            output_name = f"{directory}/{index if index > 9 else '0'+str(index)}.png"
 
+            print(output_name)
+
+            gaze_data = [tuple(map(int, row)) for row in frame[["x", "y"]].to_numpy()]
             img = Image.new("RGB", (1000, 1000))
+
             heatmapper = Heatmapper()
             heatmap = heatmapper.heatmap_on_img(gaze_data, img)
             heatmap.save(output_name)
