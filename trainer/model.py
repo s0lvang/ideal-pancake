@@ -6,9 +6,8 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import metadata
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model, create_model_factory
+from trainer.cnnlstm.lstm import create_model_factory
 from tsfresh.transformers import FeatureAugmenter
-from tsfresh.feature_extraction import MinimalFCParameters
 from scikeras.wrappers import KerasClassifier
 
 from sklearn import model_selection
@@ -38,7 +37,7 @@ def build_pipeline(flags):
                     default_fc_parameters=metadata.TSFRESH_FEATURES,
                 ),
             ),
-            ("printer", FunctionTransformer(print_and_return, print_and_return)),
+            ("printer", FunctionTransformer(print_and_return)),
             ("classifier", classifier),
         ]
     )
@@ -46,9 +45,13 @@ def build_pipeline(flags):
 
 def build_lstm_pipeline(shape, classes):
     model_factory = create_model_factory(classes=classes, *shape)
-    classifier = KerasClassifier(build_fn=model_factory, epochs=10, batch_size=5, verbose=2)
+    preprocessing = FunctionTransformer(utils.preprocess_for_imagenet, check_inverse=False)
+    classifier = KerasClassifier(
+        build_fn=model_factory, epochs=1, batch_size=5, verbose=2
+    )
     return pipeline.Pipeline(
         [
+            ("preprocess", preprocessing),
             ("classifier", classifier),
         ]
     )

@@ -8,7 +8,7 @@ from google.cloud import storage
 import numpy as np
 import cv2
 from trainer.metadata import LABEL
-from sklearn.preprocessing import OneHotEncoder
+from keras.applications.imagenet_utils import preprocess_input
 
 
 def get_header(file):
@@ -120,12 +120,17 @@ def read_heatmaps():
 def one_hot_encode_labels(labels):
     encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
     return np.array(list(map(lambda label: encoding[label.lower()], labels)))
-    #return np.eye(len(encoding.keys()))[encoded_labels]
+    # return np.eye(len(encoding.keys()))[encoded_labels]
 
 
 def decode_one_hot_encoded(labels):
     encoding = ["none", "low", "medium", "high"]
     return list(map(lambda label: encoding[np.argmax(label)], labels))
+
+
+def preprocess_for_imagenet(dataset):
+    print(dataset.shape)
+    return np.array([preprocess_input(x) for x in dataset])
 
 
 def upload_to_gcs(local_path, gcs_path):

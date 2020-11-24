@@ -5,9 +5,7 @@ from sklearn import model_selection
 from trainer import metadata
 from trainer import model
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model
 import pandas as pd
-from keras.applications.imagenet_utils import preprocess_input
 
 
 def run_experiment(flags):
@@ -59,7 +57,6 @@ def train_test_split(filtered_data, labels):
 
 def run_lstm_experiment(flags):
     dataset, labels = utils.read_heatmaps()
-    dataset = np.array([preprocess_input(x) for x in dataset])
     (
         videos_train,
         videos_test,
