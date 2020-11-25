@@ -12,6 +12,7 @@ from scikeras.wrappers import KerasClassifier
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
+from keras.callbacks import EarlyStopping
 
 
 def print_and_return(data):
@@ -45,9 +46,23 @@ def build_pipeline(flags):
 
 def build_lstm_pipeline(shape, classes):
     model_factory = create_model_factory(classes=classes, *shape)
-    preprocessing = FunctionTransformer(utils.preprocess_for_imagenet, check_inverse=False)
+    callback = EarlyStopping(
+        monitor="val_loss",
+        patience=3,
+        mode="min",
+        verbose=1,
+        restore_best_weights=True
+    )
+    preprocessing = FunctionTransformer(
+        utils.preprocess_for_imagenet, check_inverse=False
+    )
     classifier = KerasClassifier(
-        build_fn=model_factory, epochs=1, batch_size=5, verbose=2
+        build_fn=model_factory,
+        epochs=50,
+        batch_size=5,
+        verbose=2,
+        fit__validation_split=0.2,
+        callbacks=[callback],
     )
     return pipeline.Pipeline(
         [
