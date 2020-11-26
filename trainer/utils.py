@@ -117,6 +117,34 @@ def read_heatmaps():
     return images, encode_labels(labels)
 
 
+def read_k_heatmaps():
+    directory_name = "mooc-images/data2"
+    metadata = pd.read_csv("mooc-images/metadata/score-MOOC-ET.csv")
+    images = np.array([])
+    labels = np.array([])
+    subject_directories = os.listdir(directory_name)
+    for subject_directory in subject_directories:
+        subject_id = int(subject_directory)
+        subject_directory = os.path.join(directory_name, subject_directory)
+        print(subject_directory)
+        frames_for_subjects = np.array(
+            [
+                cv2.resize(
+                    cv2.imread(os.path.join(subject_directory, file)), (100, 100)
+                )
+                for file in sorted(os.listdir(subject_directory), key=int)
+            ]
+        )
+        label = metadata.loc[metadata["subject"] == int(subject_id), "posttest"]
+        images = (
+            np.concatenate((images, np.array([frames_for_subjects])))
+            if images.size
+            else np.array([frames_for_subjects])
+        )
+        labels = np.hstack((labels, label))
+    return images, labels
+
+
 def encode_labels(labels):
     encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
     return np.array(list(map(lambda label: encoding[label.lower()], labels)))
