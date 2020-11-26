@@ -47,21 +47,33 @@ def read_emip_from_gcs():
     return dataset, labels
 
 
+def emip(force_local_files, force_gcs_download):
+    if force_local_files and force_gcs_download:
+        raise ValueError(
+            "Both force_local_files and force_gcs_download cannot be true at the same time."
+        )
+    file_references = get_file_references(force_local_files, "emip", "data/")
+    metadata_reference = get_file_references(force_local_files, "emip", "metadata/")
+    datasets, labels = prepare_emip_files(
+        file_references, metadata_reference, force_local_files, force_gcs_download
+    )
+    return datasets, labels
+
+
 def jetris(force_local_files, force_gcs_download):
     if force_local_files and force_gcs_download:
         raise ValueError(
             "Both force_local_files and force_gcs_download cannot be true at the same time."
         )
-    file_references = get_jetris_file_references(force_local_files)
+    file_references = get_file_references(force_local_files, "jetris", "data/")
+    metadata_references = get_file_references(force_local_files, "jetris", "metadata/")
     dataset, labels = prepare_jetris_files(
-        file_references, force_local_files, force_gcs_download
+        file_references, metadata_references, force_local_files, force_gcs_download
     )
     return dataset, labels
 
 
-def get_jetris_file_references(force_local_files):
-    data_context = "jetris"
-    directory_name = "game_raw/"
+def get_file_references(force_local_files, data_context, directory_name):
     if force_local_files:
         file_references = get_file_names_from_directory(
             f"{data_context}/{directory_name}"
@@ -86,14 +98,21 @@ def get_blobs_from_gcs(bucket_name, directory_name):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
     blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
-    file_references = filter(lambda file: file.name != directory_name, blobs)
+    file_references = list(filter(lambda file: file.name != directory_name, blobs))
     return file_references
 
 
-def prepare_jetris_files(files, force_local_files, force_gcs_download):
+def get_metadata_blob_from_gcs(bucket_name, directory_name):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    blobs = list(bucket.list_blobs(delimiter="/", prefix="metadata"))
+    return blobs
+
+
+def prepare_jetris_files(file_references, force_local_files, force_gcs_download):
     labels = pd.Series()
     dataset = pd.DataFrame()
-    for file_reference in files:
+    for file_reference in file_references:
         with get_files(file_reference, force_local_files, force_gcs_download) as f:
             dataset, labels = prepare_jetris_file(f, dataset, labels)
     # labels = convert_labels_to_categorical()
@@ -101,9 +120,31 @@ def prepare_jetris_files(files, force_local_files, force_gcs_download):
     return dataset, labels
 
 
+def prepare_emip_files(
+    file_references, metadata_references, force_local_files, force_gcs_download
+):
+    labels = pd.Series()
+    dataset = pd.DataFrame()
+    with get_files(metadata_references[0], force_local_files, force_gcs_download) as f:
+        metadata_file = pd.read_csv(f)
+    for file_reference in file_references:
+        with get_files(file_reference, force_local_files, force_gcs_download) as f:
+            dataset, labels = prepare_emip_file(f, metadata_file, dataset, labels)
+    # dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
+    return dataset, labels
+
+
+def prepare_emip_file(f, metadata_file, dataset, labels):
+    subject_id = get_header(f)["Subject"][0]
+    csv = pd.read_csv(f, sep="\t", comment="#")
+    csv["id"] = int(subject_id)
+    dataset = dataset.append(csv, ignore_index=True)
+    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, metadata.LABEL]
+    return dataset, labels
+
+
 def get_files(file_reference, force_local_files, force_gcs_download):
     if force_local_files:
-        print(file_reference)
         return open(file_reference, "r")
     else:
         return cached_download_data(file_reference, force_gcs_download)
