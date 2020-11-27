@@ -62,7 +62,7 @@ def run_lstm_experiment(flags):
         videos_test,
         labels_train,
         labels_test,
-    ) = model.model_selection.train_test_split(dataset, labels)
+    ) = model.model_selection.train_test_split(dataset, labels, test_size=0.3)
     pipeline = model.build_lstm_pipeline(dataset.shape[1:], classes=11)
     pipeline.fit(videos_train, labels_train)
 

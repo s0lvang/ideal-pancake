@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 from trainer.metadata import LABEL
 from keras.applications.imagenet_utils import preprocess_input
-
+import re
 
 def get_header(file):
     headiter = takewhile(lambda s: s.startswith("##"), file)
@@ -102,7 +102,7 @@ def read_heatmaps():
         frames_for_subjects = np.array(
             [
                 cv2.resize(
-                    cv2.imread(os.path.join(subject_directory, file)), (100, 100)
+                    cv2.imread(os.path.join(subject_directory, file)), (300, 170)
                 )
                 for file in sorted(os.listdir(subject_directory))
             ]
@@ -130,12 +130,22 @@ def read_k_heatmaps():
         frames_for_subjects = np.array(
             [
                 cv2.resize(
-                    cv2.imread(os.path.join(subject_directory, file)), (100, 100)
+                    cv2.imread(os.path.join(subject_directory, file)), (300, 170)
                 )
-                for file in sorted(os.listdir(subject_directory), key=int)
+                for file in sorted(
+                    os.listdir(subject_directory),
+                    key=lambda var: [
+                        int(x) if x.isdigit() else x
+                        for x in re.findall(r"[^0-9]|[0-9]+", var)
+                    ],
+                )
             ]
         )
-        label = metadata.loc[metadata["subject"] == int(subject_id), "posttest"]
+        label = metadata[metadata["subject"] == int(subject_id)]["posttest"]
+        #print(subject_id)
+        print(label)
+        #print(metadata)
+        print(labels)
         images = (
             np.concatenate((images, np.array([frames_for_subjects])))
             if images.size
