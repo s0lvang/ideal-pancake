@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import metadata
+from trainer.datasets import jetris, emip
 from google.cloud import storage
 import numpy as np
 
@@ -30,11 +31,11 @@ def prepare_files(
     dataset, file_references, metadata_reference, force_local_files, force_gcs_download
 ):
     if dataset is "jetris":
-        return prepare_jetris_files(
+        return jetris.prepare_jetris_files(
             file_references, force_local_files, force_gcs_download
         )
     elif dataset is "emip":
-        return prepare_emip_files(
+        return emip.prepare_emip_files(
             file_references, metadata_reference, force_local_files, force_gcs_download
         )
 
@@ -82,56 +83,11 @@ def get_metadata_blob_from_gcs(bucket_name, directory_name):
     return blobs
 
 
-def prepare_jetris_files(file_references, force_local_files, force_gcs_download):
-    labels = pd.Series()
-    dataset = pd.DataFrame()
-    for file_reference in file_references:
-        with get_files(file_reference, force_local_files, force_gcs_download) as f:
-            dataset, labels = prepare_jetris_file(f, dataset, labels)
-    # labels = convert_labels_to_categorical()
-    dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
-    return dataset, labels
-
-
-def prepare_emip_files(
-    file_references, metadata_references, force_local_files, force_gcs_download
-):
-    labels = pd.Series()
-    dataset = pd.DataFrame()
-    with get_files(metadata_references[0], force_local_files, force_gcs_download) as f:
-        metadata_file = pd.read_csv(f)
-    for file_reference in file_references:
-        with get_files(file_reference, force_local_files, force_gcs_download) as f:
-            dataset, labels = prepare_emip_file(f, metadata_file, dataset, labels)
-    # dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
-    return dataset, labels
-
-
-def prepare_emip_file(f, metadata_file, dataset, labels):
-    subject_id = get_header(f)["Subject"][0]
-    csv = pd.read_csv(f, sep="\t", comment="#")
-    csv["id"] = int(subject_id)
-    dataset = dataset.append(csv, ignore_index=True)
-    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, metadata.LABEL]
-    return dataset, labels
-
-
 def get_files(file_reference, force_local_files, force_gcs_download):
     if force_local_files:
         return open(file_reference, "r")
     else:
         return cached_download_data(file_reference, force_gcs_download)
-
-
-def prepare_jetris_file(f, dataset, labels):
-    csv = pd.read_csv(f, comment="#")
-    csv = csv[
-        csv["Pupil.initial"] != "saccade"
-    ]  # this drops all lines that are saccades, we should do something smarter here.
-    game_id = csv["gameID"][0]
-    dataset = dataset.append(csv, ignore_index=True)
-    labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
-    return dataset, labels
 
 
 def convert_labels_to_categorical(labels):
