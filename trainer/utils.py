@@ -61,3 +61,8 @@ def boolean_mask(columns, target_columns):
     """
     target_set = set(target_columns)
     return [x in target_set for x in columns]
+
+
+def convert_labels_to_categorical(labels):
+    average_score = sum(labels) / len(labels)
+    return list(map(lambda score: "high" if (score > average_score) else "low", labels))

@@ -90,14 +90,6 @@ def get_files(file_reference, force_local_files, force_gcs_download):
         return cached_download_data(file_reference, force_gcs_download)
 
 
-def convert_labels_to_categorical(labels):
-    average_score = sum(labels) / len(labels)
-    categorical_labels = list(
-        map(lambda score: "high" if (score > average_score) else "low", labels)
-    )
-    return categorical_labels
-
-
 def cached_download_data(blob, force_gcs_download):
     dataset_dir = os.path.join(blob.bucket.name, blob.name.split("/")[0])
     destination_file_name = os.path.join(dataset_dir, os.path.basename(blob.name))
