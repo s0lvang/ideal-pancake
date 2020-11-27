@@ -1,7 +1,7 @@
 CSV_COLUMNS = None  # Schema of the data. Necessary for data stored in GCS
 
 NUMERIC_FEATURES = [
-    "Speed",
+    "Pupil Confidence",
 ]
 
 CATEGORICAL_FEATURES = []
@@ -20,5 +20,4 @@ TSFRESH_FEATURES = {
     ],
     "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
 }
-
 AVAILABLE_DATASETS = ["jetris", "emip"]
