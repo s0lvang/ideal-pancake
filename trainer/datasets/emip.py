@@ -1,6 +1,6 @@
 import pandas as pd
 from trainer.datasets import datasets
-from trainer import metadata
+from trainer import config
 
 
 def prepare_emip_files(file_references, metadata_references):
@@ -20,5 +20,5 @@ def prepare_emip_file(f, metadata_file, dataset, labels):
     csv = pd.read_csv(f, sep="\t", comment="#")
     csv["id"] = int(subject_id)
     dataset = dataset.append(csv, ignore_index=True)
-    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, metadata.LABEL]
+    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, config.LABEL]
     return dataset, labels

@@ -1,15 +1,12 @@
 import pandas as pd
 from trainer.datasets import datasets
-from trainer import metadata
 
 
-def prepare_jetris_files(file_references, force_local_files, force_gcs_download):
+def prepare_jetris_files(file_references):
     labels = pd.Series()
     dataset = pd.DataFrame()
     for file_reference in file_references:
-        with datasets.get_files(
-            file_reference, force_local_files, force_gcs_download
-        ) as f:
+        with datasets.get_files(file_reference) as f:
             dataset, labels = prepare_jetris_file(f, dataset, labels)
     # labels = convert_labels_to_categorical()
     dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})

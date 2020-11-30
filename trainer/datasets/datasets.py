@@ -45,14 +45,14 @@ def valid_dataset():
         return True
 
 
-def get_file_references(data_context, directory_name):
+def get_file_references(directory_name):
     if config.FORCE_LOCAL_FILES:
         file_references = get_file_names_from_directory(
-            f"{data_context}/{directory_name}"
+            f"{config.DATASET_NAME}/{directory_name}"
         )
     else:
         file_references = get_blobs_from_gcs(
-            bucket_name=data_context, directory_name=directory_name
+            bucket_name=config.DATASET_NAME, prefix=directory_name
         )
     return file_references
 
@@ -66,19 +66,12 @@ def get_file_names_from_directory(directory_name):
     return file_names
 
 
-def get_blobs_from_gcs(bucket_name, directory_name):
+def get_blobs_from_gcs(bucket_name, prefix):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
-    blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
-    file_references = list(filter(lambda file: file.name != directory_name, blobs))
+    blobs = list(bucket.list_blobs(delimiter="/", prefix=prefix))
+    file_references = list(filter(lambda file: file.name != prefix, blobs))
     return file_references
-
-
-def get_metadata_blob_from_gcs(bucket_name, directory_name):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket_name)
-    blobs = list(bucket.list_blobs(delimiter="/", prefix="metadata"))
-    return blobs
 
 
 def get_files(file_reference):

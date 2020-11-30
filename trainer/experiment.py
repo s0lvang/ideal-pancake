@@ -2,7 +2,7 @@ import hypertune
 import numpy as np
 from sklearn import model_selection
 
-from trainer import metadata
+from trainer import config
 from trainer import model
 from trainer import utils
 from trainer.datasets import datasets
@@ -30,7 +30,7 @@ def run_experiment(flags):
 
 
 def get_data_from_feature_selection(dataset):
-    columns_to_use = metadata.FEATURE_COLUMNS + ["Time", "id"]
+    columns_to_use = config.FEATURE_COLUMNS + ["Time", "id"]
     return dataset[columns_to_use]
 
 
