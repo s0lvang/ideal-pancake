@@ -5,10 +5,15 @@ from keras.layers.pooling import GlobalAveragePooling2D
 from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
 from keras.optimizers import Adam
+from tensorflow.keras import backend as K
 
 
 def create_model_factory(frames, channels, width, height, classes):
     return lambda: create_model(frames, channels, width, height, classes)
+
+
+def root_mean_squared_error(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true)))
 
 
 def create_model(frames, width, height, channels, classes):
@@ -25,17 +30,11 @@ def create_model(frames, width, height, channels, classes):
     cnn = Model(inputs=cnn_base.input, outputs=cnn_out)
     cnn.trainable = False
     encoded_frames = TimeDistributed(cnn)(video)
-    encoded_sequence = LSTM(256)(encoded_frames)
-    hidden_layer = Dense(1024, activation="relu")(encoded_sequence)
-    outputs = Dense(classes, activation="softmax")(hidden_layer)
+    encoded_sequence = LSTM(64)(encoded_frames)
+    hidden_layer = Dense(200, activation="relu")(encoded_sequence)
+    outputs = Dense(1, activation="linear")(hidden_layer)
     model = Model(video, outputs)
-    optimizer = Adam(
-        lr=0.0002
-    )
-    model.compile(
-        loss="sparse_categorical_crossentropy",
-        optimizer=optimizer,
-        metrics=["accuracy"]
-    )
+    optimizer = Adam(lr=0.01)
+    model.compile(loss=root_mean_squared_error, optimizer=optimizer, metrics=["mse"])
     print(model.summary())
     return model
