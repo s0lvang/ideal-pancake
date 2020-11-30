@@ -56,14 +56,14 @@ def train_test_split(filtered_data, labels):
 
 
 def run_lstm_experiment(flags):
-    dataset, labels = utils.read_heatmaps()
+    dataset, labels = utils.read_k_heatmaps()
     (
         videos_train,
         videos_test,
         labels_train,
         labels_test,
     ) = model.model_selection.train_test_split(dataset, labels, test_size=0.3)
-    pipeline = model.build_lstm_pipeline(dataset.shape[1:], classes=4)
+    pipeline = model.build_lstm_pipeline(dataset.shape[1:], classes=11)
     pipeline.fit(videos_train, labels_train)
 
     scores = model.evaluate_model(pipeline, videos_test, labels_test)
