@@ -21,3 +21,9 @@ TSFRESH_FEATURES = {
     "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
 }
 AVAILABLE_DATASETS = ["jetris", "emip"]
+
+DATASET_NAME = "jetris"
+
+FORCE_LOCAL_FILES = False
+
+FORCE_GCS_DOWNLOAD = False

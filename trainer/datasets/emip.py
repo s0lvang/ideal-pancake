@@ -3,19 +3,13 @@ from trainer.datasets import datasets
 from trainer import metadata
 
 
-def prepare_emip_files(
-    file_references, metadata_references, force_local_files, force_gcs_download
-):
+def prepare_emip_files(file_references, metadata_references):
     labels = pd.Series()
     dataset = pd.DataFrame()
-    with datasets.get_files(
-        metadata_references[0], force_local_files, force_gcs_download
-    ) as f:
+    with datasets.get_files(metadata_references[0]) as f:
         metadata_file = pd.read_csv(f)
     for file_reference in file_references:
-        with datasets.get_files(
-            file_reference, force_local_files, force_gcs_download
-        ) as f:
+        with datasets.get_files(file_reference) as f:
             dataset, labels = prepare_emip_file(f, metadata_file, dataset, labels)
     # dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
     return dataset, labels

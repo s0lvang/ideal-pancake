@@ -11,9 +11,7 @@ import pandas as pd
 
 def run_experiment(flags):
     """Testbed for running model training and evaluation."""
-    dataset, labels = datasets.datasets_and_labels(
-        "jetris", force_local_files=False, force_gcs_download=False
-    )
+    dataset, labels = datasets.datasets_and_labels()
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,
