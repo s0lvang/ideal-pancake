@@ -4,7 +4,7 @@ import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import config
-from trainer.datasets import jetris, emip, mooc_images
+from trainer.datasets import jetris, emip, heatmaps
 from trainer.FileRefence import FileReference
 from google.cloud import storage
 import numpy as np
@@ -24,7 +24,19 @@ def prepare_files(file_references, metadata_references):
     elif config.DATASET_NAME == "emip":
         return emip.prepare_emip_files(file_references, metadata_references)
     elif config.DATASET_NAME == "mooc-images":
-        return mooc_images.prepare_files(file_references, metadata_references)
+        return heatmaps.prepare_files(
+            file_references,
+            metadata_references,
+            config.MOOC_IMAGES_LABEL,
+            config.MOOC_SUBJECT_ID_COLUMN,
+        )
+    elif config.DATASET_NAME == "emip-images":
+        return heatmaps.prepare_files(
+            file_references,
+            metadata_references,
+            config.MOOC_IMAGES_LABEL,
+            config.MOOC_SUBJECT_ID_COLUMN,
+        )
 
 
 def valid_config():
