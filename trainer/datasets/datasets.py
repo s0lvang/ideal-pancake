@@ -28,7 +28,6 @@ def prepare_files(file_references, metadata_references):
 
 
 def valid_config():
-    valid_dataset()
     valid_download_settings()
 
 
@@ -37,15 +36,6 @@ def valid_download_settings():
         raise ValueError(
             "Both force_local_files and force_gcs_download cannot be true at the same time."
         )
-
-
-def valid_dataset():
-    if config.DATASET_NAME not in config.AVAILABLE_DATASETS:
-        raise ValueError(
-            f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_DATASETS}"
-        )
-    else:
-        return True
 
 
 def get_file_references(directory_name):

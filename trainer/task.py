@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from trainer import config
 from trainer import experiment
 
 
@@ -84,7 +85,14 @@ def main():
 
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-    experiment.run_heatmap_experiment(flags)
+    if config.DATASET_NAME in config.AVAILABLE_TS_DATASETS:
+        experiment.run_ts_experiment(flags)
+    elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
+        experiment.run_heatmap_experiment(flags)
+    else:
+        raise ValueError(
+            f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_HEATMAP_DATASETS} or {config.AVAILABLE_TS_DATASETS}"
+        )
 
 
 if __name__ == "__main__":

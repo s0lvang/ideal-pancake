@@ -20,9 +20,10 @@ TSFRESH_FEATURES = {
     ],
     "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
 }
-AVAILABLE_DATASETS = ["jetris", "emip", "emip-images", "mooc-images"]
+AVAILABLE_HEATMAP_DATASETS = ["emip-images", "mooc-images"]
+AVAILABLE_TS_DATASETS = ["jetris", "emip"]
 
-DATASET_NAME = "mooc-images"
+DATASET_NAME = "jetris"
 
 FORCE_LOCAL_FILES = False
 
