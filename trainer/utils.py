@@ -3,94 +3,18 @@ from itertools import takewhile
 import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
-from trainer import metadata
+from trainer import config
 from google.cloud import storage
 import numpy as np
 import cv2
-from trainer.metadata import LABEL
 from keras.applications.imagenet_utils import preprocess_input
 import re
-
-def get_header(file):
-    headiter = takewhile(lambda s: s.startswith("##"), file)
-    headerList = list(map(lambda x: x.strip("##").strip().split(":"), headiter))
-    header = dict(filter(lambda x: len(x) == 2, headerList))
-    split_on_tab = lambda x: x.split("\t")[1:]
-    header = {k: split_on_tab(v) for k, v in header.items()}
-    file.seek(0, 0)
-    return header
-
-
-def read_emip_from_gcs():
-    bucket_name = "emip"
-    directory_name = "test_folder/"
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket_name)
-
-    dataset = pd.DataFrame()
-    metadata_emip = None
-    label_column = metadata.LABEL
-    labels = pd.Series()
-    blobs = list(bucket.list_blobs(delimiter="/"))
-    files = filter(
-        lambda file: file.name != directory_name and "metadata" not in file.name, blobs
-    )
-    metadata_emip = next(filter(lambda blob: "metadata" in blob.name.lower(), blobs))
-    with download_or_read_from_disk(metadata_emip) as f:
-        metadata_emip = pd.read_csv(f)
-    for blob in [*files]:
-        with download_or_read_from_disk(blob) as f:
-            subject_id = get_header(f)["Subject"][0]
-            csv = pd.read_csv(f, sep="\t", comment="#")
-            csv["id"] = int(subject_id)
-            dataset = dataset.append(csv, ignore_index=True)
-            labels.at[int(subject_id)] = metadata_emip.loc[
-                metadata_emip["id"] == int(subject_id) - 1, label_column
-            ]
-    return dataset, labels
-
-
-def read_jetris_from_gcs():
-    bucket_name = "jetris"
-    directory_name = "game_raw/"
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket_name)
-
-    dataset = pd.DataFrame()
-    labels = []
-    blobs = list(bucket.list_blobs(delimiter="/", prefix=directory_name))
-    files = filter(lambda file: file.name != directory_name, blobs)
-    for blob in files:
-        with download_or_read_from_disk(blob) as f:
-            csv = pd.read_csv(f, comment="#")
-            csv = csv[
-                csv["Pupil.initial"] != "saccade"
-            ]  # this drops all lines that are saccades, we should do something smarter here.
-            game_id = csv["gameID"][0]
-            new_row = {k: csv[k].fillna(method="ffill") for k in csv.keys()}
-            dataset = dataset.append(new_row, ignore_index=True)
-            labels.append(csv["Score.1"].iloc[-1])
-    average_score = sum(labels) / len(labels)
-    print(average_score)
-    categorical_labels = list(
-        map(lambda score: "high" if (score > average_score) else "low", labels)
-    )
-    return dataset, np.array(categorical_labels)
-
-
-def download_or_read_from_disk(blob):
-    dataset_dir = os.path.join(blob.bucket.name, blob.name.split("/")[0])
-    destination_file_name = os.path.join(dataset_dir, os.path.basename(blob.name))
-    if not os.path.isdir(dataset_dir):
-        os.makedirs(dataset_dir)
-    if not os.path.isfile(destination_file_name):
-        blob.download_to_filename(destination_file_name)
-    return open(destination_file_name, "r")
+from trainer.datasets import datasets
 
 
 def read_heatmaps():
     directory_name = "images"
-    label_column = LABEL
+    label_column = config.LABEL
     metadata = pd.read_csv("emip/emip_metadata.csv/emip_metadata.csv")
     images = np.array([])
     labels = np.array([])
@@ -115,44 +39,6 @@ def read_heatmaps():
         )
         labels = np.hstack((labels, label))
     return images, encode_labels(labels)
-
-
-def read_k_heatmaps():
-    directory_name = "mooc-images/data2"
-    metadata = pd.read_csv("mooc-images/metadata/score-MOOC-ET.csv")
-    images = np.array([])
-    labels = np.array([])
-    subject_directories = os.listdir(directory_name)
-    for subject_directory in subject_directories:
-        subject_id = int(subject_directory)
-        subject_directory = os.path.join(directory_name, subject_directory)
-        print(subject_directory)
-        frames_for_subjects = np.array(
-            [
-                cv2.resize(
-                    cv2.imread(os.path.join(subject_directory, file)), (300, 170)
-                )
-                for file in sorted(
-                    os.listdir(subject_directory),
-                    key=lambda var: [
-                        int(x) if x.isdigit() else x
-                        for x in re.findall(r"[^0-9]|[0-9]+", var)
-                    ],
-                )
-            ]
-        )
-        label = metadata[metadata["subject"] == int(subject_id)]["posttest"]
-        #print(subject_id)
-        print(label)
-        #print(metadata)
-        print(labels)
-        images = (
-            np.concatenate((images, np.array([frames_for_subjects])))
-            if images.size
-            else np.array([frames_for_subjects])
-        )
-        labels = np.hstack((labels, label))
-    return images, labels
 
 
 def encode_labels(labels):
@@ -213,3 +99,8 @@ def boolean_mask(columns, target_columns):
     """
     target_set = set(target_columns)
     return [x in target_set for x in columns]
+
+
+def convert_labels_to_categorical(labels):
+    average_score = sum(labels) / len(labels)
+    return list(map(lambda score: "high" if (score > average_score) else "low", labels))

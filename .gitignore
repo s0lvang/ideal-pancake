@@ -1,5 +1,4 @@
-datasets/*
-datasets/
+/datasets/
 images/
 
 # Byte-compiled / optimized / DLL files
