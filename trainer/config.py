@@ -20,10 +20,10 @@ TSFRESH_FEATURES = {
     ],
     "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
 }
-AVAILABLE_DATASETS = ["jetris", "emip"]
+AVAILABLE_DATASETS = ["jetris", "emip", "emip-images", "mooc-images"]
 
-DATASET_NAME = "jetris"
+DATASET_NAME = "mooc-images"
 
 FORCE_LOCAL_FILES = False
 
-FORCE_GCS_DOWNLOAD = False
+FORCE_GCS_DOWNLOAD = True

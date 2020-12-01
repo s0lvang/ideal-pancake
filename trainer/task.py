@@ -84,7 +84,7 @@ def main():
 
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-    experiment.run_lstm_experiment(flags)
+    experiment.run_heatmap_experiment(flags)
 
 
 if __name__ == "__main__":
