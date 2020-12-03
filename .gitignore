@@ -136,7 +136,8 @@ dmypy.json
 
 .vscode/
 
-credentials/
+credentials/ideal-pancake-docker-id.json
+credentials/ideal-pancake-google-application-credentials.json
 
 emip/
 
