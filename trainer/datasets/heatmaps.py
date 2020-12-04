@@ -7,6 +7,7 @@ from trainer.datasets import datasets
 def prepare_files(file_references, metadata_references, label_column, id_column):
     with metadata_references[0].open("r") as f:
         metadata_file = pd.read_csv(f)
+        print(metadata_file)
 
     grouped_files = group_file_references_by_subject_id(file_references)
 

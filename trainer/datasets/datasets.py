@@ -34,8 +34,8 @@ def prepare_files(file_references, metadata_references):
         return heatmaps.prepare_files(
             file_references,
             metadata_references,
-            config.MOOC_IMAGES_LABEL,
-            config.MOOC_SUBJECT_ID_COLUMN,
+            config.EMIP_IMAGES_LABEL,
+            config.EMIP_SUBECT_ID_COLUMN,
         )
 
 
