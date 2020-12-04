@@ -4,7 +4,7 @@ import os
 import sys
 from trainer import config
 from trainer import experiment
-
+import tensorflow as tf
 
 def _parse_args(argv):
     """Parses command-line arguments."""
@@ -96,4 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     main()
