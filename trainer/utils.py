@@ -80,9 +80,9 @@ def dump_object(object_to_dump, output_path):
       None
     """
 
-    if not gfile.Exists(output_path):
-        gfile.MakeDirs(os.path.dirname(output_path))
-    with gfile.Open(output_path, "w") as wf:
+    if not gfile.exists(output_path):
+        gfile.makeDirs(os.path.dirname(output_path))
+    with gfile.open(output_path, "w") as wf:
         joblib.dump(object_to_dump, wf)
 
 

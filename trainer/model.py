@@ -7,6 +7,7 @@ from sklearn.preprocessing import FunctionTransformer
 from trainer import config
 from trainer import utils
 from trainer.cnnlstm.lstm import create_model_factory
+from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasClassifier
 
@@ -44,15 +45,12 @@ def build_pipeline(flags):
     )
 
 
-def build_lstm_pipeline(shape, classes):
+def build_lstm_pipeline(shape, classes, output_dir):
     model_factory = create_model_factory(classes=classes, *shape)
-    callback = EarlyStopping(
-        monitor="val_loss",
-        patience=3,
-        mode="min",
-        verbose=1,
-        restore_best_weights=True
+    earlystopping_callback = EarlyStopping(
+        monitor="val_loss", patience=3, mode="min", verbose=1, restore_best_weights=True
     )
+    tensorboard_callback = BucketTensorBoard(output_dir)
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
     )
@@ -62,7 +60,7 @@ def build_lstm_pipeline(shape, classes):
         batch_size=5,
         verbose=2,
         fit__validation_split=0.2,
-        callbacks=[callback],
+        callbacks=[earlystopping_callback, tensorboard_callback],
     )
     return pipeline.Pipeline(
         [
@@ -84,10 +82,6 @@ def evaluate_model(model, x_test, y_test, dataset_test=None):
     print(y_test)
     print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-    scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
-    logging.info(scores)
-
-    return scores
 
 
 # Write model and eval metrics to `output_dir`

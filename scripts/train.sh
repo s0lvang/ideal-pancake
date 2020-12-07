@@ -77,3 +77,5 @@ else
 echo "Running command: $CMD"
 eval "$CMD"
 fi
+echo $JOB_DIR
+

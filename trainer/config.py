@@ -23,7 +23,7 @@ TSFRESH_FEATURES = {
 AVAILABLE_HEATMAP_DATASETS = ["emip-images", "mooc-images"]
 AVAILABLE_TS_DATASETS = ["jetris", "emip"]
 
-DATASET_NAME = "emip-images"
+DATASET_NAME = "mooc-images"
 
 FORCE_LOCAL_FILES = False
 
