@@ -3,7 +3,7 @@ from itertools import takewhile
 import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
-from trainer import config
+from trainer import globals
 from google.cloud import storage
 import numpy as np
 import cv2
@@ -14,7 +14,7 @@ from trainer.datasets import datasets
 
 def read_heatmaps():
     directory_name = "images"
-    label_column = config.LABEL
+    label_column = globals.config.LABEL
     metadata = pd.read_csv("emip/emip_metadata.csv/emip_metadata.csv")
     images = np.array([])
     labels = np.array([])

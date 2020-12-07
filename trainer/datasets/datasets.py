@@ -3,7 +3,7 @@ from itertools import takewhile
 import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
-from trainer import config
+from trainer import globals
 from trainer.datasets import jetris, emip, heatmaps
 from trainer.FileRefence import FileReference
 from google.cloud import storage
@@ -19,23 +19,23 @@ def datasets_and_labels():
 
 
 def prepare_files(file_references, metadata_references):
-    if config.DATASET_NAME == "jetris":
+    if globals.config.DATASET_NAME == "jetris":
         return jetris.prepare_jetris_files(file_references)
-    elif config.DATASET_NAME == "emip":
+    elif globals.config.DATASET_NAME == "emip":
         return emip.prepare_emip_files(file_references, metadata_references)
-    elif config.DATASET_NAME == "mooc-images":
+    elif globals.config.DATASET_NAME == "mooc-images":
         return heatmaps.prepare_files(
             file_references,
             metadata_references,
-            config.MOOC_IMAGES_LABEL,
-            config.MOOC_SUBJECT_ID_COLUMN,
+            globals.config.MOOC_IMAGES_LABEL,
+            globals.config.MOOC_SUBJECT_ID_COLUMN,
         )
-    elif config.DATASET_NAME == "emip-images":
+    elif globals.config.DATASET_NAME == "emip-images":
         return heatmaps.prepare_files(
             file_references,
             metadata_references,
-            config.EMIP_IMAGES_LABEL,
-            config.EMIP_SUBECT_ID_COLUMN,
+            globals.config.EMIP_IMAGES_LABEL,
+            globals.config.EMIP_SUBECT_ID_COLUMN,
         )
 
 
@@ -44,20 +44,20 @@ def valid_config():
 
 
 def valid_download_settings():
-    if config.FORCE_LOCAL_FILES and config.FORCE_GCS_DOWNLOAD:
+    if globals.config.FORCE_LOCAL_FILES and globals.config.FORCE_GCS_DOWNLOAD:
         raise ValueError(
             "Both force_local_files and force_gcs_download cannot be true at the same time."
         )
 
 
 def get_file_references(directory_name):
-    if config.FORCE_LOCAL_FILES:
+    if globals.config.FORCE_LOCAL_FILES:
         file_references = get_file_names_from_directory(
-            f"{config.DATASET_NAME}/{directory_name}"
+            f"{globals.config.DATASET_NAME}/{directory_name}"
         )
     else:
         file_references = get_blobs_from_gcs(
-            bucket_name=config.DATASET_NAME, prefix=directory_name
+            bucket_name=globals.config.DATASET_NAME, prefix=directory_name
         )
     return file_references
 
