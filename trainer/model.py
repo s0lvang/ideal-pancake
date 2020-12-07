@@ -47,11 +47,7 @@ def build_pipeline(flags):
 def build_lstm_pipeline(shape, classes):
     model_factory = create_model_factory(classes=classes, *shape)
     callback = EarlyStopping(
-        monitor="val_loss",
-        patience=3,
-        mode="min",
-        verbose=1,
-        restore_best_weights=True
+        monitor="val_loss", patience=3, mode="min", verbose=1, restore_best_weights=True
     )
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False

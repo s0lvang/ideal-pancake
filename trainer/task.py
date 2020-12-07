@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from trainer.configuration.EMIPImagesConfig import EMIPImagesConfig
 from trainer import config
 from trainer import experiment
 
@@ -84,15 +85,19 @@ def main():
     """Entry point."""
 
     flags = _parse_args(sys.argv[1:])
+    print(flags.input)
+    print("hellooo")
     logging.basicConfig(level=flags.log_level.upper())
-    if config.DATASET_NAME in config.AVAILABLE_TS_DATASETS:
-        experiment.run_ts_experiment(flags)
-    elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
+    if flags.input == "emip-images":
+        global config
+        config = EMIPImagesConfig()
         experiment.run_heatmap_experiment(flags)
-    else:
-        raise ValueError(
-            f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_HEATMAP_DATASETS} or {config.AVAILABLE_TS_DATASETS}"
-        )
+    # elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
+    #     experiment.run_heatmap_experiment(flags)
+    # else:
+    #     raise ValueError(
+    #         f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_HEATMAP_DATASETS} or {config.AVAILABLE_TS_DATASETS}"
+    #     )
 
 
 if __name__ == "__main__":

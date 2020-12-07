@@ -7,6 +7,7 @@ from trainer import model
 from trainer import utils
 from trainer.datasets import datasets
 import pandas as pd
+from trainer import task
 
 
 def run_ts_experiment(flags):
