@@ -7,7 +7,7 @@ from trainer import model
 from trainer import utils
 from trainer.datasets import datasets
 import pandas as pd
-from trainer import task
+from trainer import globals
 
 
 def run_ts_experiment(flags):
@@ -56,6 +56,7 @@ def ts_train_test_split(filtered_data, labels):
 
 
 def run_heatmap_experiment(flags):
+    print(globals.config.LABEL)
     subjects, labels = datasets.datasets_and_labels()
     (
         subjects_train,

@@ -2,9 +2,8 @@ import argparse
 import logging
 import os
 import sys
-from trainer.configuration.EMIPImagesConfig import EMIPImagesConfig
-from trainer import config
 from trainer import experiment
+from trainer import globals
 
 
 def _parse_args(argv):
@@ -85,12 +84,9 @@ def main():
     """Entry point."""
 
     flags = _parse_args(sys.argv[1:])
-    print(flags.input)
-    print("hellooo")
     logging.basicConfig(level=flags.log_level.upper())
     if flags.input == "emip-images":
-        global config
-        config = EMIPImagesConfig()
+        globals.init()
         experiment.run_heatmap_experiment(flags)
     # elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
     #     experiment.run_heatmap_experiment(flags)
