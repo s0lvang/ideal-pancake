@@ -2,7 +2,7 @@ import os
 from itertools import takewhile
 import pandas as pd
 import joblib
-import tensorflow.compat.v1.gfile as gfile
+from tensorflow.io import gfile
 from trainer import config
 from google.cloud import storage
 import numpy as np

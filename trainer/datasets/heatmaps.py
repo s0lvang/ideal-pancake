@@ -7,6 +7,7 @@ from trainer.datasets import datasets
 def prepare_files(file_references, metadata_references, label_column, id_column):
     with metadata_references[0].open("r") as f:
         metadata_file = pd.read_csv(f)
+        print(metadata_file)
 
     grouped_files = group_file_references_by_subject_id(file_references)
 
@@ -30,8 +31,8 @@ def prepare_subject(id, file_references, metadata_file, label_column, id_column)
         for file_reference in sorted(file_references)
     ]
     frames = np.array(frames_list)
-    label = datasets.heatmap_label(
-        metadata_file, id, subject_column=label_column, score_column=id_column
+    label = heatmap_label(
+        metadata_file, id, subject_column=id_column, score_column=label_column
     )
     return frames, label
 
@@ -60,4 +61,4 @@ def subject_id(file_reference):
 
 
 def heatmap_label(metadata_file, id, subject_column, score_column):
-    metadata_file[metadata_file[subject_column] == id][score_column]
+    return metadata_file[metadata_file[subject_column] == id][score_column]
