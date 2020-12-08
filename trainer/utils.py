@@ -66,7 +66,7 @@ def upload_to_gcs(local_path, gcs_path):
     Returns:
       None
     """
-    gfile.Copy(local_path, gcs_path)
+    gfile.copy(local_path, gcs_path)
 
 
 def dump_object(object_to_dump, output_path):
