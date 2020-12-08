@@ -70,7 +70,9 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   $TRAINER_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
-
+kill $(lsof -ti tcp:6006) # Kill tensoboard if it runs
+tensorboard --logdir="$JOB_DIR/tensorboard" &
+open "http://localhost:6006"
 if [ "$RUN_ENV" = 'remote' ]; then
 	eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else
