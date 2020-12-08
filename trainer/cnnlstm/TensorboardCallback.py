@@ -12,12 +12,11 @@ try:
     import tensorflow as tf
     from tensorboard.plugins import projector
 except ImportError:
-    raise ImportError('You need the TensorFlow module installed to '
-                      'use TensorBoard.')
+    raise ImportError("You need the TensorFlow module installed to " "use TensorBoard.")
 
 
 class BucketTensorBoard(TensorBoard):
-    """TensorBoard basic visualizations, but each callback is sent to a 
+    """TensorBoard basic visualizations, but each callback is sent to a
     cloud bucket.
     [TensorBoard](https://www.tensorflow.org/guide/summaries_and_tensorboard)
     is a visualization tool provided with TensorFlow.
@@ -73,17 +72,20 @@ class BucketTensorBoard(TensorBoard):
             can slow down your training.
     """
 
-    def __init__(self, bucket_uri,
-                 histogram_freq=0,
-                 batch_size=32,
-                 write_graph=True,
-                 write_grads=False,
-                 write_images=False,
-                 embeddings_freq=0,
-                 embeddings_layer_names=None,
-                 embeddings_metadata=None,
-                 embeddings_data=None,
-                 update_freq='epoch'):
+    def __init__(
+        self,
+        bucket_uri,
+        histogram_freq=0,
+        batch_size=32,
+        write_graph=True,
+        write_grads=False,
+        write_images=False,
+        embeddings_freq=0,
+        embeddings_layer_names=None,
+        embeddings_metadata=None,
+        embeddings_data=None,
+        update_freq="epoch",
+    ):
         super(BucketTensorBoard, self).__init__(
             histogram_freq=histogram_freq,
             batch_size=batch_size,
@@ -94,63 +96,70 @@ class BucketTensorBoard(TensorBoard):
             embeddings_layer_names=embeddings_layer_names,
             embeddings_metadata=embeddings_metadata,
             embeddings_data=embeddings_data,
-            update_freq=update_freq)
+            update_freq=update_freq,
+        )
 
         # Parses the bucket_uri
-        if bucket_uri.startswith('gs://'):
-            self.bucket_protocol = 'gs'
-            split_bucket_name = bucket_uri[5:].split('/', 1)
+        if bucket_uri.startswith("gs://"):
+            self.bucket_protocol = "gs"
+            split_bucket_name = bucket_uri[5:].split("/", 1)
             if len(split_bucket_name) == 1:
                 bucket_name = split_bucket_name[0]
-                self.extra_path = ''
+                self.extra_path = ""
             else:
                 bucket_name = split_bucket_name[0]
-                self.extra_path = split_bucket_name[1].strip('/')
+                self.extra_path = split_bucket_name[1].strip("/")
 
             # Sets up the GCP client and gets the bucket
             try:
                 self.bucket = storage.Client().get_bucket(bucket_name)
             except:
                 raise Exception(
-                    f'Bucket with name "{bucket_name}" could not be fetched')
+                    f'Bucket with name "{bucket_name}" could not be fetched'
+                )
 
             # Gets the list of current blobs, so it doesn't upload them twice
             self.current_blobs = {}
             for item in self.bucket.list_blobs(prefix=self.extra_path):
-                self.current_blobs[item.name] = item.metadata['md5_hash']
-
-        elif bucket_uri.startswith('s3://'):
-            raise Exception('S3 bucket upload not implemented yet')
-
+                self.current_blobs[item.name] = item.metadata["md5_hash"]
         else:
-            raise Exception(
-                'The protocol informed in the URI is not supported')
+            raise Exception("The protocol informed in the URI is not supported")
 
-        self.log_dir = f'{gettempdir()}/tensorboard_callbacks/{bucket_name}/{self.extra_path}'
+        self.log_dir = (
+            f"{gettempdir()}/tensorboard_callbacks/{bucket_name}/{self.extra_path}"
+        )
 
-    def _write_logs(self, logs, index):
-        super(BucketTensorBoard, self)._write_logs(logs, index)
+    def on_epoch_end(self, logs, index):
+        super(BucketTensorBoard, self).on_epoch_end(logs, index)
         try:
-            if self.bucket_protocol == 'gs':
-                self._write_logs_gs()
-            elif self.bucket_protocol == 's3':
-                self._write_logs_s3()
+            self._write_logs_gs()
         except:
-            print('Could not upload Tensorboard logs to the Cloud Bucket')
+            print("could not upload files to gcs")
 
     def _write_logs_gs(self):
-        for file_name in os.listdir(self.log_dir):
-            file_path = f'{self.log_dir}/{file_name}'
-            log_file = open(file_path, 'rb')
+        train_dir = [
+            os.path.join("train", file)
+            for file in os.listdir(os.path.join(self.log_dir, "train"))
+        ]
+        validation_dir = [
+            os.path.join("validation", file)
+            for file in os.listdir(os.path.join(self.log_dir, "validation"))
+        ]
+        tensorboard_files = [
+            os.path.join(self.log_dir, file) for file in validation_dir + train_dir
+        ]
+        files_to_upload = filter(os.path.isfile, tensorboard_files)
+        for file_path in list(files_to_upload):
+            file_name = os.path.join(
+                "tensorboard", *file_path.split("/")[-2:]
+            )  # most unreadable code 2020
+            log_file = open(file_path, "rb")
             md5_hash = md5(log_file.read()).hexdigest()
             log_file.close()
-
-            if (file_name not in self.current_blobs) or (self.current_blobs[file_name] != md5_hash):
-                blob = self.bucket.blob(f'{self.extra_path}/{file_name}')
-                blob.metadata = {'md5_hash': md5_hash}
+            if (file_name not in self.current_blobs) or (
+                self.current_blobs[file_name] != md5_hash
+            ):
+                blob = self.bucket.blob(f"{self.extra_path}/{file_name}")
+                blob.metadata = {"md5_hash": md5_hash}
                 blob.upload_from_filename(file_path)
-                print(file_path)
                 self.current_blobs[file_name] = md5_hash
-
-    def _write_logs_s3(self):
-        pass

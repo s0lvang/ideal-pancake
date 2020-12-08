@@ -48,9 +48,13 @@ def build_pipeline(flags):
 def build_lstm_pipeline(shape, classes, output_dir):
     model_factory = create_model_factory(classes=classes, *shape)
     earlystopping_callback = EarlyStopping(
-        monitor="val_loss", patience=3, mode="min", verbose=1, restore_best_weights=True
+        monitor="val_loss",
+        patience=3,
+        mode="min",
+        verbose=1,
+        restore_best_weights=True
     )
-    tensorboard_callback = BucketTensorBoard(output_dir)
+    tensorboard_callback = BucketTensorBoard(output_dir, histogram_freq=1)
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
     )
@@ -82,6 +86,7 @@ def evaluate_model(model, x_test, y_test, dataset_test=None):
     print(y_test)
     print(classification_report(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
+
 
 
 # Write model and eval metrics to `output_dir`
