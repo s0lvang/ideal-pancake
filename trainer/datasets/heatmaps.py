@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import cv2
-from trainer.datasets import datasets
 
 
 def prepare_files(file_references, metadata_references, label_column, id_column):

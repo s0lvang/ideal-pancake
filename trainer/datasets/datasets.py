@@ -27,15 +27,15 @@ def prepare_files(file_references, metadata_references):
         return heatmaps.prepare_files(
             file_references,
             metadata_references,
-            globals.config.MOOC_IMAGES_LABEL,
-            globals.config.MOOC_SUBJECT_ID_COLUMN,
+            globals.config.LABEL,
+            globals.config.SUBJECT_ID_COLUMN,
         )
     elif globals.config.DATASET_NAME == "emip-images":
         return heatmaps.prepare_files(
             file_references,
             metadata_references,
-            globals.config.EMIP_IMAGES_LABEL,
-            globals.config.EMIP_SUBECT_ID_COLUMN,
+            globals.config.LABEL,
+            globals.config.SUBJECT_ID_COLUMN,
         )
 
 
@@ -51,9 +51,10 @@ def valid_download_settings():
 
 
 def get_file_references(directory_name):
+    print(directory_name)
     if globals.config.FORCE_LOCAL_FILES:
         file_references = get_file_names_from_directory(
-            f"{globals.config.DATASET_NAME}/{directory_name}"
+            f"datasets/{globals.config.DATASET_NAME}/{directory_name}"
         )
     else:
         file_references = get_blobs_from_gcs(

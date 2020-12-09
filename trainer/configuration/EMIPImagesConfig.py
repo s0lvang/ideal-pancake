@@ -6,6 +6,7 @@ class EMIPImagesConfig(DatasetConfig):
         super().__init__()
         self.SUBJECT_ID_COLUMN = "id"
         self.LABEL = "expertise_programming"
+        self.DATASET_NAME = "emip-images"
 
     def __str__(self):
         return "EMIPImagesConfig"
