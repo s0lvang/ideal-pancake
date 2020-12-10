@@ -6,6 +6,7 @@ from keras.layers.recurrent import LSTM
 from keras.layers.wrappers import TimeDistributed
 from keras.optimizers import Adam
 from tensorflow.keras import backend as K
+import tensorflow as tf
 
 
 def create_model_factory(frames, channels, width, height, classes):
@@ -30,11 +31,11 @@ def create_model(frames, width, height, channels, classes):
     cnn = Model(inputs=cnn_base.input, outputs=cnn_out)
     cnn.trainable = False
     encoded_frames = TimeDistributed(cnn)(video)
-    encoded_sequence = LSTM(64)(encoded_frames)
-    hidden_layer = Dense(200, activation="relu")(encoded_sequence)
+    encoded_sequence = LSTM(10)(encoded_frames)
+    hidden_layer = Dense(50, activation="relu")(encoded_sequence)
     outputs = Dense(1, activation="linear")(hidden_layer)
-    model = Model(video, outputs)
-    optimizer = Adam(lr=0.01)
+    model = Model([video], outputs)
+    optimizer = Adam(lr=0.0001)
     model.compile(loss=root_mean_squared_error, optimizer=optimizer, metrics=["mse"])
     print(model.summary())
     return model

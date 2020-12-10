@@ -6,10 +6,10 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import config
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model_factory
+from trainer.cnnlstm.lstm import create_model_factory, root_mean_squared_error
 from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
-from scikeras.wrappers import KerasClassifier
+from scikeras.wrappers import KerasRegressor
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
@@ -49,7 +49,7 @@ def build_lstm_pipeline(shape, classes, output_dir):
     model_factory = create_model_factory(classes=classes, *shape)
     earlystopping_callback = EarlyStopping(
         monitor="val_loss",
-        patience=3,
+        patience=50,
         mode="min",
         verbose=1,
         restore_best_weights=True
@@ -58,13 +58,13 @@ def build_lstm_pipeline(shape, classes, output_dir):
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
     )
-    classifier = KerasClassifier(
+    classifier = KerasRegressor(
         build_fn=model_factory,
-        epochs=50,
-        batch_size=5,
+        epochs=300,
+        batch_size=1,
         verbose=2,
         fit__validation_split=0.2,
-        callbacks=[earlystopping_callback, tensorboard_callback],
+        callbacks=[tensorboard_callback, earlystopping_callback],
     )
     return pipeline.Pipeline(
         [
@@ -78,13 +78,12 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def evaluate_model(model, x_test, y_test, dataset_test=None):
     if dataset_test:
         set_dataset(model, dataset_test)
+    print(x_test[0])
+    print(x_test.shape)
     prediction = model.predict(x_test)
-    print(len(y_test))
-    print(len(x_test))
-    print(len(prediction))
     print(prediction)
     print(y_test)
-    print(classification_report(y_test, prediction))
+    print(root_mean_squared_error(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
 
 

@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 from trainer.datasets import datasets
 
-
 def prepare_files(file_references, metadata_references, label_column, id_column):
     with metadata_references[0].open("r") as f:
         metadata_file = pd.read_csv(f)
@@ -34,7 +33,7 @@ def prepare_subject(id, file_references, metadata_file, label_column, id_column)
     label = heatmap_label(
         metadata_file, id, subject_column=id_column, score_column=label_column
     )
-    return frames, label
+    return frames, int(label)
 
 
 def read_and_resize_image(file_reference):
@@ -43,7 +42,7 @@ def read_and_resize_image(file_reference):
 
     nparr = np.frombuffer(file_content, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
-    return cv2.resize(image, (100, 100))
+    return cv2.resize(image, (150, 100))
 
 
 def group_file_references_by_subject_id(file_references):
