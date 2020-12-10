@@ -64,12 +64,14 @@ def get_file_references(directory_name):
 
 
 def get_file_names_from_directory(directory_name):
-    file_names = [
-        FileReference(f"{directory_name}{file_name}")
-        for file_name in os.listdir(directory_name)
-        if os.path.isfile(os.path.join(directory_name, file_name))
-    ]
-    return file_names
+    if os.path.isdir(directory_name):
+        return [
+            FileReference(f"{directory_name}{file_name}")
+            for file_name in os.listdir(directory_name)
+            if os.path.isfile(os.path.join(directory_name, file_name))
+        ]
+    else:
+        return []
 
 
 def get_blobs_from_gcs(bucket_name, prefix):

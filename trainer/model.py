@@ -70,6 +70,14 @@ def build_lstm_pipeline(shape, classes):
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
 def evaluate_model(model, x_test, y_test, dataset_test=None):
+    # print("model:")
+    # print(model)
+    print("x_test")
+    print(x_test)
+    # print("y_test:")
+    # print(y_test)
+    # print("dataset_test:")
+    # print(dataset_test)
     if dataset_test:
         set_dataset(model, dataset_test)
     prediction = model.predict(x_test)

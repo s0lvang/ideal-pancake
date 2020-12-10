@@ -1,6 +1,6 @@
 class DatasetConfig:
     def __init__(self):
-        self.FORCE_GCS_DOWNLOAD = True
+        self.FORCE_GCS_DOWNLOAD = False
         self.FORCE_LOCAL_FILES = False
         self.METRIC_FILE_NAME = "eval_metrics.joblib"
         self.MODEL_FILE_NAME = "model.joblib"

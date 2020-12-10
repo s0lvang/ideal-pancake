@@ -86,14 +86,19 @@ def main():
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
     if flags.input == "emip-images":
-        globals.init()
+        globals.init_emip_images()
         experiment.run_heatmap_experiment(flags)
-    # elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
-    #     experiment.run_heatmap_experiment(flags)
-    # else:
-    #     raise ValueError(
-    #         f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_HEATMAP_DATASETS} or {config.AVAILABLE_TS_DATASETS}"
-    #     )
+    elif flags.input == "mooc-images":
+        globals.init_mooc_images()
+        experiment.run_heatmap_experiment(flags)
+    elif flags.input == "emip":
+        globals.init_emip()
+        experiment.run_ts_experiment(flags)
+    elif flags.input == "jetris":
+        globals.init_jetris()
+        experiment.run_ts_experiment(flags)
+    else:
+        raise ValueError(f"{flags.input} is not a valid dataset name.")
 
 
 if __name__ == "__main__":

@@ -13,6 +13,8 @@ from trainer import globals
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
     dataset, labels = datasets.datasets_and_labels()
+    print("dataset")
+    print(dataset)
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,
@@ -32,10 +34,16 @@ def run_ts_experiment(flags):
 
 def get_data_from_feature_selection(dataset):
     columns_to_use = globals.config.FEATURE_COLUMNS + ["Time", "id"]
+    # print(columns_to_use)
+    # print(dataset[columns_to_use].columns)
     return dataset[columns_to_use]
 
 
 def ts_train_test_split(filtered_data, labels):
+    print("filtered data:")
+    print(filtered_data)
+    print("labels:")
+    print(labels.index)
     indices = pd.DataFrame(index=labels.index).astype("int64")
     (
         indices_train,
@@ -43,6 +51,8 @@ def ts_train_test_split(filtered_data, labels):
         labels_train,
         labels_test,
     ) = model_selection.train_test_split(indices, labels)
+    print("indicies")
+    print(indices)
     dataset_train = filtered_data[filtered_data["id"].isin(indices_train.index)]
     dataset_test = filtered_data[filtered_data["id"].isin(indices_test.index)]
     return (
@@ -56,7 +66,6 @@ def ts_train_test_split(filtered_data, labels):
 
 
 def run_heatmap_experiment(flags):
-    print(globals.config.LABEL)
     subjects, labels = datasets.datasets_and_labels()
     (
         subjects_train,
