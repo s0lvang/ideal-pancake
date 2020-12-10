@@ -51,7 +51,6 @@ def valid_download_settings():
 
 
 def get_file_references(directory_name):
-    print(directory_name)
     if globals.config.FORCE_LOCAL_FILES:
         file_references = get_file_names_from_directory(
             f"datasets/{globals.config.DATASET_NAME}/{directory_name}"

@@ -19,7 +19,6 @@ def prepare_files(file_references, metadata_references, label_column, id_column)
         subjects_labels.append(subject_label)
     subjects_frames = np.array(subjects_frames)
     subjects_labels = np.array(subjects_labels)
-    print("prepare subject returning")
     return subjects_frames, subjects_labels
 
 

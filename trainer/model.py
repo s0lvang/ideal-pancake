@@ -72,8 +72,6 @@ def build_lstm_pipeline(shape, classes):
 def evaluate_model(model, x_test, y_test, dataset_test=None):
     # print("model:")
     # print(model)
-    print("x_test")
-    print(x_test)
     # print("y_test:")
     # print(y_test)
     # print("dataset_test:")
