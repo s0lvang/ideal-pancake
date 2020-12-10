@@ -64,14 +64,19 @@ def get_file_references(directory_name):
 
 
 def get_file_names_from_directory(directory_name):
-    if os.path.isdir(directory_name):
-        return [
-            FileReference(f"{directory_name}{file_name}")
-            for file_name in os.listdir(directory_name)
-            if os.path.isfile(os.path.join(directory_name, file_name))
-        ]
+    return recursive_file_names_from_dir(directory_name, [])
+
+
+def recursive_file_names_from_dir(path, paths):
+    if os.path.isdir(path):
+        for sub_path in os.listdir(path):
+            recursive_file_names_from_dir(os.path.join(path, sub_path), paths)
+        return paths
+    elif os.path.isfile(path):
+        paths.append(FileReference(path))
+        return paths
     else:
-        return []
+        raise ValueError("Got a path that isn't dir or file.")
 
 
 def get_blobs_from_gcs(bucket_name, prefix):
