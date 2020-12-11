@@ -75,7 +75,7 @@ def recursive_file_names_from_dir(path, paths):
         paths.append(FileReference(path))
         return paths
     else:
-        raise ValueError("Got a path that isn't dir or file.")
+        raise ValueError(f"Got a path that isn't dir or file: {path}")
 
 
 def get_blobs_from_gcs(bucket_name, prefix):
