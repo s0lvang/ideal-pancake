@@ -13,6 +13,11 @@ class EMIPConfig(DatasetConfig):
             ],
             "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
         }
+        self.NUMERIC_FEATURES = [
+            "Pupil Confidence",
+        ]
+        self.CATEGORICAL_FEATURES = []
+        self.FEATURE_COLUMNS = self.NUMERIC_FEATURES + self.CATEGORICAL_FEATURES
 
     def __str__(self):
         return "EMIPConfig"
