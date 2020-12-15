@@ -32,8 +32,6 @@ def run_ts_experiment(flags):
 
 def get_data_from_feature_selection(dataset):
     columns_to_use = globals.config.FEATURE_COLUMNS + ["Time", "id"]
-    # print(columns_to_use)
-    # print(dataset[columns_to_use].columns)
     return dataset[columns_to_use]
 
 
