@@ -55,6 +55,7 @@ def ts_train_test_split(filtered_data, labels):
     )
 
 
+
 def run_heatmap_experiment(flags):
     subjects, labels = datasets.datasets_and_labels()
     (
@@ -62,8 +63,10 @@ def run_heatmap_experiment(flags):
         subjects_test,
         labels_train,
         labels_test,
-    ) = model_selection.train_test_split(subjects, labels, test_size=0.3)
-    pipeline = model.build_lstm_pipeline(subjects.shape[1:], classes=11)
+    ) = model_selection.train_test_split(subjects, labels, test_size=0.2)
+    pipeline = model.build_lstm_pipeline(
+        subjects.shape[1:], classes=11, output_dir=flags.job_dir
+    )
     pipeline.fit(subjects_train, labels_train)
 
     scores = model.evaluate_model(pipeline, subjects_test, labels_test)

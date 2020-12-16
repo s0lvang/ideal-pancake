@@ -6,7 +6,7 @@ authors = ["s0lvang <august.s.solvang@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.9"
+python = ">=3.6.7,<3.9"
 numpy = "^1.19.2"
 pandas = "^1.1.2"
 matplotlib = "^3.3.2"

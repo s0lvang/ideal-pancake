@@ -6,9 +6,10 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import globals
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model_factory
+from trainer.cnnlstm.lstm import create_model_factory, root_mean_squared_error
+from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
-from scikeras.wrappers import KerasClassifier
+from scikeras.wrappers import KerasRegressor
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
@@ -44,21 +45,26 @@ def build_pipeline(flags):
     )
 
 
-def build_lstm_pipeline(shape, classes):
+def build_lstm_pipeline(shape, classes, output_dir):
     model_factory = create_model_factory(classes=classes, *shape)
-    callback = EarlyStopping(
-        monitor="val_loss", patience=3, mode="min", verbose=1, restore_best_weights=True
+    earlystopping_callback = EarlyStopping(
+        monitor="val_loss",
+        patience=50,
+        mode="min",
+        verbose=1,
+        restore_best_weights=True,
     )
+    tensorboard_callback = BucketTensorBoard(output_dir, histogram_freq=1)
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
     )
-    classifier = KerasClassifier(
+    classifier = KerasRegressor(
         build_fn=model_factory,
-        epochs=50,
-        batch_size=5,
+        epochs=300,
+        batch_size=1,
         verbose=2,
         fit__validation_split=0.2,
-        callbacks=[callback],
+        callbacks=[tensorboard_callback, earlystopping_callback],
     )
     return pipeline.Pipeline(
         [
@@ -72,18 +78,13 @@ def build_lstm_pipeline(shape, classes):
 def evaluate_model(model, x_test, y_test, dataset_test=None):
     if dataset_test is not None:
         set_dataset(model, dataset_test)
+    print(x_test[0])
+    print(x_test.shape)
     prediction = model.predict(x_test)
-    print(len(y_test))
-    print(len(x_test))
-    print(len(prediction))
     print(prediction)
     print(y_test)
-    print(classification_report(y_test, prediction))
+    print(root_mean_squared_error(y_test, prediction))
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
-    scores = model_selection.cross_val_score(model, x_test, y_test, cv=2)
-    logging.info(scores)
-
-    return scores
 
 
 # Write model and eval metrics to `output_dir`

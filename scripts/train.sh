@@ -37,7 +37,7 @@ JOB_NAME="${JOB_PREFIX}_${RUN_TYPE}_${NOW}"
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=trainer
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
-REGION=europe-west2
+REGION=europe-west1
 
 if [ "$RUN_TYPE" = 'hptuning' ]; then
   CONFIG_FILE=config/hptuning_config.yaml
@@ -51,6 +51,7 @@ if [ "$RUN_ENV" = 'remote' ]; then
   RUN_ENV_ARGS="jobs submit training $JOB_NAME \
     --region $REGION \
     --master-image-uri $IMAGE_URI \
+    --config $CONFIG_FILE \
     "
 else  # assume `local`
   RUN_ENV_ARGS="local train \
@@ -69,10 +70,14 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   $TRAINER_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
-
+kill $(lsof -ti tcp:6006) # Kill tensoboard if it runs
+tensorboard --logdir="$JOB_DIR/tensorboard" &
+open "http://localhost:6006"
 if [ "$RUN_ENV" = 'remote' ]; then
 	eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else
 echo "Running command: $CMD"
 eval "$CMD"
 fi
+echo $JOB_DIR
+

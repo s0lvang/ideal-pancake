@@ -2,7 +2,7 @@ import os
 from itertools import takewhile
 import pandas as pd
 import joblib
-import tensorflow.compat.v1.gfile as gfile
+from tensorflow.io import gfile
 from trainer import globals
 from google.cloud import storage
 import numpy as np
@@ -66,7 +66,7 @@ def upload_to_gcs(local_path, gcs_path):
     Returns:
       None
     """
-    gfile.Copy(local_path, gcs_path)
+    gfile.copy(local_path, gcs_path)
 
 
 def dump_object(object_to_dump, output_path):
@@ -80,9 +80,9 @@ def dump_object(object_to_dump, output_path):
       None
     """
 
-    if not gfile.Exists(output_path):
-        gfile.MakeDirs(os.path.dirname(output_path))
-    with gfile.Open(output_path, "w") as wf:
+    if not gfile.exists(output_path):
+        gfile.makedirs(os.path.dirname(output_path))
+    with gfile.open(output_path, "w") as wf:
         joblib.dump(object_to_dump, wf)
 
 
