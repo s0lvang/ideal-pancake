@@ -23,11 +23,11 @@ EXTRA_TRAINER_ARGS=$4
 IMAGE_URI=eu.gcr.io/$PROJECT_ID/trainer:0.1
 
 if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
-  RUN_ENV=local;
+  RUN_ENV=local
 fi
 
 if [[ ! "$RUN_TYPE" =~ ^(train|hptuning)$ ]]; then
-  RUN_TYPE=train;
+  RUN_TYPE=train
 fi
 
 NOW="$(date +"%d%m_%H%M")"
@@ -42,7 +42,7 @@ REGION=europe-west1
 
 if [ "$RUN_TYPE" = 'hptuning' ]; then
   CONFIG_FILE=config/hptuning_config.yaml
-else  # Assume `train`
+else # Assume `train`
   CONFIG_FILE=config/config.yaml
 fi
 
@@ -50,20 +50,19 @@ fi
 echo "$RUN_ENV"
 if [ "$RUN_ENV" = 'remote' ]; then
 
-  if [[ -z $(git status -s) ]]; then
+  if [[ -z $(git status -s --untracked-files=no) ]]; then
     echo "tree is clean"
   else
     echo "tree is dirty, please commit changes before training remotely"
     exit
   fi
 
-
   RUN_ENV_ARGS="jobs submit training $JOB_NAME \
     --region $REGION \
     --master-image-uri $IMAGE_URI \
     --config $CONFIG_FILE \
     "
-else  # assume `local`
+else # assume `local`
   RUN_ENV_ARGS="local train \
 	  --package-path $PACKAGE_PATH \
 	  --module-name $MAIN_TRAINER_MODULE"
@@ -84,10 +83,9 @@ kill $(lsof -ti tcp:6006) # Kill tensoboard if it runs
 tensorboard --logdir="$JOB_DIR/tensorboard" &
 open "http://localhost:6006"
 if [ "$RUN_ENV" = 'remote' ]; then
-	eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
+  eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else
-echo "Running command: $CMD"
-eval "$CMD"
+  echo "Running command: $CMD"
+  eval "$CMD"
 fi
 echo $JOB_DIR
-
