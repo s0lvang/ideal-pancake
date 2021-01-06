@@ -2,9 +2,10 @@ import argparse
 import logging
 import os
 import sys
-from trainer import config
 from trainer import experiment
+from trainer import globals
 import tensorflow as tf
+
 
 def _parse_args(argv):
     """Parses command-line arguments."""
@@ -85,16 +86,24 @@ def main():
 
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-    if config.DATASET_NAME in config.AVAILABLE_TS_DATASETS:
-        experiment.run_ts_experiment(flags)
-    elif config.DATASET_NAME in config.AVAILABLE_HEATMAP_DATASETS:
+    if flags.input == "emip-images":
+        globals.init_emip_images()
         experiment.run_heatmap_experiment(flags)
+    elif flags.input == "mooc-images":
+        globals.init_mooc_images()
+        experiment.run_heatmap_experiment(flags)
+    elif flags.input == "emip":
+        globals.init_emip()
+        experiment.run_ts_experiment(flags)
+    elif flags.input == "jetris":
+        globals.init_jetris()
+        experiment.run_ts_experiment(flags)
     else:
-        raise ValueError(
-            f"{config.DATASET_NAME} does not exist in {config.AVAILABLE_HEATMAP_DATASETS} or {config.AVAILABLE_TS_DATASETS}"
-        )
+        raise ValueError(f"{flags.input} is not a valid dataset name.")
 
 
 if __name__ == "__main__":
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+    print(
+        "Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU"))
+    )
     main()

@@ -24,6 +24,6 @@ These are created by creating service accounts on `cloud.google.com`. Get in tou
 
 `poetry install`
 
-`./credentials/env.sh`
+`. ./credentials/env.sh`
 
 `poetry run scripts/train.sh temp local` or `poetry run scripts/train temp remote`

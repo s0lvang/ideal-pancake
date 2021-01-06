@@ -1,5 +1,5 @@
 import pandas as pd
-from trainer import config
+from trainer import globals
 from itertools import takewhile
 
 
@@ -20,7 +20,9 @@ def prepare_emip_file(f, metadata_file, dataset, labels):
     csv = pd.read_csv(f, sep="\t", comment="#")
     csv["id"] = int(subject_id)
     dataset = dataset.append(csv, ignore_index=True)
-    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, config.LABEL]
+    labels.at[int(subject_id)] = metadata_file.loc[
+        int(subject_id) - 1, globals.config.LABEL
+    ]
     return dataset, labels
 
 

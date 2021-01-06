@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def prepare_jetris_files(file_references):
+def prepare_jetris_files(file_references, metadata_references):
     labels = pd.Series()
     dataset = pd.DataFrame()
     for file_reference in file_references:

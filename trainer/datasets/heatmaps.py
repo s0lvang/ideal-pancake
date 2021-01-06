@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
 import cv2
-from trainer.datasets import datasets
+from trainer import globals
 
-def prepare_files(file_references, metadata_references, label_column, id_column):
+
+def prepare_files(file_references, metadata_references):
+    label_column = globals.config.LABEL
+    id_column = globals.config.SUBJECT_ID_COLUMN
+
     with metadata_references[0].open("r") as f:
         metadata_file = pd.read_csv(f)
         print(metadata_file)
@@ -20,7 +24,6 @@ def prepare_files(file_references, metadata_references, label_column, id_column)
         subjects_labels.append(subject_label)
     subjects_frames = np.array(subjects_frames)
     subjects_labels = np.array(subjects_labels)
-    print("prepare subject returning")
     return subjects_frames, subjects_labels
 
 
