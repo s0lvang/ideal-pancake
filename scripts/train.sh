@@ -30,10 +30,11 @@ if [[ ! "$RUN_TYPE" =~ ^(train|hptuning)$ ]]; then
   RUN_TYPE=train;
 fi
 
-NOW="$(date +"%Y%m%d_%H%M%S")"
+NOW="$(date +"%d%m_%H%M")"
 JOB_PREFIX="hardcore_ml_shit"
-
-JOB_NAME="${JOB_PREFIX}_${RUN_TYPE}_${NOW}"
+COMMIT_HASH="$(git rev-parse --verify HEAD)"
+COMMIT_MESSAGE="$(git log -1 --pretty=%B)"
+JOB_NAME="${RUN_TYPE}_${NOW}_${COMMIT_MESSAGE// /_}_${COMMIT_HASH}"
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=trainer
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
