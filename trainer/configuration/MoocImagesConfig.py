@@ -9,4 +9,4 @@ class MoocImagesConfig(DatasetConfig):
         self.DATASET_NAME = "mooc-images"
 
     def __str__(self):
-        return "MoocImagesConfig"
+        return super().__str__()

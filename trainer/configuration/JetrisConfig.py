@@ -19,4 +19,4 @@ class JetrisConfig(DatasetConfig):
         self.FEATURE_COLUMNS = self.NUMERIC_FEATURES + self.CATEGORICAL_FEATURES
 
     def __str__(self):
-        return "JetrisConfig"
+        return super().__str__()

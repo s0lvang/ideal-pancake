@@ -20,4 +20,4 @@ class EMIPConfig(DatasetConfig):
         self.FEATURE_COLUMNS = self.NUMERIC_FEATURES + self.CATEGORICAL_FEATURES
 
     def __str__(self):
-        return "EMIPConfig"
+        return super().__str__()

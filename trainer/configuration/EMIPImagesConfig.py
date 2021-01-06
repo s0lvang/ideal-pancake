@@ -9,4 +9,4 @@ class EMIPImagesConfig(DatasetConfig):
         self.DATASET_NAME = "emip-images"
 
     def __str__(self):
-        return "EMIPImagesConfig"
+        return super().__str__()

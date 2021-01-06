@@ -1,3 +1,6 @@
+import json
+
+
 class DatasetConfig:
     def __init__(self):
         self.FORCE_GCS_DOWNLOAD = False
@@ -10,7 +13,7 @@ class DatasetConfig:
     # Time series
     NUMERIC_FEATURES = []
     CATEGORICAL_FEATURES = []
-    FEATURE_COLUMNS = []
+    FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
     TSFRESH_FEATURES = {}
 
@@ -23,3 +26,8 @@ class DatasetConfig:
 
     # # time specific
     # time_column_name = None
+
+    def __str__(self):
+        variables = vars(self)
+        ts_fresh = ", ".join(variables.pop("TSFRESH_FEATURES", {}).keys())
+        return f"{json.dumps(variables)} TS_FRESH_FEATURES: ({ts_fresh})"
