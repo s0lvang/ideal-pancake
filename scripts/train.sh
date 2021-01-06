@@ -49,6 +49,15 @@ fi
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
 echo "$RUN_ENV"
 if [ "$RUN_ENV" = 'remote' ]; then
+
+  if [[ -z $(git status -s) ]]; then
+    echo "tree is clean"
+  else
+    echo "tree is dirty, please commit changes before training remotely"
+    exit
+  fi
+
+
   RUN_ENV_ARGS="jobs submit training $JOB_NAME \
     --region $REGION \
     --master-image-uri $IMAGE_URI \
