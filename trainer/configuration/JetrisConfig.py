@@ -1,4 +1,5 @@
 from trainer.configuration.DatasetConfig import DatasetConfig
+from trainer.datasets import jetris
 
 
 class JetrisConfig(DatasetConfig):
@@ -17,6 +18,7 @@ class JetrisConfig(DatasetConfig):
         ]
         self.CATEGORICAL_FEATURES = []
         self.FEATURE_COLUMNS = self.NUMERIC_FEATURES + self.CATEGORICAL_FEATURES
+        self.file_preparer = jetris.prepare_jetris_files
 
     def __str__(self):
         return super().__str__()

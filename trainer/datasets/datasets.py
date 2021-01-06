@@ -4,7 +4,6 @@ import pandas as pd
 import joblib
 import tensorflow.compat.v1.gfile as gfile
 from trainer import globals
-from trainer.datasets import jetris, emip, heatmaps
 from trainer.FileRefence import FileReference
 from google.cloud import storage
 import numpy as np
@@ -14,29 +13,10 @@ def datasets_and_labels():
     valid_config()
     file_references = get_file_references("data/")
     metadata_references = get_file_references("metadata/")
-    datasets, labels = prepare_files(file_references, metadata_references)
+    datasets, labels = globals.config.file_preparer(
+        file_references, metadata_references
+    )
     return datasets, labels
-
-
-def prepare_files(file_references, metadata_references):
-    if globals.config.DATASET_NAME == "jetris":
-        return jetris.prepare_jetris_files(file_references)
-    elif globals.config.DATASET_NAME == "emip":
-        return emip.prepare_emip_files(file_references, metadata_references)
-    elif globals.config.DATASET_NAME == "mooc-images":
-        return heatmaps.prepare_files(
-            file_references,
-            metadata_references,
-            globals.config.LABEL,
-            globals.config.SUBJECT_ID_COLUMN,
-        )
-    elif globals.config.DATASET_NAME == "emip-images":
-        return heatmaps.prepare_files(
-            file_references,
-            metadata_references,
-            globals.config.LABEL,
-            globals.config.SUBJECT_ID_COLUMN,
-        )
 
 
 def valid_config():
