@@ -14,8 +14,11 @@ from scikeras.wrappers import KerasRegressor
 from sklearn import model_selection
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
-
+from sklearn.linear_model import Lasso
+import numpy as np
+from sklearn.svm import LinearSVC
 
 def print_and_return(data):
     print(data)
@@ -46,6 +49,8 @@ def build_pipeline(flags):
     )
 
 
+    
+
 def build_lstm_pipeline(shape, classes, output_dir):
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
@@ -54,8 +59,12 @@ def build_lstm_pipeline(shape, classes, output_dir):
     classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
+            ("reshape", FunctionTransformer(lambda x: x.reshape(x.shape[0], 2430000))),
             ("preprocess", preprocessing),
-            ("extract_vgg16", extract_vgg16)
+            ("extract_vgg16", extract_vgg16),
+            ("printshape3", FunctionTransformer(lambda x: print(x.shape))),
+            ("Lasso", SelectFromModel(Lasso())),
+            ("printshape2", FunctionTransformer(lambda x: print(x.shape))),
             ("classifier", classifier),
         ]
     )

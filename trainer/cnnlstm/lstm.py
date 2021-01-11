@@ -9,6 +9,7 @@ from tensorflow.keras import backend as K
 import tensorflow as tf
 import numpy as np
 
+
 def create_model_factory(frames, channels, width, height, classes):
     return lambda: create_model(frames, channels, width, height, classes)
 
@@ -40,13 +41,12 @@ def create_model(frames, width, height, channels, classes):
     print(model.summary())
     return model
 
+
 def extract_features(subjects):
     cnn_base = VGG16(
         input_shape=subjects.shape[2:], weights="imagenet", include_top=False
     )
-    return np.array(
-        [
-            cnn_base.predict(images)
-            for images in subjects
-        ]
-    )
+    predictions = np.array([cnn_base.predict(images) for images in subjects])
+    print(predictions.shape)
+    flattened_subjects = predictions.reshape((*predictions.shape[:1], 331776))
+    return flattened_subjects
