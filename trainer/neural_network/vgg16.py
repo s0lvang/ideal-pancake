@@ -44,11 +44,10 @@ def create_transfer_learning_model(frames, width, height, channels, classes):
     return model
 
 
-def extract_features(subjects):
+def extract_features_from_vgg16(subjects):
     cnn_base = VGG16(
         input_shape=subjects.shape[2:], weights="imagenet", include_top=False
     )
     predictions = np.array([cnn_base.predict(images) for images in subjects])
-    print(predictions.shape)
-    flattened_subjects = predictions.reshape((*predictions.shape[:1], 331776))
+    flattened_subjects = predictions.reshape((*predictions.shape[:1], -1))
     return flattened_subjects

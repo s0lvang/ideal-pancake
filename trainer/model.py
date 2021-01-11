@@ -8,7 +8,8 @@ from trainer import globals
 from trainer import utils
 from trainer.neural_network.vgg16 import (
     create_model_factory,
-    extract_features,
+    extract_features_from_vgg16,
+    root_mean_squared_error
 )
 from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
@@ -54,7 +55,7 @@ def build_lasso_pipeline():
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
-            ("vgg_16", FunctionTransformer(extract_features)),
+            ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
         ]
@@ -93,8 +94,6 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def evaluate_model(model, x_test, y_test, dataset_test=None):
     if dataset_test is not None:
         set_dataset(model, dataset_test)
-    print(x_test[0])
-    print(x_test.shape)
     prediction = model.predict(x_test)
     print(prediction)
     print(y_test)
