@@ -15,14 +15,10 @@ from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
 
-from sklearn import model_selection
-from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
-import numpy as np
-from sklearn.svm import LinearSVC
 
 
 def print_and_return(data):
@@ -58,6 +54,8 @@ def build_lstm_pipeline():
     classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
+            ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
+            ("vgg_16", FunctionTransformer(extract_features)),
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
         ]

@@ -57,7 +57,6 @@ def ts_train_test_split(filtered_data, labels):
 
 def run_heatmap_experiment(flags):
     subjects, labels = datasets.datasets_and_labels()
-    subjects = model.extract_features_vgg16(subjects)
     (
         subjects_train,
         subjects_test,
