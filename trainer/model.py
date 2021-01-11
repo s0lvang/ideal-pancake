@@ -6,7 +6,11 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import globals
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model_factory, extract_features, root_mean_squared_error
+from trainer.cnnlstm.lstm import (
+    create_model_factory,
+    extract_features,
+    root_mean_squared_error,
+)
 from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
@@ -19,6 +23,7 @@ from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
 import numpy as np
 from sklearn.svm import LinearSVC
+
 
 def print_and_return(data):
     print(data)
@@ -49,25 +54,19 @@ def build_pipeline(flags):
     )
 
 
-    
-
-def build_lstm_pipeline(shape, classes, output_dir):
-    preprocessing = FunctionTransformer(
-        utils.preprocess_for_imagenet, check_inverse=False
-    )
-    extract_vgg16 = FunctionTransformer(extract_features, check_inverse=False)
+def build_lstm_pipeline():
     classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
-            ("reshape", FunctionTransformer(lambda x: x.reshape(x.shape[0], 2430000))),
-            ("preprocess", preprocessing),
-            ("extract_vgg16", extract_vgg16),
-            ("printshape3", FunctionTransformer(lambda x: print(x.shape))),
             ("Lasso", SelectFromModel(Lasso())),
-            ("printshape2", FunctionTransformer(lambda x: print(x.shape))),
             ("classifier", classifier),
         ]
     )
+
+
+def extract_features_vgg16(X):
+    subjects = utils.preprocess_for_imagenet(X)
+    return extract_features(subjects)
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
