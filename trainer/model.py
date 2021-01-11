@@ -50,7 +50,7 @@ def build_pipeline(flags):
     )
 
 
-def build_lstm_pipeline():
+def build_lasso_pipeline():
     classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
@@ -61,10 +61,32 @@ def build_lstm_pipeline():
         ]
     )
 
-
-def extract_features_vgg16(X):
-    subjects = utils.preprocess_for_imagenet(X)
-    return extract_features(subjects)
+def build_lstm_pipeline(shape, classes, output_dir):
+    model_factory = create_model_factory(classes=classes, *shape)
+    earlystopping_callback = EarlyStopping(
+        monitor="val_loss",
+        patience=50,
+        mode="min",
+        verbose=1,
+        restore_best_weights=True,
+    )
+    tensorboard_callback = BucketTensorBoard(output_dir, histogram_freq=1)
+    preprocessing = FunctionTransformer(
+        utils.preprocess_for_imagenet, check_inverse=False
+    )
+    classifier = KerasRegressor(
+        build_fn=model_factory,
+        epochs=300,
+        batch_size=1,
+        verbose=2,
+        fit__validation_split=0.2,
+        callbacks=[tensorboard_callback, earlystopping_callback],
+    )
+    return pipeline.Pipeline(
+        [
+            ("preprocess", preprocessing),
+            ("classifier", classifier),
+        ]
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.

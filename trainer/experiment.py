@@ -63,7 +63,7 @@ def run_heatmap_experiment(flags):
         labels_train,
         labels_test,
     ) = model_selection.train_test_split(subjects, labels, test_size=0.2)
-    pipeline = model.build_lstm_pipeline()
+    pipeline = model.build_lasso_pipeline()
     pipeline.fit(subjects_train, labels_train)
 
     scores = model.evaluate_model(pipeline, subjects_test, labels_test)
