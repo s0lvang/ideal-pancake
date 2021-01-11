@@ -11,14 +11,16 @@ import numpy as np
 
 
 def create_model_factory(frames, channels, width, height, classes):
-    return lambda: create_model(frames, channels, width, height, classes)
+    return lambda: create_transfer_learning_model(
+        frames, channels, width, height, classes
+    )
 
 
 def root_mean_squared_error(y_true, y_pred):
     return K.sqrt(K.mean(K.square(y_pred - y_true)))
 
 
-def create_model(frames, width, height, channels, classes):
+def create_transfer_learning_model(frames, width, height, channels, classes):
     print("frames", frames)
     print("channels", channels)
     print("width", width)

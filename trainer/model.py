@@ -6,12 +6,11 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import globals
 from trainer import utils
-from trainer.cnnlstm.lstm import (
+from trainer.neural_network.vgg16 import (
     create_model_factory,
     extract_features,
-    root_mean_squared_error,
 )
-from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
+from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
 
@@ -87,6 +86,7 @@ def build_lstm_pipeline(shape, classes, output_dir):
             ("preprocess", preprocessing),
             ("classifier", classifier),
         ]
+    )
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
