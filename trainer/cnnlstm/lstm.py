@@ -7,7 +7,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.optimizers import Adam
 from tensorflow.keras import backend as K
 import tensorflow as tf
-
+import numpy as np
 
 def create_model_factory(frames, channels, width, height, classes):
     return lambda: create_model(frames, channels, width, height, classes)
@@ -39,3 +39,14 @@ def create_model(frames, width, height, channels, classes):
     model.compile(loss=root_mean_squared_error, optimizer=optimizer, metrics=["mse"])
     print(model.summary())
     return model
+
+def extract_features(subjects):
+    cnn_base = VGG16(
+        input_shape=subjects.shape[2:], weights="imagenet", include_top=False
+    )
+    return np.array(
+        [
+            cnn_base.predict(images)
+            for images in subjects
+        ]
+    )

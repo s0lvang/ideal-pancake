@@ -6,13 +6,14 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import globals
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model_factory, root_mean_squared_error
+from trainer.cnnlstm.lstm import create_model_factory, extract_features, root_mean_squared_error
 from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
 
 from sklearn import model_selection
 from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestRegressor
 from keras.callbacks import EarlyStopping
 
 
@@ -46,29 +47,15 @@ def build_pipeline(flags):
 
 
 def build_lstm_pipeline(shape, classes, output_dir):
-    model_factory = create_model_factory(classes=classes, *shape)
-    earlystopping_callback = EarlyStopping(
-        monitor="val_loss",
-        patience=50,
-        mode="min",
-        verbose=1,
-        restore_best_weights=True,
-    )
-    tensorboard_callback = BucketTensorBoard(output_dir, histogram_freq=1)
     preprocessing = FunctionTransformer(
         utils.preprocess_for_imagenet, check_inverse=False
     )
-    classifier = KerasRegressor(
-        build_fn=model_factory,
-        epochs=300,
-        batch_size=1,
-        verbose=2,
-        fit__validation_split=0.2,
-        callbacks=[tensorboard_callback, earlystopping_callback],
-    )
+    extract_vgg16 = FunctionTransformer(extract_features, check_inverse=False)
+    classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
             ("preprocess", preprocessing),
+            ("extract_vgg16", extract_vgg16)
             ("classifier", classifier),
         ]
     )
