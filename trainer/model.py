@@ -125,6 +125,15 @@ def nrmse(
     return 100 * rmse(predicted_value, original_value) / scaling_factor
 
 
+def all_ranks(in_study, out_of_study):
+    combined = [*in_study, *out_of_study]
+    combined_ranks = scipy.stats.rankdata(combined)
+    in_study_ranks = combined_ranks[: len(in_study)]
+    out_of_study_ranks = combined_ranks[len(in_study) :]
+
+    return in_study_ranks, out_of_study_ranks, combined_ranks
+
+
 def anosim(in_study, out_of_study):
     in_study_ranks, out_of_study_ranks, combined_ranks = all_ranks(
         in_study, out_of_study
@@ -134,12 +143,3 @@ def anosim(in_study, out_of_study):
     return (in_study_ranks.mean() - combined_ranks.mean()) / (
         (amount_of_samples * (amount_of_samples - 1)) / 4
     )
-
-
-def all_ranks(in_study, out_of_study):
-    combined = [*in_study, *out_of_study]
-    combined_ranks = scipy.stats.rankdata(combined)
-    in_study_ranks = combined_ranks[: len(in_study)]
-    out_of_study_ranks = combined_ranks[len(in_study) :]
-
-    return in_study_ranks, out_of_study_ranks, combined_ranks
