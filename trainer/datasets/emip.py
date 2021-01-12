@@ -21,7 +21,7 @@ def prepare_emip_file(f, metadata_file, dataset, labels):
     csv["id"] = int(subject_id)
     dataset = dataset.append(csv, ignore_index=True)
     labels.at[int(subject_id)] = metadata_file.loc[
-        int(subject_id) - 1, globals.config.LABEL
+        int(subject_id) - 1, globals.dataset.config.LABEL
     ]
     return dataset, labels
 

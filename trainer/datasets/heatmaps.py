@@ -5,8 +5,8 @@ from trainer import globals
 
 
 def prepare_files(file_references, metadata_references):
-    label_column = globals.config.LABEL
-    id_column = globals.config.SUBJECT_ID_COLUMN
+    label_column = globals.dataset.config.LABEL
+    id_column = globals.dataset.config.SUBJECT_ID_COLUMN
 
     with metadata_references[0].open("r") as f:
         metadata_file = pd.read_csv(f)

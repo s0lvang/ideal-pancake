@@ -1,6 +1,7 @@
 from trainer.FileRefence import FileReference
 import os
 from google.cloud import storage
+from trainer import globals
 
 
 class Dataset:
@@ -21,19 +22,19 @@ class Dataset:
         self.valid_download_settings()
 
     def valid_download_settings(self):
-        if self.config.FORCE_LOCAL_FILES and self.config.FORCE_GCS_DOWNLOAD:
+        if globals.FORCE_LOCAL_FILES and globals.FORCE_GCS_DOWNLOAD:
             raise ValueError(
                 "Both force_local_files and force_gcs_download cannot be true at the same time."
             )
 
     def get_file_references(self, directory_name):
-        if self.config.FORCE_LOCAL_FILES:
+        if globals.FORCE_LOCAL_FILES:
             file_references = get_file_names_from_directory(
-                f"datasets/{self.config.DATASET_NAME}/{directory_name}"
+                f"datasets/{self.name}/{directory_name}"
             )
         else:
             file_references = get_blobs_from_gcs(
-                bucket_name=self.config.DATASET_NAME, prefix=directory_name
+                bucket_name=self.name, prefix=directory_name
             )
         return file_references
 

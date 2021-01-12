@@ -6,14 +6,6 @@ from trainer.Dataset import Dataset
 
 
 def init(in_study, out_of_study):
-    global dataset
-    dataset = Dataset(in_study, get_config(in_study))
-    global out_of_study_dataset
-    if out_of_study:
-        out_of_study_dataset = Dataset(out_of_study, get_config(out_of_study))
-    else:
-        out_of_study_dataset = None
-
     global FORCE_GCS_DOWNLOAD
     FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
@@ -22,6 +14,14 @@ def init(in_study, out_of_study):
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
     MODEL_FILE_NAME = "model.joblib"
+
+    global dataset
+    dataset = Dataset(in_study, get_config(in_study))
+    global out_of_study_dataset
+    if out_of_study:
+        out_of_study_dataset = Dataset(out_of_study, get_config(out_of_study))
+    else:
+        out_of_study_dataset = None
 
 
 def get_config(dataset_name):
