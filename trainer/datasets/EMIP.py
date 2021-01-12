@@ -2,7 +2,7 @@ import pandas as pd
 from itertools import takewhile
 
 from trainer import experiment
-from trainer.Dataset import Dataset
+from trainer.datasets.Dataset import Dataset
 
 
 class EMIP(Dataset):

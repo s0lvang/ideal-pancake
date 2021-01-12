@@ -1,5 +1,5 @@
 from trainer import experiment
-from trainer.Dataset import Dataset
+from trainer.datasets.Dataset import Dataset
 
 import pandas as pd
 import numpy as np

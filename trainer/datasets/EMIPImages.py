@@ -1,4 +1,4 @@
-from trainer.configuration.Heatmap import Heatmap
+from trainer.datasets.Heatmap import Heatmap
 
 
 class EMIPImages(Heatmap):

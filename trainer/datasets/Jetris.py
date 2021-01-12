@@ -1,7 +1,7 @@
 import pandas as pd
 
 from trainer import experiment
-from trainer.Dataset import Dataset
+from trainer.datasets.Dataset import Dataset
 
 
 class Jetris(Dataset):
