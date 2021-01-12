@@ -7,7 +7,6 @@ class DatasetConfig:
 
     def __str__(self):
         variables = vars(self).copy()
-        ts_fresh = ", ".join(variables.pop("TSFRESH_FEATURES", {}).keys())
-        file_preparer = variables.pop("file_preparer")
+        ts_fresh = ", ".join(variables.pop("tsfresh_features", {}).keys())
         experimenter = variables.pop("experimenter")
-        return f"{json.dumps(variables)} TS_FRESH_FEATURES: ({ts_fresh}) file_preparer: ({file_preparer.__name__}) experimenter: ({experimenter.__name__})"
+        return f"{json.dumps(variables)} tsfresh_features: ({ts_fresh}) experimenter: ({experimenter.__name__})"

@@ -5,18 +5,16 @@ from trainer import globals
 
 
 class Dataset:
-    def __init__(self, name, config):
+    def __init__(self, name):
         self.name = name
-        self.config = config
-        print(self.config)
-        print(self.config.file_preparer.__name__)
-        self.data, self.labels = self.data_and_labels()
 
     def data_and_labels(self):
         validate_config()
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
-        data, labels = self.config.file_preparer(file_references, metadata_references)
+        print("file ref done")
+        data, labels = self.prepare_files(file_references, metadata_references)
+        print("after prepare files")
         return data, labels
 
     def get_file_references(self, directory_name):

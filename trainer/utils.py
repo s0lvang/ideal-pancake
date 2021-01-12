@@ -13,7 +13,7 @@ import re
 
 def read_heatmaps():
     directory_name = "images"
-    label_column = globals.dataset.config.LABEL
+    label_column = globals.dataset.LABEL
     metadata = pd.read_csv("emip/emip_metadata.csv/emip_metadata.csv")
     images = np.array([])
     labels = np.array([])

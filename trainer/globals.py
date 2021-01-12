@@ -1,8 +1,7 @@
-from trainer.configuration.JetrisConfig import JetrisConfig
-from trainer.configuration.EMIPConfig import EMIPConfig
-from trainer.configuration.MoocImagesConfig import MoocImagesConfig
-from trainer.configuration.EMIPImagesConfig import EMIPImagesConfig
-from trainer.Dataset import Dataset
+from trainer.configuration.Jetris import Jetris
+from trainer.configuration.EMIP import EMIP
+from trainer.configuration.MoocImages import MoocImages
+from trainer.configuration.EMIPImages import EMIPImages
 
 
 def init(in_study, out_of_study):
@@ -16,24 +15,25 @@ def init(in_study, out_of_study):
     MODEL_FILE_NAME = "model.joblib"
 
     global dataset
-    dataset = Dataset(in_study, get_config(in_study))
-    print("dataset done")
+    dataset = get_dataset(dataset_name=in_study)
     global out_of_study_dataset
     if out_of_study:
-        out_of_study_dataset = Dataset(out_of_study, get_config(out_of_study))
+        out_of_study_dataset = get_dataset(dataset_name=out_of_study)
     else:
         out_of_study_dataset = None
 
+    print(dataset.__class__)
+    print(out_of_study_dataset.__class__)
 
-def get_config(dataset_name):
+
+def get_dataset(dataset_name):
     if dataset_name == "emip-images":
-        return EMIPImagesConfig()
+        return EMIPImages()
     elif dataset_name == "mooc-images":
-        return MoocImagesConfig()
+        return MoocImages()
     elif dataset_name == "emip":
-        print("returning emipconfig")
-        return EMIPConfig()
+        return EMIP()
     elif dataset_name == "jetris":
-        return JetrisConfig()
+        return Jetris()
     else:
         raise ValueError(f"{dataset_name} is not a valid dataset name.")

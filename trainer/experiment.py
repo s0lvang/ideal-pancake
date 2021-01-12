@@ -11,8 +11,8 @@ from trainer import globals
 
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
-    dataset = globals.dataset.data
-    labels = globals.dataset.labels
+    print("run ts")
+    dataset, labels = globals.dataset.data_and_labels()
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,
@@ -31,7 +31,7 @@ def run_ts_experiment(flags):
 
 
 def get_data_from_feature_selection(dataset):
-    columns_to_use = globals.dataset.config.FEATURE_COLUMNS + ["Time", "id"]
+    columns_to_use = globals.dataset.feature_columns + ["Time", "id"]
     return dataset[columns_to_use]
 
 
@@ -56,8 +56,7 @@ def ts_train_test_split(filtered_data, labels):
 
 
 def run_heatmap_experiment(flags):
-    subjects = globals.dataset.data
-    labels = globals.dataset.labels
+    subjects, labels = globals.dataset.data_and_labels()
     (
         subjects_train,
         subjects_test,

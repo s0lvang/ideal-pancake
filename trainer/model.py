@@ -40,7 +40,7 @@ def build_pipeline(flags):
                 FeatureAugmenter(
                     column_id="id",
                     column_sort="Time",
-                    default_fc_parameters=globals.dataset.config.TSFRESH_FEATURES,
+                    default_fc_parameters=globals.dataset.tsfresh_features,
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
