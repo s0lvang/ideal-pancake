@@ -5,14 +5,14 @@ from sklearn import model_selection
 from trainer import globals
 from trainer import model
 from trainer import utils
-from trainer.datasets import datasets
 import pandas as pd
 from trainer import globals
 
 
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
-    dataset, labels = datasets.datasets_and_labels(globals.dataset.config)
+    dataset = globals.dataset.data
+    labels = globals.dataset.labels
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,
@@ -56,7 +56,8 @@ def ts_train_test_split(filtered_data, labels):
 
 
 def run_heatmap_experiment(flags):
-    subjects, labels = datasets.datasets_and_labels()
+    subjects = globals.dataset.data
+    labels = globals.dataset.labels
     (
         subjects_train,
         subjects_test,

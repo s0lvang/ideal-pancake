@@ -2,6 +2,7 @@ import pandas as pd
 
 
 def prepare_jetris_files(file_references, metadata_references):
+    print("in prepare_jetris_files")
     labels = pd.Series()
     dataset = pd.DataFrame()
     for file_reference in file_references:
@@ -13,6 +14,7 @@ def prepare_jetris_files(file_references, metadata_references):
 
 
 def prepare_jetris_file(f, dataset, labels):
+    print(f)
     csv = pd.read_csv(f, comment="#")
     csv = csv[
         csv["Pupil.initial"] != "saccade"

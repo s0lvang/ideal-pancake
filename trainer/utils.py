@@ -9,7 +9,6 @@ import numpy as np
 import cv2
 from keras.applications.imagenet_utils import preprocess_input
 import re
-from trainer.datasets import datasets
 
 
 def read_heatmaps():

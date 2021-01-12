@@ -8,24 +8,16 @@ class Dataset:
     def __init__(self, name, config):
         self.name = name
         self.config = config
+        print(self.config)
+        print(self.config.file_preparer.__name__)
         self.data, self.labels = self.data_and_labels()
 
     def data_and_labels(self):
-        self.valid_config()
-
+        validate_config()
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
         data, labels = self.config.file_preparer(file_references, metadata_references)
         return data, labels
-
-    def valid_config(self):
-        self.valid_download_settings()
-
-    def valid_download_settings(self):
-        if globals.FORCE_LOCAL_FILES and globals.FORCE_GCS_DOWNLOAD:
-            raise ValueError(
-                "Both force_local_files and force_gcs_download cannot be true at the same time."
-            )
 
     def get_file_references(self, directory_name):
         if globals.FORCE_LOCAL_FILES:
@@ -66,3 +58,14 @@ def get_blobs_from_gcs(bucket_name, prefix):
         map(FileReference, filter(lambda file: file.name != prefix, blobs))
     )
     return file_references
+
+
+def validate_config():
+    validate_download_settings()
+
+
+def validate_download_settings():
+    if globals.FORCE_LOCAL_FILES and globals.FORCE_GCS_DOWNLOAD:
+        raise ValueError(
+            "Both force_local_files and force_gcs_download cannot be true at the same time."
+        )

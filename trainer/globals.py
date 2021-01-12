@@ -9,7 +9,7 @@ def init(in_study, out_of_study):
     global FORCE_GCS_DOWNLOAD
     FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
-    FORCE_LOCAL_FILES = False
+    FORCE_LOCAL_FILES = True
     global METRIC_FILE_NAME
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
@@ -17,6 +17,7 @@ def init(in_study, out_of_study):
 
     global dataset
     dataset = Dataset(in_study, get_config(in_study))
+    print("dataset done")
     global out_of_study_dataset
     if out_of_study:
         out_of_study_dataset = Dataset(out_of_study, get_config(out_of_study))
@@ -30,6 +31,7 @@ def get_config(dataset_name):
     elif dataset_name == "mooc-images":
         return MoocImagesConfig()
     elif dataset_name == "emip":
+        print("returning emipconfig")
         return EMIPConfig()
     elif dataset_name == "jetris":
         return JetrisConfig()

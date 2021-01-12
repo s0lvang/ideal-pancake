@@ -16,13 +16,17 @@ def prepare_emip_files(file_references, metadata_references):
 
 
 def prepare_emip_file(f, metadata_file, dataset, labels):
+    if globals.dataset.name == "emip":
+        c = globals.dataset.config
+    else:
+        print(globals)
+        c = globals.out_of_study_dataset
+
     subject_id = get_header(f)["Subject"][0]
     csv = pd.read_csv(f, sep="\t", comment="#")
     csv["id"] = int(subject_id)
     dataset = dataset.append(csv, ignore_index=True)
-    labels.at[int(subject_id)] = metadata_file.loc[
-        int(subject_id) - 1, globals.dataset.config.LABEL
-    ]
+    labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, c.LABEL]
     return dataset, labels
 
 
