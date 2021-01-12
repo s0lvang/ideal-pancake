@@ -1,6 +1,7 @@
 from trainer.configuration.DatasetConfig import DatasetConfig
 from trainer.datasets import emip
 from trainer import experiment
+from trainer.Dataset import Dataset
 
 
 class EMIPConfig(DatasetConfig):

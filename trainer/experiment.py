@@ -12,6 +12,7 @@ from trainer import globals
 
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
+    print(globals.config.DATASET)
     dataset, labels = datasets.datasets_and_labels(globals.config)
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (

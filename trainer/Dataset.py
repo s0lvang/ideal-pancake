@@ -14,10 +14,8 @@ class Dataset:
 
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
-        datasets, labels = self.config.file_preparer(
-            file_references, metadata_references
-        )
-        return datasets, labels
+        data, labels = self.config.file_preparer(file_references, metadata_references)
+        return data, labels
 
     def valid_config(self):
         self.valid_download_settings()
@@ -30,14 +28,17 @@ class Dataset:
 
     def get_file_references(self, directory_name):
         if self.config.FORCE_LOCAL_FILES:
-            file_references = self.get_file_names_from_directory(
+            file_references = get_file_names_from_directory(
                 f"datasets/{self.config.DATASET_NAME}/{directory_name}"
             )
         else:
-            file_references = self.get_blobs_from_gcs(
+            file_references = get_blobs_from_gcs(
                 bucket_name=self.config.DATASET_NAME, prefix=directory_name
             )
         return file_references
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 def get_file_names_from_directory(directory_name):

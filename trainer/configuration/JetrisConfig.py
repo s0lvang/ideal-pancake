@@ -1,6 +1,7 @@
 from trainer.configuration.DatasetConfig import DatasetConfig
 from trainer.datasets import jetris
 from trainer import experiment
+from trainer.Dataset import Dataset
 
 
 class JetrisConfig(DatasetConfig):

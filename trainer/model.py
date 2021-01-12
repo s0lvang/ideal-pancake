@@ -89,6 +89,7 @@ def evaluate_model(model, x_test, y_test, dataset_test=None):
     print(prediction)
     print(y_test)
     print(nrmse_per_subject(predicted_values=prediction, original_values=y_test))
+
     # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
 
 

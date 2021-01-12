@@ -2,16 +2,26 @@ from trainer.configuration.JetrisConfig import JetrisConfig
 from trainer.configuration.EMIPConfig import EMIPConfig
 from trainer.configuration.MoocImagesConfig import MoocImagesConfig
 from trainer.configuration.EMIPImagesConfig import EMIPImagesConfig
+from trainer.Dataset import Dataset
 
 
 def init(in_study, out_of_study):
-    global config
-    config = get_config(in_study)
-    global out_of_study_config
+    global dataset
+    dataset = Dataset(in_study, get_config(in_study))
+    global out_of_study_dataset
     if out_of_study:
-        out_of_study_config = get_config(out_of_study)
+        out_of_study_dataset = Dataset(out_of_study, get_config(out_of_study))
     else:
-        out_of_study_config = None
+        out_of_study_dataset = None
+
+    global FORCE_GCS_DOWNLOAD
+    FORCE_GCS_DOWNLOAD = False
+    global FORCE_LOCAL_FILES
+    FORCE_LOCAL_FILES = False
+    global METRIC_FILE_NAME
+    METRIC_FILE_NAME = "eval_metrics.joblib"
+    global MODEL_FILE_NAME
+    MODEL_FILE_NAME = "model.joblib"
 
 
 def get_config(dataset_name):
