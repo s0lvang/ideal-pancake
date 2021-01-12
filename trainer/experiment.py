@@ -1,57 +1,5 @@
 import hypertune
 import numpy as np
-from sklearn import model_selection
-
-from trainer import globals
-from trainer import model
-from trainer import utils
-import pandas as pd
-from trainer import globals
-
-
-def run_ts_experiment(flags):
-    """Testbed for running model training and evaluation."""
-    dataset, labels = globals.dataset.data_and_labels()
-    filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
-    (
-        indices_train,
-        indices_test,
-        labels_train,
-        labels_test,
-        dataset_train,
-        dataset_test,
-    ) = ts_train_test_split(filtered_data, labels)
-    pipeline = model.build_pipeline(flags)
-    model.set_dataset(pipeline, dataset_train)
-    pipeline.fit(indices_train, labels_train)
-
-    scores = model.evaluate_model(pipeline, indices_test, labels_test, dataset_test)
-    model.store_model_and_metrics(pipeline, scores, flags.job_dir)
-
-
-def get_data_from_feature_selection(dataset):
-    columns_to_use = globals.dataset.feature_columns + ["Time", "id"]
-    return dataset[columns_to_use]
-
-
-def ts_train_test_split(filtered_data, labels):
-    indices = pd.DataFrame(index=labels.index).astype("int64")
-    (
-        indices_train,
-        indices_test,
-        labels_train,
-        labels_test,
-    ) = model_selection.train_test_split(indices, labels)
-    dataset_train = filtered_data[filtered_data["id"].isin(indices_train.index)]
-    dataset_test = filtered_data[filtered_data["id"].isin(indices_test.index)]
-    return (
-        indices_train,
-        indices_test,
-        labels_train,
-        labels_test,
-        dataset_train,
-        dataset_test,
-    )
 
 
 def hypertune(metrics):

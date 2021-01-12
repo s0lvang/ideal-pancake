@@ -12,7 +12,6 @@ class Heatmap(Dataset):
     def __init__(self, name):
         super().__init__(name)
         self.image_size = (150, 100)
-        self.experimenter = self.run_experiment
 
     def prepare_files(self, file_references, metadata_references):
         label_column = self.label

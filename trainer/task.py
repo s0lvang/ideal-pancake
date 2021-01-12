@@ -94,7 +94,7 @@ def main():
     # Set up config and select datasets
     globals.init(in_study=flags.in_study, out_of_study=flags.out_of_study)
     # Trigger the experiment
-    globals.dataset.experimenter(flags)
+    globals.dataset.run_experiment(flags)
 
 
 if __name__ == "__main__":

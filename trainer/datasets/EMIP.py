@@ -1,27 +1,18 @@
 import pandas as pd
 from itertools import takewhile
 
-from trainer import experiment
-from trainer.datasets.Dataset import Dataset
+from trainer.datasets.Timeseries import Timeseries
 
 
-class EMIP(Dataset):
+class EMIP(Timeseries):
     def __init__(self):
         super().__init__("emip")
         self.label = "expertise_programming"
-        self.tsfresh_features = {
-            "length": None,
-            "fft_aggregated": [
-                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            ],
-            "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
-        }
         self.numeric_features = [
             "Pupil Confidence",
         ]
         self.categorical_features = []
         self.feature_columns = self.numeric_features + self.categorical_features
-        self.experimenter = experiment.run_ts_experiment
 
     def prepare_files(self, file_references, metadata_references):
         print("in prep files emip")
