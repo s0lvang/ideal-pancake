@@ -1,16 +1,18 @@
-from trainer import experiment
+from trainer import model
 from trainer.datasets.Dataset import Dataset
 
 import pandas as pd
 import numpy as np
 import cv2
+import numpy as np
+from sklearn import model_selection
 
 
 class Heatmap(Dataset):
     def __init__(self, name):
         super().__init__(name)
         self.image_size = (150, 100)
-        self.experimenter = experiment.run_heatmap_experiment
+        self.experimenter = self.run_experiment
 
     def prepare_files(self, file_references, metadata_references):
         label_column = self.label
@@ -55,17 +57,36 @@ class Heatmap(Dataset):
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
         return cv2.resize(image, self.image_size)
 
-    def group_file_references_by_subject_id(self, file_references):
-        grouped = {}
+    def run_experiment(self, flags):
+        subjects, labels = self.data_and_labels()
+        (
+            subjects_train,
+            subjects_test,
+            labels_train,
+            labels_test,
+        ) = model_selection.train_test_split(subjects, labels, test_size=0.2)
+        pipeline = model.build_lstm_pipeline(
+            subjects.shape[1:], classes=11, output_dir=flags.job_dir
+        )
+        pipeline.fit(subjects_train, labels_train)
 
-        for file_reference in file_references:
-            id = subject_id(file_reference)
-            grouped[id] = [*grouped.get(id, []), file_reference]
+        scores = model.evaluate_model(pipeline, subjects_test, labels_test)
+        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
-        return grouped
+        return scores
 
     def __str__(self):
         return super().__str__()
+
+
+def group_file_references_by_subject_id(file_references):
+    grouped = {}
+
+    for file_reference in file_references:
+        id = subject_id(file_reference)
+        grouped[id] = [*grouped.get(id, []), file_reference]
+
+    return grouped
 
 
 def subject_id(file_reference):

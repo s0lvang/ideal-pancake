@@ -11,7 +11,6 @@ from trainer import globals
 
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
-    print("run ts")
     dataset, labels = globals.dataset.data_and_labels()
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
@@ -53,25 +52,6 @@ def ts_train_test_split(filtered_data, labels):
         dataset_train,
         dataset_test,
     )
-
-
-def run_heatmap_experiment(flags):
-    subjects, labels = globals.dataset.data_and_labels()
-    (
-        subjects_train,
-        subjects_test,
-        labels_train,
-        labels_test,
-    ) = model_selection.train_test_split(subjects, labels, test_size=0.2)
-    pipeline = model.build_lstm_pipeline(
-        subjects.shape[1:], classes=11, output_dir=flags.job_dir
-    )
-    pipeline.fit(subjects_train, labels_train)
-
-    scores = model.evaluate_model(pipeline, subjects_test, labels_test)
-    model.store_model_and_metrics(pipeline, scores, flags.job_dir)
-
-    return scores
 
 
 def hypertune(metrics):
