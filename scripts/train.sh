@@ -16,10 +16,11 @@
 #   $3: (Optional) Whether to run `train` or `hptuning`.
 #   $4: (Optional) additional arguments to pass to the trainer.
 
-INPUT=$1
-RUN_ENV=$2
-RUN_TYPE=$3
-EXTRA_TRAINER_ARGS=$4
+RUN_ENV=$1
+IN_STUDY=$2
+OUT_OF_STUDY=$3
+RUN_TYPE=$4
+EXTRA_TRAINER_ARGS=$5
 IMAGE_URI=eu.gcr.io/$PROJECT_ID/trainer:0.1
 
 if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
@@ -71,7 +72,8 @@ fi
 
 # Specify arguments to pass to the trainer module (trainer/task.py)
 TRAINER_ARGS="\
-  --input $INPUT \
+  --in_study $IN_STUDY \
+  --out_of_study $OUT_OF_STUDY \
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \
@@ -82,7 +84,7 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   "
 kill $(lsof -ti tcp:6006) # Kill tensoboard if it runs
 echo "To run tensorboard: "
-echo "kill $(lsof -ti tcp:6006) && tensorboard --logdir=\"$JOB_DIR/tensorboard\" &
+echo "kill \$(lsof -ti tcp:6006) && tensorboard --logdir=\"$JOB_DIR/tensorboard\" &
 open \"http://localhost:6006\""
 if [ "$RUN_ENV" = 'remote' ]; then
   eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"

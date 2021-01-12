@@ -1,5 +1,6 @@
 from trainer.configuration.DatasetConfig import DatasetConfig
 from trainer.datasets import heatmaps
+from trainer import experiment
 
 
 class MoocImagesConfig(DatasetConfig):
@@ -9,6 +10,7 @@ class MoocImagesConfig(DatasetConfig):
         self.LABEL = "posttest"
         self.DATASET_NAME = "mooc-images"
         self.file_preparer = heatmaps.prepare_files
+        self.experimenter = experiment.run_heatmap_experiment
 
     def __str__(self):
         return super().__str__()

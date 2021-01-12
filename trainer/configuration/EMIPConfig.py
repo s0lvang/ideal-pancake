@@ -1,5 +1,6 @@
 from trainer.configuration.DatasetConfig import DatasetConfig
 from trainer.datasets import emip
+from trainer import experiment
 
 
 class EMIPConfig(DatasetConfig):
@@ -20,6 +21,7 @@ class EMIPConfig(DatasetConfig):
         self.CATEGORICAL_FEATURES = []
         self.FEATURE_COLUMNS = self.NUMERIC_FEATURES + self.CATEGORICAL_FEATURES
         self.file_preparer = emip.prepare_emip_files
+        self.experimenter = experiment.run_ts_experiment
 
     def __str__(self):
         return super().__str__()

@@ -12,7 +12,7 @@ from trainer import globals
 
 def run_ts_experiment(flags):
     """Testbed for running model training and evaluation."""
-    dataset, labels = datasets.datasets_and_labels()
+    dataset, labels = datasets.datasets_and_labels(globals.config)
     filtered_data = get_data_from_feature_selection(dataset).fillna(method="ffill")
     (
         indices_train,
@@ -53,7 +53,6 @@ def ts_train_test_split(filtered_data, labels):
         dataset_train,
         dataset_test,
     )
-
 
 
 def run_heatmap_experiment(flags):

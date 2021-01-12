@@ -9,11 +9,11 @@ from google.cloud import storage
 import numpy as np
 
 
-def datasets_and_labels():
+def datasets_and_labels(dataset_config):
     valid_config()
     file_references = get_file_references("data/")
     metadata_references = get_file_references("metadata/")
-    datasets, labels = globals.config.file_preparer(
+    datasets, labels = dataset_config.file_preparer(
         file_references, metadata_references
     )
     return datasets, labels
