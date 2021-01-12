@@ -1,8 +1,6 @@
 import argparse
 import logging
-import os
 import sys
-from trainer import experiment
 from trainer import globals
 import tensorflow as tf
 

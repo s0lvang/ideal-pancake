@@ -1,14 +1,11 @@
 import os
-from itertools import takewhile
 import pandas as pd
 import joblib
 from tensorflow.io import gfile
 from trainer import globals
-from google.cloud import storage
 import numpy as np
 import cv2
 from keras.applications.imagenet_utils import preprocess_input
-import re
 
 
 def read_heatmaps():

@@ -15,7 +15,6 @@ class EMIP(Timeseries):
         self.feature_columns = self.numeric_features + self.categorical_features
 
     def prepare_files(self, file_references, metadata_references):
-        print("in prep files emip")
         labels = pd.Series()
         dataset = pd.DataFrame()
         with metadata_references[0].open("r") as f:
@@ -26,7 +25,6 @@ class EMIP(Timeseries):
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
-        print(f)
         subject_id = get_header(f)["Subject"][0]
         csv = pd.read_csv(f, sep="\t", comment="#")
         csv["id"] = int(subject_id)

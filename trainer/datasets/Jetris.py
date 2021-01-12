@@ -13,7 +13,6 @@ class Jetris(Timeseries):
         self.feature_columns = self.numeric_features + self.categorical_features
 
     def prepare_files(self, file_references, metadata_references):
-        print("in prep files jetris")
         labels = pd.Series()
         dataset = pd.DataFrame()
         for file_reference in file_references:
@@ -24,7 +23,6 @@ class Jetris(Timeseries):
         return dataset, labels
 
     def prepare_file(self, f, dataset, labels):
-        print(f)
         csv = pd.read_csv(f, comment="#")
         csv = csv[
             csv["Pupil.initial"] != "saccade"

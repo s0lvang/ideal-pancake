@@ -1,12 +1,9 @@
 import pandas as pd
 from itertools import takewhile
-
-from trainer.datasets.Dataset import Dataset
-
 from sklearn import model_selection
 
+from trainer.datasets.Dataset import Dataset
 from trainer import model
-import pandas as pd
 
 
 class Timeseries(Dataset):
@@ -31,7 +28,6 @@ class Timeseries(Dataset):
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
-        print(f)
         subject_id = get_header(f)["Subject"][0]
         csv = pd.read_csv(f, sep="\t", comment="#")
         csv["id"] = int(subject_id)

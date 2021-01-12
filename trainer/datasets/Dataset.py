@@ -12,9 +12,7 @@ class Dataset:
         validate_config()
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
-        print("file ref done")
         data, labels = self.prepare_files(file_references, metadata_references)
-        print("after prepare files")
         return data, labels
 
     def get_file_references(self, directory_name):
