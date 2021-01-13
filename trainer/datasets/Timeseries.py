@@ -1,9 +1,11 @@
+from trainer.utils import unify_labels
 import pandas as pd
 from itertools import takewhile
 from sklearn import model_selection
 
 from trainer.datasets.Dataset import Dataset
 from trainer import model
+from trainer import globals
 
 
 class Timeseries(Dataset):
@@ -32,6 +34,8 @@ class Timeseries(Dataset):
     def run_experiment(self, flags):
         """Testbed for running model training and evaluation."""
         dataset, labels = self.data_and_labels()
+        print("jetris labels")
+        print(labels)
         filtered_data = self.get_data_from_feature_selection(dataset).fillna(
             method="ffill"
         )
@@ -46,7 +50,8 @@ class Timeseries(Dataset):
         pipeline = model.build_pipeline(flags)
         model.set_dataset(pipeline, dataset_train)
         pipeline.fit(indices_train, labels_train)
-
+        oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
+        unify_labels(oos_labels, labels)
         scores = model.evaluate_model(pipeline, indices_test, labels_test, dataset_test)
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
@@ -55,7 +60,6 @@ class Timeseries(Dataset):
             self.column_names["time"],
             self.column_names["subject_id"],
         ]
-        print(dataset.columns)
         return dataset[columns_to_use]
 
     def train_test_split(self, filtered_data, labels):

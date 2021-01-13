@@ -6,6 +6,7 @@ from trainer import globals
 import numpy as np
 import cv2
 from keras.applications.imagenet_utils import preprocess_input
+from collections import Counter
 
 
 def read_heatmaps():
@@ -97,6 +98,28 @@ def boolean_mask(columns, target_columns):
     return [x in target_set for x in columns]
 
 
-def convert_labels_to_categorical(labels):
+def convert_numerical_labels_to_categorical(labels):
     average_score = sum(labels) / len(labels)
     return list(map(lambda score: "high" if (score > average_score) else "low", labels))
+
+
+def convert_categorical_labels_to_numerical(labels):
+    pass
+
+
+def get_thresholds_from_numerical(labels):
+    pass
+
+
+def unify_labels(categorical, numerical):
+    print("Start unify")
+    print(numerical)
+    c = Counter(categorical)
+    print(c)
+    cat_len = len(categorical)
+    high_percentage = cat_len * c["high"]
+    percentages = {key: value / cat_len for (key, value) in c.items()}
+    print(percentages)
+    # dict_variable = {key:value for (key,value) in dictonary.items()}
+
+    print("End unify")
