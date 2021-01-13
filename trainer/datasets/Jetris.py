@@ -19,7 +19,6 @@ class Jetris(Timeseries):
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, dataset, labels)
         # labels = convert_labels_to_categorical()
-        dataset = dataset.rename(columns=self.column_name_mapping)
         return dataset, labels
 
     def prepare_file(self, f, dataset, labels):
@@ -29,6 +28,8 @@ class Jetris(Timeseries):
         ]  # this drops all lines that are saccades, we should do something smarter here.
         csv = csv.rename(columns=self.column_name_mapping)
         game_id = csv[self.column_names["subject_id"]][0]
+        if csv["Score.1"].iloc[-1] == 0:
+            return dataset, labels
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
         return dataset, labels

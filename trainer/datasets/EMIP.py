@@ -29,9 +29,9 @@ class EMIP(Timeseries):
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
-        dataset = dataset.rename(columns=self.column_name_mapping)
         subject_id = get_header(f)["Subject"][0]
         csv = pd.read_csv(f, sep="\t", comment="#")
+        csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
