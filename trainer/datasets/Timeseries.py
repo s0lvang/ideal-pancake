@@ -9,6 +9,13 @@ from trainer import model
 class Timeseries(Dataset):
     def __init__(self, name):
         super().__init__(name)
+        self.column_names = {
+            "time": "time",
+            "subject_id": "subject_id",
+            "x": "x",
+            "y": "y",
+            "pupil_diameter": "pupil_diameter",
+        }
         self.tsfresh_features = {
             "length": None,
             "fft_aggregated": [
@@ -16,6 +23,11 @@ class Timeseries(Dataset):
             ],
             "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
         }
+        self.numeric_features = [
+            self.column_names["pupil_diameter"],
+        ]
+        self.categorical_features = []
+        self.feature_columns = self.numeric_features + self.categorical_features
 
     def run_experiment(self, flags):
         """Testbed for running model training and evaluation."""
@@ -30,7 +42,7 @@ class Timeseries(Dataset):
             labels_test,
             dataset_train,
             dataset_test,
-        ) = train_test_split(filtered_data, labels)
+        ) = self.train_test_split(filtered_data, labels)
         pipeline = model.build_pipeline(flags)
         model.set_dataset(pipeline, dataset_train)
         pipeline.fit(indices_train, labels_train)
@@ -39,8 +51,35 @@ class Timeseries(Dataset):
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     def get_data_from_feature_selection(self, dataset):
-        columns_to_use = self.feature_columns + ["Time", "id"]
+        columns_to_use = self.feature_columns + [
+            self.column_names["time"],
+            self.column_names["subject_id"],
+        ]
+        print(dataset.columns)
         return dataset[columns_to_use]
+
+    def train_test_split(self, filtered_data, labels):
+        indices = pd.DataFrame(index=labels.index).astype("int64")
+        (
+            indices_train,
+            indices_test,
+            labels_train,
+            labels_test,
+        ) = model_selection.train_test_split(indices, labels)
+        dataset_train = filtered_data[
+            filtered_data[self.column_names["subject_id"]].isin(indices_train.index)
+        ]
+        dataset_test = filtered_data[
+            filtered_data[self.column_names["subject_id"]].isin(indices_test.index)
+        ]
+        return (
+            indices_train,
+            indices_test,
+            labels_train,
+            labels_test,
+            dataset_train,
+            dataset_test,
+        )
 
     def __str__(self):
         return super().__str__()
@@ -54,23 +93,3 @@ def get_header(file):
     header = {k: split_on_tab(v) for k, v in header.items()}
     file.seek(0, 0)
     return header
-
-
-def train_test_split(filtered_data, labels):
-    indices = pd.DataFrame(index=labels.index).astype("int64")
-    (
-        indices_train,
-        indices_test,
-        labels_train,
-        labels_test,
-    ) = model_selection.train_test_split(indices, labels)
-    dataset_train = filtered_data[filtered_data["id"].isin(indices_train.index)]
-    dataset_test = filtered_data[filtered_data["id"].isin(indices_test.index)]
-    return (
-        indices_train,
-        indices_test,
-        labels_train,
-        labels_test,
-        dataset_train,
-        dataset_test,
-    )

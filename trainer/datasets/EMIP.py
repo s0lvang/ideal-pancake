@@ -1,3 +1,4 @@
+from trainer.utils import convert_categorical_labels_to_numerical
 import pandas as pd
 from itertools import takewhile
 
@@ -7,12 +8,14 @@ from trainer.datasets.Timeseries import Timeseries
 class EMIP(Timeseries):
     def __init__(self):
         super().__init__("emip")
+        self.column_name_mapping = {
+            "id": self.column_names["subject_id"],
+            "Time": self.column_names["time"],
+            "L POR X [px]": self.column_names["x"],
+            "L POR Y [px]": self.column_names["y"],
+            "L Mapped Diameter [mm]": self.column_names["pupil_diameter"],
+        }
         self.label = "expertise_programming"
-        self.numeric_features = [
-            "Pupil Confidence",
-        ]
-        self.categorical_features = []
-        self.feature_columns = self.numeric_features + self.categorical_features
 
     def prepare_files(self, file_references, metadata_references):
         labels = pd.Series()
@@ -22,12 +25,14 @@ class EMIP(Timeseries):
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
+        convert_categorical_labels_to_numerical(labels)
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
+        dataset = dataset.rename(columns=self.column_name_mapping)
         subject_id = get_header(f)["Subject"][0]
         csv = pd.read_csv(f, sep="\t", comment="#")
-        csv["id"] = int(subject_id)
+        csv[self.column_names["subject_id"]] = int(subject_id)
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
         return dataset, labels

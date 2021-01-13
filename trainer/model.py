@@ -37,8 +37,8 @@ def build_pipeline(flags):
             (
                 "augmenter",
                 FeatureAugmenter(
-                    column_id="id",
-                    column_sort="Time",
+                    column_id=globals.dataset.column_names["subject_id"],
+                    column_sort=globals.dataset.column_names["time"],
                     default_fc_parameters=globals.dataset.tsfresh_features,
                 ),
             ),

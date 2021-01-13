@@ -1,7 +1,9 @@
 from trainer.FileRefence import FileReference
-import os
-from google.cloud import storage
 from trainer import globals
+
+import os
+import json
+from google.cloud import storage
 
 
 class Dataset:
@@ -27,7 +29,9 @@ class Dataset:
         return file_references
 
     def __str__(self):
-        return f"{self.name}"
+        variables = vars(self).copy()
+        ts_fresh = ", ".join(variables.pop("tsfresh_features", {}).keys())
+        return f"{json.dumps(variables)} tsfresh_features: ({ts_fresh})"
 
 
 def get_file_names_from_directory(directory_name):

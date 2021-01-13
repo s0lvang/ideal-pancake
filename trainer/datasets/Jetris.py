@@ -6,11 +6,11 @@ from trainer.datasets.Timeseries import Timeseries
 class Jetris(Timeseries):
     def __init__(self):
         super().__init__("jetris")
-        self.numeric_features = [
-            "Speed",
-        ]
-        self.categorical_features = []
-        self.feature_columns = self.numeric_features + self.categorical_features
+        self.column_name_mapping = {
+            "gameID": self.column_names["subject_id"],
+            "time[milliseconds]": self.column_names["time"],
+            "Pupil.size": self.column_names["pupil_diameter"],
+        }
 
     def prepare_files(self, file_references, metadata_references):
         labels = pd.Series()
@@ -19,7 +19,7 @@ class Jetris(Timeseries):
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, dataset, labels)
         # labels = convert_labels_to_categorical()
-        dataset = dataset.rename(columns={"gameID": "id", "time[milliseconds]": "Time"})
+        dataset = dataset.rename(columns=self.column_name_mapping)
         return dataset, labels
 
     def prepare_file(self, f, dataset, labels):
@@ -27,7 +27,8 @@ class Jetris(Timeseries):
         csv = csv[
             csv["Pupil.initial"] != "saccade"
         ]  # this drops all lines that are saccades, we should do something smarter here.
-        game_id = csv["gameID"][0]
+        csv = csv.rename(columns=self.column_name_mapping)
+        game_id = csv[self.column_names["subject_id"]][0]
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(game_id)] = csv["Score.1"].iloc[-1]
         return dataset, labels
