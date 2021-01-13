@@ -17,24 +17,6 @@ class Timeseries(Dataset):
             "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
         }
 
-    def prepare_files(self, file_references, metadata_references):
-        labels = pd.Series()
-        dataset = pd.DataFrame()
-        with metadata_references[0].open("r") as f:
-            metadata_file = pd.read_csv(f)
-        for file_reference in file_references:
-            with file_reference.open("r") as f:
-                dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
-        return dataset, labels
-
-    def prepare_file(self, f, metadata_file, dataset, labels):
-        subject_id = get_header(f)["Subject"][0]
-        csv = pd.read_csv(f, sep="\t", comment="#")
-        csv["id"] = int(subject_id)
-        dataset = dataset.append(csv, ignore_index=True)
-        labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
-        return dataset, labels
-
     def run_experiment(self, flags):
         """Testbed for running model training and evaluation."""
         dataset, labels = self.data_and_labels()
