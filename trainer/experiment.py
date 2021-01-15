@@ -1,5 +1,7 @@
 import hypertune
 import numpy as np
+<<<<<<< HEAD
+=======
 from sklearn import model_selection
 
 from trainer import globals
@@ -70,6 +72,7 @@ def run_heatmap_experiment(flags):
     model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     return scores
+>>>>>>> master
 
 
 def hypertune(metrics):

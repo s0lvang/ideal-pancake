@@ -24,7 +24,7 @@ class FileReference:
         return self.blob.download_to_filename(destination_file_name)
 
     def open(self, *args):
-        if Blob and not globals.config.FORCE_LOCAL_FILES:
+        if Blob and not globals.FORCE_LOCAL_FILES:
             self.cached_download_data()
         return open(self.reference, *args)
 
@@ -35,7 +35,7 @@ class FileReference:
             directory = os.path.join(data_directory, "/".join(split_name[: i + 1]))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-        if not os.path.isfile(self.reference) or globals.config.FORCE_GCS_DOWNLOAD:
+        if not os.path.isfile(self.reference) or globals.FORCE_GCS_DOWNLOAD:
             self.download_to_filename(self.reference)
 
     def human_sorting_keys(self, reference):

@@ -1,44 +1,9 @@
 import os
-from itertools import takewhile
-import pandas as pd
 import joblib
 from tensorflow.io import gfile
-from trainer import globals
-from google.cloud import storage
 import numpy as np
-import cv2
 from keras.applications.imagenet_utils import preprocess_input
-import re
-from trainer.datasets import datasets
-
-
-def read_heatmaps():
-    directory_name = "images"
-    label_column = globals.config.LABEL
-    metadata = pd.read_csv("emip/emip_metadata.csv/emip_metadata.csv")
-    images = np.array([])
-    labels = np.array([])
-    subject_directories = os.listdir(directory_name)
-    for subject_directory in subject_directories:
-        subject_id = int(subject_directory)
-        subject_directory = os.path.join(directory_name, subject_directory)
-        print(subject_directory)
-        frames_for_subjects = np.array(
-            [
-                cv2.resize(
-                    cv2.imread(os.path.join(subject_directory, file)), (300, 170)
-                )
-                for file in sorted(os.listdir(subject_directory))
-            ]
-        )
-        label = metadata.loc[metadata["id"] == int(subject_id), label_column]
-        images = (
-            np.concatenate((images, np.array([frames_for_subjects])))
-            if images.size
-            else np.array([frames_for_subjects])
-        )
-        labels = np.hstack((labels, label))
-    return images, encode_labels(labels)
+from collections import Counter
 
 
 def encode_labels(labels):
@@ -86,21 +51,22 @@ def dump_object(object_to_dump, output_path):
         joblib.dump(object_to_dump, wf)
 
 
-def boolean_mask(columns, target_columns):
-    """Create a boolean mask indicating location of target_columns in columns.
-
-    Args:
-      columns: (List[string]), list of all columns considered.
-      target_columns: (List[string]), columns whose position
-        should be masked as 1.
-
-    Returns:
-      List[bool]
-    """
-    target_set = set(target_columns)
-    return [x in target_set for x in columns]
+def normalize_and_numericalize(labels):
+    if isinstance(labels.iloc[0], str):
+        return convert_categorical_labels_to_numerical(labels)
+    else:
+        return normalize(labels)
 
 
-def convert_labels_to_categorical(labels):
-    average_score = sum(labels) / len(labels)
-    return list(map(lambda score: "high" if (score > average_score) else "low", labels))
+def normalize(numerical):
+    max_label = max(numerical)
+    min_label = min(numerical)
+    return numerical.apply(
+        lambda value: ((value - min_label) / (max_label - min_label))
+    )
+
+
+def convert_categorical_labels_to_numerical(labels):
+    c = Counter(labels)
+    percentages = {key: value / len(labels) for (key, value) in c.items()}
+    return labels.apply(lambda category: percentages[category])

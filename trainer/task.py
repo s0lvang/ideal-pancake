@@ -1,8 +1,6 @@
 import argparse
 import logging
-import os
 import sys
-from trainer import experiment
 from trainer import globals
 import tensorflow as tf
 
@@ -13,12 +11,17 @@ def _parse_args(argv):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--input",
+        "--in_study",
         help="""Dataset to use for training and evaluation.
-              Can be BigQuery table or a file (CSV).
-              If BigQuery table, specify as as PROJECT_ID.DATASET.TABLE_NAME.
             """,
         required=True,
+    )
+
+    parser.add_argument(
+        "--out_of_study",
+        help="""Dataset to use for evaluating FGI.
+            """,
+        required=False,
     )
 
     parser.add_argument(
@@ -86,20 +89,10 @@ def main():
 
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-    if flags.input == "emip-images":
-        globals.init_emip_images()
-        experiment.run_heatmap_experiment(flags)
-    elif flags.input == "mooc-images":
-        globals.init_mooc_images()
-        experiment.run_heatmap_experiment(flags)
-    elif flags.input == "emip":
-        globals.init_emip()
-        experiment.run_ts_experiment(flags)
-    elif flags.input == "jetris":
-        globals.init_jetris()
-        experiment.run_ts_experiment(flags)
-    else:
-        raise ValueError(f"{flags.input} is not a valid dataset name.")
+    # Set up config and select datasets
+    globals.init(in_study=flags.in_study, out_of_study=flags.out_of_study)
+    # Trigger the experiment
+    globals.dataset.run_experiment(flags)
 
 
 if __name__ == "__main__":
