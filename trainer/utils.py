@@ -52,7 +52,7 @@ def dump_object(object_to_dump, output_path):
 
 
 def normalize_and_numericalize(labels):
-    if type(labels.iloc(0)) == "string":
+    if isinstance(labels.iloc[0], str):
         return convert_categorical_labels_to_numerical(labels)
     else:
         return normalize(labels)
