@@ -103,11 +103,11 @@ def convert_numerical_labels_to_categorical(labels):
     return list(map(lambda score: "high" if (score > average_score) else "low", labels))
 
 
-def unify_labels(numerical, categorical):
-    normalized_numerical = normalize(numerical)
-    converted_categorical = convert_categorical_labels_to_numerical(categorical)
-
-    return normalized_numerical, converted_categorical
+def normalize_and_numericalize(labels):
+    if type(labels.iloc(0)) == "string":
+        return convert_categorical_labels_to_numerical(labels)
+    else:
+        return normalize(labels)
 
 
 def normalize(numerical):

@@ -1,4 +1,4 @@
-from trainer.utils import unify_labels
+from trainer.utils import normalize_and_numericalize
 import pandas as pd
 from itertools import takewhile
 from sklearn import model_selection
@@ -38,6 +38,7 @@ class Timeseries(Dataset):
     def prepare_dataset(self, data, labels):
         indices = get_indicies(labels)
         data = self.select_columns_and_fill_na(data)
+        labels = normalize_and_numericalize(labels)
         return data, labels, indices
 
     def prepare_datasets(self):
@@ -46,8 +47,6 @@ class Timeseries(Dataset):
 
         oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
         oos_data, oos_labels, oos_indices = self.prepare_dataset(oos_data, oos_labels)
-
-        labels, oos_labels = unify_labels(labels, oos_labels)
 
         return data, labels, indices, oos_data, oos_labels, oos_indices
 
