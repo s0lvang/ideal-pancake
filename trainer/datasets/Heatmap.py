@@ -85,9 +85,7 @@ class Heatmap(Dataset):
             labels_test,
         ) = model_selection.train_test_split(data, labels)
 
-        pipeline = model.build_lstm_pipeline(
-            data.shape[1:], classes=11, output_dir=flags.job_dir
-        )
+        pipeline = model.build_lasso_pipeline()
 
         pipeline.fit(data_train, labels_train)
 
