@@ -30,60 +30,62 @@ class Timeseries(Dataset):
         ]
         self.categorical_features = []
         self.feature_columns = self.numeric_features + self.categorical_features
-
-    def run_experiment(self, flags):
-        """Testbed for running model training and evaluation."""
-        dataset, labels = self.data_and_labels()
-        print("jetris labels")
-        print(labels)
-        filtered_data = self.get_data_from_feature_selection(dataset).fillna(
-            method="ffill"
-        )
-        (
-            indices_train,
-            indices_test,
-            labels_train,
-            labels_test,
-            dataset_train,
-            dataset_test,
-        ) = self.train_test_split(filtered_data, labels)
-        pipeline = model.build_pipeline(flags)
-        model.set_dataset(pipeline, dataset_train)
-        pipeline.fit(indices_train, labels_train)
-        oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
-        unify_labels(oos_labels, labels)
-        scores = model.evaluate_model(pipeline, indices_test, labels_test, dataset_test)
-        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
-
-    def get_data_from_feature_selection(self, dataset):
-        columns_to_use = self.feature_columns + [
+        self.columns_to_use = self.feature_columns + [
             self.column_names["time"],
             self.column_names["subject_id"],
         ]
-        return dataset[columns_to_use]
 
-    def train_test_split(self, filtered_data, labels):
-        indices = pd.DataFrame(index=labels.index).astype("int64")
+    def prepare_dataset(self, data, labels):
+        indices = get_indicies(labels)
+        data = self.select_columns_and_fill_na(data)
+        return data, labels, indices
+
+    def prepare_datasets(self):
+        data, labels = self.data_and_labels()
+        data, labels, indices = self.prepare_dataset(data, labels)
+
+        oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
+        oos_data, oos_labels, oos_indices = self.prepare_dataset(oos_data, oos_labels)
+
+        labels, oos_labels = unify_labels(labels, oos_labels)
+
+        return data, labels, indices, oos_data, oos_labels, oos_indices
+
+    def run_experiment(self, flags):
+        """Testbed for running model training and evaluation."""
+        (
+            data,
+            labels,
+            indices,
+            oos_data,
+            oos_labels,
+            oos_indices,
+        ) = self.prepare_datasets()
+
         (
             indices_train,
             indices_test,
             labels_train,
             labels_test,
         ) = model_selection.train_test_split(indices, labels)
-        dataset_train = filtered_data[
-            filtered_data[self.column_names["subject_id"]].isin(indices_train.index)
-        ]
-        dataset_test = filtered_data[
-            filtered_data[self.column_names["subject_id"]].isin(indices_test.index)
-        ]
-        return (
-            indices_train,
+
+        pipeline = model.build_pipeline(flags)
+        model.set_dataset(pipeline, data)
+        pipeline.fit(indices_train, labels_train)
+
+        scores = model.evaluate_model(
+            pipeline,
             indices_test,
-            labels_train,
             labels_test,
-            dataset_train,
-            dataset_test,
+            oos_indices,
+            oos_labels,
+            oos_data,
         )
+
+        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
+
+    def select_columns_and_fill_na(self, data):
+        return data[self.columns_to_use].fillna(method="ffill")
 
     def __str__(self):
         return super().__str__()
@@ -97,3 +99,7 @@ def get_header(file):
     header = {k: split_on_tab(v) for k, v in header.items()}
     file.seek(0, 0)
     return header
+
+
+def get_indicies(labels):
+    return pd.DataFrame(index=labels.index).astype("int64")

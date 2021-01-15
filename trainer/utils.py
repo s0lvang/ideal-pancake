@@ -103,23 +103,22 @@ def convert_numerical_labels_to_categorical(labels):
     return list(map(lambda score: "high" if (score > average_score) else "low", labels))
 
 
+def unify_labels(numerical, categorical):
+    normalized_numerical = normalize(numerical)
+    converted_categorical = convert_categorical_labels_to_numerical(categorical)
+
+    return normalized_numerical, converted_categorical
+
+
+def normalize(numerical):
+    max_label = max(numerical)
+    min_label = min(numerical)
+    return numerical.apply(
+        lambda value: ((value - min_label) / (max_label - min_label))
+    )
+
+
 def convert_categorical_labels_to_numerical(labels):
-    pass
-
-
-def get_thresholds_from_numerical(labels):
-    pass
-
-
-def unify_labels(categorical, numerical):
-    print("Start unify")
-    print(numerical)
-    c = Counter(categorical)
-    print(c)
-    cat_len = len(categorical)
-    high_percentage = cat_len * c["high"]
-    percentages = {key: value / cat_len for (key, value) in c.items()}
-    print(percentages)
-    # dict_variable = {key:value for (key,value) in dictonary.items()}
-
-    print("End unify")
+    c = Counter(labels)
+    percentages = {key: value / len(labels) for (key, value) in c.items()}
+    return labels.apply(lambda category: percentages[category])

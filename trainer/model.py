@@ -30,7 +30,7 @@ def set_dataset(model, dataset):
 
 def build_pipeline(flags):
 
-    classifier = ensemble.RandomForestClassifier(n_estimators=flags.n_estimators)
+    regressor = ensemble.RandomForestRegressor(n_estimators=flags.n_estimators)
 
     return pipeline.Pipeline(
         [
@@ -43,7 +43,7 @@ def build_pipeline(flags):
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
-            ("classifier", classifier),
+            ("regressor", regressor),
         ]
     )
 
@@ -77,19 +77,29 @@ def build_lstm_pipeline(shape, classes, output_dir):
     )
 
 
-# This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, y_test, dataset_test=None):
-    if dataset_test is not None:
-        set_dataset(model, dataset_test)
-    # print(x_test[0])
-    # print(x_test.shape)
+def predict_and_evaluate(model, x_test, y_test):
     prediction = model.predict(x_test)
-    print("Prediction - y test - nrmse_per_subject")
-    print(prediction)
-    print(y_test)
-    print(nrmse_per_subject(predicted_values=prediction, original_values=y_test))
+    nrmses = nrmse_per_subject(predicted_values=prediction, original_values=y_test)
+    return nrmses
 
-    # Note: for now, use `cross_val_score` defaults (i.e. 3-fold)
+
+def evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset):
+    if oos_dataset is not None:
+        set_dataset(model, oos_dataset)
+
+    return predict_and_evaluate(model, oos_x_test, oos_y_test)
+
+
+# This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
+def evaluate_model(model, x_test, y_test, oos_x_test, oos_y_test, oos_dataset=None):
+    nrmses = predict_and_evaluate(model, x_test, y_test)
+    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset)
+
+    print("Average NRMSES:")
+    print(sum(nrmses) / len(nrmses))
+
+    print("ANOSIM score - FGI:")
+    print(anosim(nrmses, oos_nrmses))
 
 
 # Write model and eval metrics to `output_dir`
@@ -105,6 +115,10 @@ def store_model_and_metrics(model, metrics, output_dir):
 
 def nrmse_per_subject(predicted_values, original_values):
     scaling_factor = max(original_values) - min(original_values)
+    if scaling_factor == 0:
+        raise ZeroDivisionError(
+            "The observations in the ground truth are constant, we would get a divide by zero error."
+        )
     return [
         nrmse(predicted_value, original_value, scaling_factor)
         for predicted_value, original_value in zip(predicted_values, original_values)
