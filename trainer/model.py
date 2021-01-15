@@ -63,7 +63,7 @@ def build_lstm_pipeline(shape, classes, output_dir):
     )
     classifier = KerasRegressor(
         build_fn=model_factory,
-        epochs=300,
+        epochs=1,
         batch_size=1,
         verbose=2,
         fit__validation_split=0.2,

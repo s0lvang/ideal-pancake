@@ -1,8 +1,9 @@
+from trainer.utils import normalize_and_numericalize
 from trainer import model
 from trainer.datasets.Dataset import Dataset
+from trainer import globals
 
 import pandas as pd
-import numpy as np
 import cv2
 import numpy as np
 from sklearn import model_selection
@@ -21,7 +22,7 @@ class Heatmap(Dataset):
             metadata_file = pd.read_csv(f)
             print(metadata_file)
 
-        grouped_files = self.group_file_references_by_subject_id(file_references)
+        grouped_files = group_file_references_by_subject_id(file_references)
 
         subjects_frames = []
         subjects_labels = []
@@ -32,7 +33,7 @@ class Heatmap(Dataset):
             subjects_frames.append(subject_frames)
             subjects_labels.append(subject_label)
         subjects_frames = np.array(subjects_frames)
-        subjects_labels = np.array(subjects_labels)
+        subjects_labels = pd.Series(subjects_labels)
         return subjects_frames, subjects_labels
 
     def prepare_subject(
@@ -56,20 +57,43 @@ class Heatmap(Dataset):
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
         return cv2.resize(image, self.image_size)
 
+    def prepare_dataset(self, data, labels):
+        labels = normalize_and_numericalize(labels)
+        return data, labels
+
+    def prepare_datasets(self):
+        data, labels = self.data_and_labels()
+        data, labels = self.prepare_dataset(data, labels)
+
+        oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
+        oos_data, oos_labels = self.prepare_dataset(oos_data, oos_labels)
+
+        return data, labels, oos_data, oos_labels
+
     def run_experiment(self, flags):
-        subjects, labels = self.data_and_labels()
         (
-            subjects_train,
-            subjects_test,
+            data,
+            labels,
+            oos_data,
+            oos_labels,
+        ) = self.prepare_datasets()
+
+        (
+            data_train,
+            data_test,
             labels_train,
             labels_test,
-        ) = model_selection.train_test_split(subjects, labels, test_size=0.2)
-        pipeline = model.build_lstm_pipeline(
-            subjects.shape[1:], classes=11, output_dir=flags.job_dir
-        )
-        pipeline.fit(subjects_train, labels_train)
+        ) = model_selection.train_test_split(data, labels)
 
-        scores = model.evaluate_model(pipeline, subjects_test, labels_test)
+        pipeline = model.build_lstm_pipeline(
+            data.shape[1:], classes=11, output_dir=flags.job_dir
+        )
+
+        pipeline.fit(data_train, labels_train)
+
+        scores = model.evaluate_model(
+            pipeline, data_test, labels_test, oos_data, oos_labels
+        )
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
         return scores

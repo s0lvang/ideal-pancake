@@ -22,6 +22,7 @@ def init(in_study, out_of_study):
     else:
         out_of_study_dataset = None
 
+
 def get_dataset(dataset_name):
     if dataset_name == "emip-images":
         return EMIPImages()
