@@ -42,7 +42,6 @@ def prepare_subject(id, file_references, metadata_file, label_column, id_column)
 def read_and_resize_image(file_reference):
     with file_reference.open("rb") as f:
         file_content = f.read()
-
     nparr = np.frombuffer(file_content, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
     return cv2.resize(image, (150, 100))

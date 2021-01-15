@@ -6,14 +6,19 @@ from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
 from trainer import globals
 from trainer import utils
-from trainer.cnnlstm.lstm import create_model_factory, root_mean_squared_error
-from trainer.cnnlstm.TensorboardCallback import BucketTensorBoard
+from trainer.neural_network.vgg16 import (
+    create_model_factory,
+    extract_features_from_vgg16,
+    root_mean_squared_error
+)
+from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
 
-from sklearn import model_selection
-from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
+from sklearn.linear_model import Lasso
 
 
 def print_and_return(data):
@@ -44,6 +49,17 @@ def build_pipeline(flags):
         ]
     )
 
+
+def build_lasso_pipeline():
+    classifier = RandomForestRegressor()
+    return pipeline.Pipeline(
+        [
+            ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
+            ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
+            ("Lasso", SelectFromModel(Lasso())),
+            ("classifier", classifier),
+        ]
+    )
 
 def build_lstm_pipeline(shape, classes, output_dir):
     model_factory = create_model_factory(classes=classes, *shape)
@@ -78,8 +94,6 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def evaluate_model(model, x_test, y_test, dataset_test=None):
     if dataset_test is not None:
         set_dataset(model, dataset_test)
-    print(x_test[0])
-    print(x_test.shape)
     prediction = model.predict(x_test)
     print(prediction)
     print(y_test)
