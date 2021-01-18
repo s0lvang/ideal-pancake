@@ -7,7 +7,7 @@ from trainer.datasets.Timeseries import Timeseries
 
 class EMIP(Timeseries):
     def __init__(self):
-        super().__init__("emip")
+        super().__init__("emip-enhanced")
         self.column_name_mapping = {
             "id": self.column_names["subject_id"],
             "Time": self.column_names["time"],
