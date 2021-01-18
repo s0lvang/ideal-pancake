@@ -23,6 +23,7 @@ def remove_nonimportant_messages(df):
 
 def mark_trials_and_calibration(df):
     messages = df[df["Type"] == "MSG"]
+    df = df[(df.iloc[:, 4:10] != 0).any(1)]  # remove rows with all zeros
 
     df["status"] = ""
     df["trial_number"] = 0
@@ -69,16 +70,13 @@ def rewrite_df(df):
 basepath = "../datasets/emip/data"
 for file in os.listdir(basepath):
     with open(os.path.join(basepath, file)) as f:
-        print(file)
         header, length = get_header(f)
-        print(length)
         df = pd.read_csv(f, sep="\t", skiprows=length)
         rewritten_df = rewrite_df(df)
         rewritten_df.to_csv(
             f"../datasets/emip-rewritten/data/{file}", sep="\t"
-        )  # remember to prepend the headers after write
+        )  # prepend the headers after write
     with open(f"../datasets/emip-rewritten/data/{file}", "r+") as fr:
         content = fr.read()
-        print(header)
         fr.seek(0, 0)
         fr.write("".join(header) + content)
