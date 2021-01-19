@@ -168,6 +168,6 @@ def anosim(in_study, out_of_study):
     )
     amount_of_samples = len(combined_ranks)
 
-    return (combined_ranks.mean() - in_study_ranks.mean()) / (
-        (amount_of_samples * (amount_of_samples - 1)) / 4
-    )
+    return (
+        combined_ranks.mean() - (in_study_ranks.mean() - out_of_study_ranks.mean())
+    ) / ((amount_of_samples * (amount_of_samples - 1)) / 4)
