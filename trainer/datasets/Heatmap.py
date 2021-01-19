@@ -15,12 +15,8 @@ class Heatmap(Dataset):
         self.image_size = (150, 100)
 
     def prepare_files(self, file_references, metadata_references):
-        label_column = self.label
-        id_column = self.subject_id_column
-
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f)
-            print(metadata_file)
 
         grouped_files = group_file_references_by_subject_id(file_references)
 
@@ -28,7 +24,7 @@ class Heatmap(Dataset):
         subjects_labels = []
         for (id, group) in grouped_files.items():
             subject_frames, subject_label = self.prepare_subject(
-                id, group, metadata_file, label_column, id_column
+                id, group, metadata_file
             )
             subjects_frames.append(subject_frames)
             subjects_labels.append(subject_label)
@@ -36,18 +32,20 @@ class Heatmap(Dataset):
         subjects_labels = pd.Series(subjects_labels)
         return subjects_frames, subjects_labels
 
-    def prepare_subject(
-        self, id, file_references, metadata_file, label_column, id_column
-    ):
+    def prepare_subject(self, id, file_references, metadata_file):
         frames_list = [
             self.read_and_resize_image(file_reference)
             for file_reference in sorted(file_references)
         ]
         frames = np.array(frames_list)
-        label = heatmap_label(
-            metadata_file, id, subject_column=id_column, score_column=label_column
+        label = self.heatmap_label(
+            metadata_file,
+            id,
         )
         return frames, int(label)
+
+    def heatmap_label(self, metadata_file, id):
+        return metadata_file[metadata_file[self.subject_id_column] == id][self.label]
 
     def read_and_resize_image(self, file_reference):
         with file_reference.open("rb") as f:
@@ -112,7 +110,3 @@ def group_file_references_by_subject_id(file_references):
 
 def subject_id(file_reference):
     return int(file_reference.reference.split("/")[-2])
-
-
-def heatmap_label(metadata_file, id, subject_column, score_column):
-    return metadata_file[metadata_file[subject_column] == id][score_column]
