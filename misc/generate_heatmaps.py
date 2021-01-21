@@ -68,7 +68,7 @@ def preprocess_data(data, trial):
 
 def main():
     dataset, comments = read_emip_from_gcs()
-    number_of_frames = 30
+    number_of_frames = 54
     for data, comment in zip(dataset, comments):
         for i in range(1, 3):
             processed_data = preprocess_data(data, i)
@@ -76,6 +76,8 @@ def main():
             frames = [
                 processed_data[i : i + n] for i in range(0, processed_data.shape[0], n)
             ]
+            if len(frames) == 31:
+                frames = frames[:-1]
             directory = f"images/{comment['Subject'][0]}_{i}"
             if not os.path.exists(directory):
                 os.makedirs(directory)

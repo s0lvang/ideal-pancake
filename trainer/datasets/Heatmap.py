@@ -7,9 +7,10 @@ import pandas as pd
 import cv2
 import numpy as np
 from sklearn import model_selection
+from abc import ABCMeta, abstractmethod
 
 
-class Heatmap(Dataset):
+class Heatmap(Dataset, metaclass=ABCMeta):
     def __init__(self, name):
         super().__init__(name)
         self.image_size = (150, 100)
@@ -18,7 +19,7 @@ class Heatmap(Dataset):
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f)
 
-        grouped_files = group_file_references_by_subject_id(file_references)
+        grouped_files = self.group_file_references_by_subject_id(file_references)
 
         subjects_frames = []
         subjects_labels = []
@@ -37,20 +38,26 @@ class Heatmap(Dataset):
             self.read_and_resize_image(file_reference)
             for file_reference in sorted(file_references)
         ]
+        if len(frames_list) != 54:
+            print(len(frames_list), "number of frames")
+            print(file_references)
         frames = np.array(frames_list)
+        print(id)
         label = self.heatmap_label(
             metadata_file,
             id,
         )
         return frames, int(label)
 
+    @abstractmethod
     def heatmap_label(self, metadata_file, id):
-        return metadata_file[metadata_file[self.subject_id_column] == id][self.label]
+        return NotImplementedError(
+            "This is an abstract method it needs to be given in the child class"
+        )
 
     def read_and_resize_image(self, file_reference):
         with file_reference.open("rb") as f:
             file_content = f.read()
-
         nparr = np.frombuffer(file_content, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
         return cv2.resize(image, self.image_size)
@@ -97,16 +104,17 @@ class Heatmap(Dataset):
     def __str__(self):
         return super().__str__()
 
+    @abstractmethod
+    def subject_id(self, file_reference):
+        raise NotImplementedError(
+            "This is an abstract method it needs to be given in the child class"
+        )
 
-def group_file_references_by_subject_id(file_references):
-    grouped = {}
+    def group_file_references_by_subject_id(self, file_references):
+        grouped = {}
 
-    for file_reference in file_references:
-        id = subject_id(file_reference)
-        grouped[id] = [*grouped.get(id, []), file_reference]
+        for file_reference in file_references:
+            id = self.subject_id(file_reference)
+            grouped[id] = [*grouped.get(id, []), file_reference]
 
-    return grouped
-
-
-def subject_id(file_reference):
-    return int(file_reference.reference.split("/")[-2])
+        return grouped
