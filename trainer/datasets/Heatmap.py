@@ -47,7 +47,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             metadata_file,
             id,
         )
-        return frames, int(label)
+        return frames, label
 
     @abstractmethod
     def heatmap_label(self, metadata_file, id):
