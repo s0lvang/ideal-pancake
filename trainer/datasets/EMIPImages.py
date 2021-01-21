@@ -3,7 +3,7 @@ from trainer.datasets.Heatmap import Heatmap
 
 class EMIPImages(Heatmap):
     def __init__(self):
-        super().__init__("emip-images-54frames")
+        super().__init__("emip-images-54-frames")
         self.subject_id_column = "id"
         self.label = "expertise_programming"
 
