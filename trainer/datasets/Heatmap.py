@@ -38,9 +38,6 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             self.read_and_resize_image(file_reference)
             for file_reference in sorted(file_references)
         ]
-        if len(frames_list) != 54:
-            print(len(frames_list), "number of frames")
-            print(file_references)
         frames = np.array(frames_list)
         print(id)
         label = self.heatmap_label(

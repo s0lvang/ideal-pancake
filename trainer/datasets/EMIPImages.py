@@ -11,7 +11,7 @@ class EMIPImages(Heatmap):
         label = metadata_file[
             metadata_file[self.subject_id_column] == int(id.split("_")[0])
         ][self.label]
-        return str(label)
+        return label.iloc[0]
 
     def subject_id(self, file_reference):
         return file_reference.reference.split("/")[-2]
