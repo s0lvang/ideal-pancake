@@ -39,7 +39,6 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             for file_reference in sorted(file_references)
         ]
         frames = np.array(frames_list)
-        print(id)
         label = self.heatmap_label(
             metadata_file,
             id,
