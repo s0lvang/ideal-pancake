@@ -8,7 +8,8 @@ class MoocImages(Heatmap):
         self.label = "posttest"
 
     def heatmap_label(self, metadata_file, id):
-        return metadata_file[metadata_file[self.subject_id_column] == id][self.label]
+        label = metadata_file[metadata_file[self.subject_id_column] == id][self.label]
+        return int(label)
 
     def subject_id(self, file_reference):
         return int(file_reference.reference.split("/")[-2])
