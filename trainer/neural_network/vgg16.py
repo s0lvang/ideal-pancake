@@ -1,4 +1,5 @@
 from keras.applications.vgg16 import VGG16
+from keras.applications.vgg19 import VGG19
 from keras.models import Model, Sequential
 from keras.layers import Dense, Input
 from keras.layers.pooling import GlobalAveragePooling2D
@@ -45,7 +46,7 @@ def create_transfer_learning_model(frames, width, height, channels, classes):
 
 
 def extract_features_from_vgg16(subjects):
-    cnn_base = VGG16(
+    cnn_base = VGG19(
         input_shape=subjects.shape[2:], weights="imagenet", include_top=False
     )
     predictions = np.array([cnn_base.predict(images) for images in subjects])
