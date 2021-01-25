@@ -16,7 +16,7 @@ from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
 
-
+from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
@@ -96,7 +96,8 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def predict_and_evaluate(model, x_test, y_test):
     prediction = model.predict(x_test)
     nrmses = nrmse_per_subject(predicted_values=prediction, original_values=y_test)
-    return nrmses
+    rmse = mean_squared_error(prediction, y_test, squared=False)
+    return nrmses, rmse
 
 
 def evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset):
@@ -108,8 +109,14 @@ def evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset):
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
 def evaluate_model(model, x_test, y_test, oos_x_test, oos_y_test, oos_dataset=None):
-    nrmses = predict_and_evaluate(model, x_test, y_test)
+    (
+        nrmses,
+        rmse,
+    ) = predict_and_evaluate(model, x_test, y_test)
     oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset)
+
+    print("RMSE")
+    print(rmse)
 
     print("Average NRMSES:")
     print(sum(nrmses) / len(nrmses))
