@@ -52,7 +52,7 @@ def dump_object(object_to_dump, output_path):
 
 
 def normalize_and_numericalize(labels):
-    # labels = normalize(labels)
+    labels = normalize(labels)
     return convert_categorical_labels_to_numerical(labels)
 
 
@@ -68,6 +68,4 @@ def convert_categorical_labels_to_numerical(labels):
     for (key, value) in sorted(percentages.items()):
         ranges[key] = (sums, sums + value)
         sums += value
-    print(ranges)
-    print(labels.apply(lambda category: uniform(*ranges[category])))
-    return labels.apply(lambda category: uniform(*ranges[category]))
+    return labels.apply(lambda category: uniform(*ranges[category])), ranges

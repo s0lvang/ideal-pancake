@@ -93,9 +93,11 @@ def build_lstm_pipeline(shape, classes, output_dir):
     )
 
 
-def predict_and_evaluate(model, x_test, y_test):
-    scaling_factor = max(y_test) - min(y_test)
+def predict_and_evaluate(model, x_test, y_test, ranges):
     prediction = model.predict(x_test)
+    prediction = [get_label_from_range(x, ranges) for x in prediction]
+    y_test = [get_label_from_range(x, ranges) for x in y_test]
+    scaling_factor = max(y_test) - min(y_test)
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
         original_values=y_test,
@@ -114,13 +116,14 @@ def evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset):
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, y_test, oos_x_test, oos_y_test, oos_dataset=None):
+def evaluate_model(
+    model, x_test, y_test, oos_x_test, oos_y_test, ranges, oos_ranges, oos_dataset=None
+):
     (
         nrmses,
         rmse,
         nrmse,
-    ) = predict_and_evaluate(model, x_test, y_test)
-    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset)
+    ) = predict_and_evaluate(model, x_test, y_test, ranges)
 
     print("RMSE")
     print(rmse)
@@ -133,6 +136,7 @@ def evaluate_model(model, x_test, y_test, oos_x_test, oos_y_test, oos_dataset=No
 
     print("ANOSIM score - FGI:")
     print(anosim(nrmses, oos_nrmses))
+    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset)
 
 
 # Write model and eval metrics to `output_dir`
@@ -189,3 +193,10 @@ def anosim(in_study, out_of_study):
     return (
         combined_ranks.mean() - (in_study_ranks.mean() - out_of_study_ranks.mean())
     ) / ((amount_of_samples * (amount_of_samples - 1)) / 4)
+
+
+def get_label_from_range(value, ranges):
+    for key, ranges in ranges.items():
+        if value > ranges[0] and value < ranges[1]:
+            return key
+    raise Exception("not in range")

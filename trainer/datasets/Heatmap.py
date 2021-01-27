@@ -52,31 +52,39 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         )
 
     def read_and_resize_image(self, file_reference):
-        with file_reference.open("rb") as f:
-            file_content = f.read()
-        nparr = np.frombuffer(file_content, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # cv2.IMREAD_COLOR in OpenCV 3.1
-        return cv2.resize(image, self.image_size)
+        try:
+            with file_reference.open("rb") as f:
+                file_content = f.read()
+            nparr = np.frombuffer(file_content, np.uint8)
+            image = cv2.imdecode(
+                nparr, cv2.IMREAD_COLOR
+            )  # cv2.IMREAD_COLOR in OpenCV 3.1
+            return cv2.resize(image, self.image_size)
+        except Exception as error:
+            print(file_reference)
+            raise error
 
     def prepare_dataset(self, data, labels):
-        labels = normalize_and_numericalize(labels)
-        return data, labels
+        labels, ranges = normalize_and_numericalize(labels)
+        return data, labels, ranges
 
     def prepare_datasets(self):
         data, labels = self.data_and_labels()
-        data, labels = self.prepare_dataset(data, labels)
+        data, labels, ranges = self.prepare_dataset(data, labels)
 
         oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
-        oos_data, oos_labels = self.prepare_dataset(oos_data, oos_labels)
+        oos_data, oos_labels, oos_ranges = self.prepare_dataset(oos_data, oos_labels)
 
-        return data, labels, oos_data, oos_labels
+        return data, labels, ranges, oos_data, oos_labels, oos_ranges
 
     def run_experiment(self, flags):
         (
             data,
             labels,
+            ranges,
             oos_data,
             oos_labels,
+            oos_ranges,
         ) = self.prepare_datasets()
 
         (
@@ -91,7 +99,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline.fit(data_train, labels_train)
 
         scores = model.evaluate_model(
-            pipeline, data_test, labels_test, oos_data, oos_labels
+            pipeline, data_test, labels_test, oos_data, oos_labels, ranges, oos_ranges
         )
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
