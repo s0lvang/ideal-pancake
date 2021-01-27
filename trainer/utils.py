@@ -17,7 +17,6 @@ def decode_labels(labels):
 
 
 def preprocess_for_imagenet(dataset):
-    print(dataset.shape)
     return np.array([preprocess_input(x) for x in dataset])
 
 
