@@ -96,7 +96,11 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def predict_and_evaluate(model, x_test, y_test):
     scaling_factor = max(y_test) - min(y_test)
     prediction = model.predict(x_test)
-    nrmses = nrmse_per_subject(predicted_values=prediction, original_values=y_test, scaling_factor)
+    nrmses = nrmse_per_subject(
+        predicted_values=prediction,
+        original_values=y_test,
+        scaling_factor=scaling_factor,
+    )
     rmse = mean_squared_error(prediction, y_test, squared=False)
     nrmse = normalized_root_mean_squared_error(prediction, y_test, scaling_factor)
     return nrmses, rmse, nrmse
@@ -123,7 +127,7 @@ def evaluate_model(model, x_test, y_test, oos_x_test, oos_y_test, oos_dataset=No
 
     print("NRMSE")
     print(nrmse)
-    
+
     print("Average NRMSES:")
     print(sum(nrmses) / len(nrmses))
 

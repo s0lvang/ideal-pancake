@@ -4,6 +4,7 @@ from tensorflow.io import gfile
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
 from collections import Counter
+from random import uniform
 
 
 def encode_labels(labels):
@@ -51,21 +52,22 @@ def dump_object(object_to_dump, output_path):
 
 
 def normalize_and_numericalize(labels):
-    if isinstance(labels.iloc[0], str):
-        return convert_categorical_labels_to_numerical(labels)
-    else:
-        return normalize(labels)
+    # labels = normalize(labels)
+    return convert_categorical_labels_to_numerical(labels)
 
 
-def normalize(numerical):
-    max_label = max(numerical)
-    min_label = min(numerical)
-    return numerical.apply(
-        lambda value: ((value - min_label) / (max_label - min_label))
-    )
+def normalize(series):
+    return (series - series.min()) / (series.max() - series.min())
 
 
 def convert_categorical_labels_to_numerical(labels):
     c = Counter(labels)
     percentages = {key: value / len(labels) for (key, value) in c.items()}
-    return labels.apply(lambda category: percentages[category])
+    ranges = {}
+    sums = 0
+    for (key, value) in sorted(percentages.items()):
+        ranges[key] = (sums, sums + value)
+        sums += value
+    print(ranges)
+    print(labels.apply(lambda category: uniform(*ranges[category])))
+    return labels.apply(lambda category: uniform(*ranges[category]))
