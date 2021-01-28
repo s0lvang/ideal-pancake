@@ -20,7 +20,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
-from sklearn.linear_model import LassoCV
+from sklearn.linear_model import Lasso
 from sklearn.neighbors import KNeighborsRegressor
 
 
@@ -59,7 +59,7 @@ def build_lasso_pipeline():
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
-            ("Lasso", SelectFromModel(LassoCV())),
+            ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
         ]
     )
