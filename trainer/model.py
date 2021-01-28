@@ -20,7 +20,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
-from sklearn.linear_model import Lasso, ElasticNet
+from sklearn.linear_model import Lasso
 
 
 def print_and_return(data):
@@ -58,7 +58,7 @@ def build_lasso_pipeline():
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
-            ("Lasso", SelectFromModel(ElasticNet())),
+            ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
         ]
     )
@@ -125,15 +125,20 @@ def evaluate_model(
         nrmse,
     ) = predict_and_evaluate(model, x_test, y_test, ranges)
 
-    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_ranges, oos_dataset)
+    oos_nrmses, oos_rmse, oos_nrmse = evaluate_oos(
+        model, oos_x_test, oos_y_test, oos_ranges, oos_dataset
+    )
     print("RMSE")
     print(rmse)
 
     print("NRMSE")
     print(nrmse)
 
-    print("Average NRMSES:")
-    print(sum(nrmses) / len(nrmses))
+    print("OOS RMSE")
+    print(oos_rmse)
+
+    print("OOS NRMSE")
+    print(oos_nrmse)
 
     print("ANOSIM score - FGI:")
     print(anosim(nrmses, oos_nrmses))
