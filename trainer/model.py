@@ -21,6 +21,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import LassoCV
+from sklearn.neighbors import KNeighborsRegressor
 
 
 def print_and_return(data):
@@ -53,7 +54,7 @@ def build_pipeline(flags):
 
 
 def build_lasso_pipeline():
-    classifier = RandomForestRegressor()
+    classifier = KNeighborsRegressor()
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
