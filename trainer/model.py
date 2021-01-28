@@ -178,8 +178,8 @@ def normalized_root_mean_squared_error(
 def all_ranks(in_study, out_of_study):
     combined = [*in_study, *out_of_study]
     combined_ranks = scipy.stats.rankdata(combined)
-    in_study_ranks = combined_ranks[: len(in_study)]
-    out_of_study_ranks = combined_ranks[len(in_study) :]
+    in_study_ranks = combined_ranks[len(in_study) :]
+    out_of_study_ranks = combined_ranks[: len(out_of_study)]
 
     return in_study_ranks, out_of_study_ranks, combined_ranks
 
