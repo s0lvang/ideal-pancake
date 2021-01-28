@@ -97,6 +97,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline = model.build_lasso_pipeline()
 
         pipeline.fit(data_train, labels_train)
+        print(pipeline.get_params())
 
         scores = model.evaluate_model(
             pipeline, data_test, labels_test, oos_data, oos_labels, ranges, oos_ranges

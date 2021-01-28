@@ -20,7 +20,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import LassoCV
 
 
 def print_and_return(data):
@@ -58,7 +58,7 @@ def build_lasso_pipeline():
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
-            ("Lasso", SelectFromModel(Lasso())),
+            ("Lasso", SelectFromModel(LassoCV())),
             ("classifier", classifier),
         ]
     )
