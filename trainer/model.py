@@ -108,11 +108,11 @@ def predict_and_evaluate(model, x_test, y_test, ranges):
     return nrmses, rmse, nrmse
 
 
-def evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset):
+def evaluate_oos(model, oos_x_test, oos_y_test, oos_ranges, oos_dataset):
     if oos_dataset is not None:
         set_dataset(model, oos_dataset)
 
-    return predict_and_evaluate(model, oos_x_test, oos_y_test)
+    return predict_and_evaluate(model, oos_x_test, oos_y_test, oos_ranges)
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
@@ -125,6 +125,7 @@ def evaluate_model(
         nrmse,
     ) = predict_and_evaluate(model, x_test, y_test, ranges)
 
+    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_ranges, oos_dataset)
     print("RMSE")
     print(rmse)
 
@@ -136,7 +137,6 @@ def evaluate_model(
 
     print("ANOSIM score - FGI:")
     print(anosim(nrmses, oos_nrmses))
-    oos_nrmses = evaluate_oos(model, oos_x_test, oos_y_test, oos_dataset)
 
 
 # Write model and eval metrics to `output_dir`
