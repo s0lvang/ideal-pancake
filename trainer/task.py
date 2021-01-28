@@ -1,8 +1,11 @@
 import argparse
+import os
+import numpy as np
 import logging
 import sys
 from trainer import globals
 import tensorflow as tf
+import random
 
 
 def _parse_args(argv):
@@ -84,9 +87,18 @@ def _parse_args(argv):
     return parser.parse_args(argv)
 
 
+def seed_libraries(seed):
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    tf.random.set_seed(seed)
+
+
 def main():
     """Entry point."""
-
+    random_seed = 69420
+    print(random_seed, "random_seed")
+    seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
     # Set up config and select datasets
