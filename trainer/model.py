@@ -54,7 +54,7 @@ def build_pipeline(flags):
 
 
 def build_lasso_pipeline():
-    classifier = KNeighborsRegressor()
+    classifier = RandomForestRegressor()
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),

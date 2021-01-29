@@ -1,7 +1,9 @@
 from trainer.utils import normalize_and_numericalize
+from sklearn.model_selection import RandomizedSearchCV
 from trainer import model
 from trainer.datasets.Dataset import Dataset
 from trainer import globals
+from scipy.stats import uniform
 
 import pandas as pd
 import cv2
@@ -96,15 +98,53 @@ class Heatmap(Dataset, metaclass=ABCMeta):
 
         pipeline = model.build_lasso_pipeline()
 
+        grid_params = self.get_random_grid()
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=4)
         pipeline.fit(data_train, labels_train)
-        print(pipeline.get_params())
 
+        print(pipeline.get_params())
+        print("Best Score: ", pipeline.best_score_)
+        print("Best Params: ", pipeline.best_params_)
+        best_pipeline = pipeline.best_estimator_
         scores = model.evaluate_model(
-            pipeline, data_test, labels_test, oos_data, oos_labels, ranges, oos_ranges
+            best_pipeline,
+            data_test,
+            labels_test,
+            oos_data,
+            oos_labels,
+            ranges,
+            oos_ranges,
         )
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
         return scores
+
+    def get_random_grid(self):
+        # Number of trees in random forest
+        n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
+        # Number of features to consider at every split
+        max_features = ["auto", "sqrt"]
+        # Maximum number of levels in tree
+        max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
+        max_depth.append(None)
+        # Minimum number of samples required to split a node
+        min_samples_split = [2, 5, 10]
+        # Minimum number of samples required at each leaf node
+        min_samples_leaf = [1, 2, 4]
+        # Method of selecting samples for training each tree
+        bootstrap = [True, False]
+        # Create the random grid
+        alphas = uniform()
+        random_grid = {
+            "Lasso__estimator__alpha": alphas,
+            "classifier__n_estimators": n_estimators,
+            "classifier__max_features": max_features,
+            "classifier__max_depth": max_depth,
+            "classifier__min_samples_split": min_samples_split,
+            "classifier__min_samples_leaf": min_samples_leaf,
+            "classifier__bootstrap": bootstrap,
+        }
+        return random_grid
 
     def __str__(self):
         return super().__str__()
