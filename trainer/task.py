@@ -5,11 +5,8 @@ import logging
 import sys
 from trainer import globals
 import tensorflow as tf
-<<<<<<< HEAD
 import subprocess
-=======
 import random
->>>>>>> 5ab38c9bb32c46cf61e67f81cec628636992cca0
 
 
 def _parse_args(argv):

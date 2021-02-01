@@ -1,6 +1,5 @@
 # Dockerfile-gpu
 FROM echoesai/tensorflow-py3.7:latest-gpu
-RUN ls -la
 RUN rm /etc/apt/sources.list.d/cuda.list
 # Installs necessary dependencies.
 RUN apt-get update && apt-get install -y --no-install-recommends \
