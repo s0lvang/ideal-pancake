@@ -3,6 +3,7 @@ import logging
 import sys
 from trainer import globals
 import tensorflow as tf
+import subprocess
 
 
 def _parse_args(argv):
@@ -84,6 +85,13 @@ def _parse_args(argv):
     return parser.parse_args(argv)
 
 
+def download_datasets():
+    dataset_cmd = f"gsutil -m cp -R gs://{globals.dataset.name} ./datasets/"
+    oos_cmd = f"gsutil -m cp -R gs://{globals.out_of_study_dataset.name} ./datasets"
+    subprocess.run(dataset_cmd.split())
+    subprocess.run(oos_cmd.split())
+
+
 def main():
     """Entry point."""
 
@@ -92,6 +100,8 @@ def main():
     # Set up config and select datasets
     globals.init(in_study=flags.in_study, out_of_study=flags.out_of_study)
     # Trigger the experiment
+    if globals.FORCE_GCS_DOWNLOAD:
+        download_datasets()
     globals.dataset.run_experiment(flags)
 
 
