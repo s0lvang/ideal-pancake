@@ -1,9 +1,15 @@
 import argparse
+import os
+import numpy as np
 import logging
 import sys
 from trainer import globals
 import tensorflow as tf
+<<<<<<< HEAD
 import subprocess
+=======
+import random
+>>>>>>> 5ab38c9bb32c46cf61e67f81cec628636992cca0
 
 
 def _parse_args(argv):
@@ -92,9 +98,18 @@ def download_datasets():
     subprocess.run(oos_cmd.split())
 
 
+def seed_libraries(seed):
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    tf.random.set_seed(seed)
+
+
 def main():
     """Entry point."""
-
+    random_seed = 69420
+    print(random_seed, "random_seed")
+    seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
     # Set up config and select datasets
