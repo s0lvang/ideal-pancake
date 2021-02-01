@@ -96,8 +96,8 @@ def build_lstm_pipeline(shape, classes, output_dir):
 
 def predict_and_evaluate(model, x_test, y_test, ranges):
     prediction = model.predict(x_test)
-    prediction = [get_label_from_range(x, ranges) for x in prediction]
-    y_test = [get_label_from_range(x, ranges) for x in y_test]
+    prediction = [get_label_from_range(value, ranges) for value in prediction]
+    y_test = [get_label_from_range(value, ranges) for value in y_test]
     scaling_factor = max(y_test) - min(y_test)
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
@@ -202,7 +202,7 @@ def anosim(in_study, out_of_study):
 
 
 def get_label_from_range(value, ranges):
-    for key, ranges in ranges.items():
-        if value > ranges[0] and value < ranges[1]:
+    for key, range in ranges.items():
+        if value > range[0] and value < range[1]:
             return key
     raise Exception("not in range")

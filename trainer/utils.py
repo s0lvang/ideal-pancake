@@ -7,16 +7,6 @@ from collections import Counter
 from random import uniform
 
 
-def encode_labels(labels):
-    encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
-    return np.array(list(map(lambda label: encoding[label.lower()], labels)))
-
-
-def decode_labels(labels):
-    encoding = ["none", "low", "medium", "high"]
-    return list(map(lambda label: encoding[label], labels))
-
-
 def preprocess_for_imagenet(dataset):
     return np.array([preprocess_input(x) for x in dataset])
 
