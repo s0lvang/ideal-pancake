@@ -1,2 +1,3 @@
 trainingInput:
-  scaleTier: BASIC_GPU
+  scaleTier: CUSTOM
+  masterType: n1-highmem-8
