@@ -98,7 +98,7 @@ def predict_and_evaluate(model, x_test, y_test, ranges):
     prediction = model.predict(x_test)
     prediction = [get_label_from_range(value, ranges) for value in prediction]
     y_test = [get_label_from_range(value, ranges) for value in y_test]
-    scaling_factor = max(y_test) - min(y_test)
+    scaling_factor = max(ranges.keys()) - min(ranges.keys())
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
         original_values=y_test,
