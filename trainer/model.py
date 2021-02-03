@@ -191,6 +191,8 @@ def all_ranks(in_study, out_of_study):
 
 
 def anosim(in_study, out_of_study):
+    print(in_study, "in_study")
+    print(out_of_study, "out_of_study")
     in_study_ranks, out_of_study_ranks, combined_ranks = all_ranks(
         in_study, out_of_study
     )
