@@ -1,6 +1,7 @@
 import os
 import math
 import scipy.stats
+from tempfile import mkdtemp
 
 
 from sklearn import ensemble
@@ -19,6 +20,7 @@ from scikeras.wrappers import KerasRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
+from joblib import Memory
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
 from sklearn.neighbors import KNeighborsRegressor
@@ -55,13 +57,16 @@ def build_pipeline(flags):
 
 def build_lasso_pipeline():
     classifier = RandomForestRegressor()
+    cachedir = mkdtemp()
+    memory = Memory(cachedir=cachedir, verbose=10)
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
-        ]
+        ],
+        memory=memory,
     )
 
 
