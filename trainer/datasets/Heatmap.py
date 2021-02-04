@@ -89,13 +89,16 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             oos_ranges,
         ) = self.prepare_datasets()
 
+        preprocessing_pipeline = model.create_vgg_pipeline()
+        data = preprocessing_pipeline.fit_transform(data)
+        oos_data = preprocessing_pipeline.fit_transform(oos_data)
+
         (
             data_train,
             data_test,
             labels_train,
             labels_test,
         ) = model_selection.train_test_split(data, labels)
-
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()

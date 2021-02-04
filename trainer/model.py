@@ -55,18 +55,22 @@ def build_pipeline(flags):
     )
 
 
-def build_lasso_pipeline():
-    classifier = RandomForestRegressor()
-    cachedir = mkdtemp()
-    memory = Memory(cachedir=cachedir, verbose=10)
+def create_vgg_pipeline():
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
+        ]
+    )
+
+
+def build_lasso_pipeline():
+    classifier = RandomForestRegressor()
+    return pipeline.Pipeline(
+        [
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
         ],
-        memory=memory,
     )
 
 
