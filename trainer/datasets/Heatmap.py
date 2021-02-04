@@ -99,7 +99,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=1)
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=3)
         pipeline.fit(data_train, labels_train)
 
         print(pipeline.get_params())
