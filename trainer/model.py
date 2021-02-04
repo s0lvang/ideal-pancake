@@ -1,6 +1,7 @@
 import os
 import math
 import scipy.stats
+from tempfile import mkdtemp
 
 
 from sklearn import ensemble
@@ -19,6 +20,7 @@ from scikeras.wrappers import KerasRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
+from joblib import Memory
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
 from sklearn.neighbors import KNeighborsRegressor
@@ -53,15 +55,22 @@ def build_pipeline(flags):
     )
 
 
-def build_lasso_pipeline():
-    classifier = RandomForestRegressor()
+def create_vgg_pipeline():
     return pipeline.Pipeline(
         [
             ("vgg_16_scaling", FunctionTransformer(utils.preprocess_for_imagenet)),
             ("vgg_16", FunctionTransformer(extract_features_from_vgg16)),
+        ]
+    )
+
+
+def build_lasso_pipeline():
+    classifier = RandomForestRegressor()
+    return pipeline.Pipeline(
+        [
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", classifier),
-        ]
+        ],
     )
 
 
@@ -98,7 +107,7 @@ def predict_and_evaluate(model, x_test, y_test, ranges):
     prediction = model.predict(x_test)
     prediction = [get_label_from_range(value, ranges) for value in prediction]
     y_test = [get_label_from_range(value, ranges) for value in y_test]
-    scaling_factor = max(y_test) - min(y_test)
+    scaling_factor = max(ranges.keys()) - min(ranges.keys())
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
         original_values=y_test,
@@ -191,6 +200,8 @@ def all_ranks(in_study, out_of_study):
 
 
 def anosim(in_study, out_of_study):
+    print(in_study, "in_study")
+    print(out_of_study, "out_of_study")
     in_study_ranks, out_of_study_ranks, combined_ranks = all_ranks(
         in_study, out_of_study
     )

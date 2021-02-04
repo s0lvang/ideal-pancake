@@ -89,17 +89,20 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             oos_ranges,
         ) = self.prepare_datasets()
 
+        preprocessing_pipeline = model.create_vgg_pipeline()
+        data = preprocessing_pipeline.fit_transform(data)
+        oos_data = preprocessing_pipeline.fit_transform(oos_data)
+
         (
             data_train,
             data_test,
             labels_train,
             labels_test,
         ) = model_selection.train_test_split(data, labels)
-
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=4)
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=300, cv=3)
         pipeline.fit(data_train, labels_train)
 
         print(pipeline.get_params())
@@ -132,16 +135,16 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         # Minimum number of samples required at each leaf node
         min_samples_leaf = [1, 2, 4]
         # Method of selecting samples for training each tree
-        bootstrap = [True, False]
+        bootstrap = [True]
         # Create the random grid
         alphas = uniform()
         random_grid = {
             "Lasso__estimator__alpha": alphas,
             "classifier__n_estimators": n_estimators,
-            "classifier__max_features": max_features,
             "classifier__max_depth": max_depth,
             "classifier__min_samples_split": min_samples_split,
             "classifier__min_samples_leaf": min_samples_leaf,
+            "classifier__max_features": max_features,
             "classifier__bootstrap": bootstrap,
         }
         return random_grid
