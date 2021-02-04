@@ -6,6 +6,7 @@ class MoocImages(Heatmap):
         super().__init__("mooc-images")
         self.subject_id_column = "subject"
         self.label = "posttest"
+        self.labels_are_categorical = False
 
     def heatmap_label(self, metadata_file, id):
         label = metadata_file[metadata_file[self.subject_id_column] == id][self.label]

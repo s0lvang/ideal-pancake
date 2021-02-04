@@ -1,5 +1,6 @@
 from trainer.FileRefence import FileReference
 from trainer import globals
+from trainer.Labels import Labels
 
 import os
 import json
@@ -9,12 +10,14 @@ from google.cloud import storage
 class Dataset:
     def __init__(self, name):
         self.name = name
+        self.labels_are_categorical = False
 
     def data_and_labels(self):
         validate_config()
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
         data, labels = self.prepare_files(file_references, metadata_references)
+
         return data, labels
 
     def get_file_references(self, directory_name):
