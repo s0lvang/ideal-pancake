@@ -6,7 +6,7 @@ from trainer.datasets.EMIPImages import EMIPImages
 
 def init(in_study, out_of_study):
     global FORCE_GCS_DOWNLOAD
-    FORCE_GCS_DOWNLOAD = True
+    FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
     FORCE_LOCAL_FILES = False
     global METRIC_FILE_NAME

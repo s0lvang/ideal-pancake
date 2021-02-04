@@ -25,6 +25,7 @@ class EMIP(Timeseries):
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
+
         convert_categorical_labels_to_numerical(labels)
         return dataset, labels
 

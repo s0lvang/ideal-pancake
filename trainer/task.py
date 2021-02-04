@@ -62,6 +62,13 @@ def _parse_args(argv):
     )
 
     parser.add_argument(
+        "--environment",
+        help="local or remote",
+        default="local",
+        type=str,
+    )
+
+    parser.add_argument(
         "--max_depth",
         help="The maximum depth of the tree.",
         type=int,
@@ -112,7 +119,7 @@ def main():
     # Set up config and select datasets
     globals.init(in_study=flags.in_study, out_of_study=flags.out_of_study)
     # Trigger the experiment
-    if globals.FORCE_GCS_DOWNLOAD:
+    if globals.FORCE_GCS_DOWNLOAD or flags.environment == "remote":
         download_datasets()
     globals.dataset.run_experiment(flags)
 
