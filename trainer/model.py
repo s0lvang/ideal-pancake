@@ -35,9 +35,9 @@ def set_dataset(model, dataset):
     model.set_params(augmenter__timeseries_container=dataset)
 
 
-def build_pipeline(flags):
+def build_pipeline():
 
-    regressor = ensemble.RandomForestRegressor(n_estimators=flags.n_estimators)
+    regressor = ensemble.RandomForestRegressor()
 
     return pipeline.Pipeline(
         [
@@ -50,6 +50,7 @@ def build_pipeline(flags):
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
+            # ("Lasso", SelectFromModel(Lasso())),
             ("regressor", regressor),
         ]
     )

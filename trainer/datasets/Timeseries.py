@@ -68,7 +68,7 @@ class Timeseries(Dataset):
             labels_test,
         ) = model_selection.train_test_split(indices, labels)
 
-        pipeline = model.build_pipeline(flags)
+        pipeline = model.build_pipeline()
         model.set_dataset(pipeline, data)
         pipeline.fit(indices_train, labels_train)
 
