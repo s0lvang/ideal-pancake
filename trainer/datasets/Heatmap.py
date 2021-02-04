@@ -102,7 +102,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=3)
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=100, cv=3)
         pipeline.fit(data_train, labels_train)
 
         print(pipeline.get_params())
@@ -140,10 +140,12 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         alphas = uniform()
         random_grid = {
             "Lasso__estimator__alpha": alphas,
-            # "classifier__n_estimators": n_estimators,
-            # "classifier__max_depth": max_depth,
-            # "classifier__min_samples_split": min_samples_split,
-            # "classifier__min_samples_leaf": min_samples_leaf,
+            "classifier__n_estimators": n_estimators,
+            "classifier__max_depth": max_depth,
+            "classifier__min_samples_split": min_samples_split,
+            "classifier__min_samples_leaf": min_samples_leaf,
+            "classifier__max_features": max_features,
+            "classifier__bootstrap": bootstrap,
         }
         return random_grid
 
