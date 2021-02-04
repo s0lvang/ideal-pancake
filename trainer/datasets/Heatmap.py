@@ -102,7 +102,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=100, cv=3)
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=300, cv=3)
         pipeline.fit(data_train, labels_train)
 
         print(pipeline.get_params())
@@ -135,7 +135,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         # Minimum number of samples required at each leaf node
         min_samples_leaf = [1, 2, 4]
         # Method of selecting samples for training each tree
-        bootstrap = [True, False]
+        bootstrap = [True]
         # Create the random grid
         alphas = uniform()
         random_grid = {
