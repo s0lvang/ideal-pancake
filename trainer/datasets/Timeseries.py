@@ -1,3 +1,4 @@
+from trainer.timeseries.tsfresh_custom_calculators import load_custom_functions
 from trainer.utils import normalize_and_numericalize
 import pandas as pd
 from itertools import takewhile
@@ -19,10 +20,12 @@ class Timeseries(Dataset):
             "y": "y",
             "pupil_diameter": "pupil_diameter",
         }
+        load_custom_functions()
         self.tsfresh_features = {
-            "fft_aggregated": [
-                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            ],
+            # "fft_aggregated": [
+            #    {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+            # ],
+            "yolo": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
