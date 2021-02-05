@@ -35,10 +35,10 @@ class Labels:
             labels_test_indicies,
         ) = model_selection.train_test_split(data, self.labels.index)
 
-        self.train = self.labels.take(labels_train_indicies)
-        self.test = self.labels.take(labels_test_indicies)
-        self.original_labels_train = self.original_labels.take(labels_train_indicies)
-        self.original_labels_test = self.original_labels.take(labels_test_indicies)
+        self.train = self.labels[labels_train_indicies]
+        self.test = self.labels[labels_test_indicies]
+        self.original_labels_train = self.original_labels[labels_train_indicies]
+        self.original_labels_test = self.original_labels[labels_test_indicies]
         return (data_train, data_test)
 
     def create_clusters(self):
