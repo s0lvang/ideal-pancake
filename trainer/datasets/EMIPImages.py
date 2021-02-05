@@ -6,6 +6,7 @@ class EMIPImages(Heatmap):
         super().__init__("emip-images-54-frames")
         self.subject_id_column = "id"
         self.label = "expertise_programming"
+        self.labels_are_categorical = True
 
     def heatmap_label(self, metadata_file, id):
         label = metadata_file[

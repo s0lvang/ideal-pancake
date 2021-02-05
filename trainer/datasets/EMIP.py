@@ -1,4 +1,5 @@
-from trainer.utils import convert_categorical_labels_to_numerical
+# from trainer.utils import convert_categorical_labels_to_numerical
+from trainer.Labels import Labels
 import pandas as pd
 from itertools import takewhile
 
@@ -16,6 +17,7 @@ class EMIP(Timeseries):
             "L Mapped Diameter [mm]": self.column_names["pupil_diameter"],
         }
         self.label = "expertise_programming"
+        self.labels_are_categorical = True
 
     def prepare_files(self, file_references, metadata_references):
         labels = pd.Series()
@@ -25,8 +27,6 @@ class EMIP(Timeseries):
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
-
-        convert_categorical_labels_to_numerical(labels)
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
@@ -36,6 +36,7 @@ class EMIP(Timeseries):
         csv[self.column_names["subject_id"]] = int(subject_id)
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
+        labels = Labels(labels, self.labels_are_categorical)
         return dataset, labels
 
     def __str__(self):

@@ -39,23 +39,3 @@ def dump_object(object_to_dump, output_path):
         gfile.makedirs(os.path.dirname(output_path))
     with gfile.open(output_path, "w") as wf:
         joblib.dump(object_to_dump, wf)
-
-
-def normalize_and_numericalize(labels):
-    labels = normalize(labels)
-    return convert_categorical_labels_to_numerical(labels)
-
-
-def normalize(series):
-    return (series - series.min()) / (series.max() - series.min())
-
-
-def convert_categorical_labels_to_numerical(labels):
-    c = Counter(labels)
-    percentages = {key: value / len(labels) for (key, value) in c.items()}
-    ranges = {}
-    sums = 0
-    for (key, value) in sorted(percentages.items()):
-        ranges[key] = (sums, sums + value)
-        sums += value
-    return labels.apply(lambda category: uniform(*ranges[category])), ranges

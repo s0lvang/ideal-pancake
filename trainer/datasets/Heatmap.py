@@ -1,14 +1,13 @@
-from trainer.utils import normalize_and_numericalize
 from sklearn.model_selection import RandomizedSearchCV
 from trainer import model
 from trainer.datasets.Dataset import Dataset
+from trainer.Labels import Labels
 from trainer import globals
 from scipy.stats import uniform
 
 import pandas as pd
 import cv2
 import numpy as np
-from sklearn import model_selection
 from abc import ABCMeta, abstractmethod
 
 
@@ -33,6 +32,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             subjects_labels.append(subject_label)
         subjects_frames = np.array(subjects_frames)
         subjects_labels = pd.Series(subjects_labels)
+        subjects_labels = Labels(subjects_labels, self.labels_are_categorical)
         return subjects_frames, subjects_labels
 
     def prepare_subject(self, id, file_references, metadata_file):
@@ -66,44 +66,30 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             print(file_reference)
             raise error
 
-    def prepare_dataset(self, data, labels):
-        labels, ranges = normalize_and_numericalize(labels)
-        return data, labels, ranges
-
     def prepare_datasets(self):
         data, labels = self.data_and_labels()
-        data, labels, ranges = self.prepare_dataset(data, labels)
-
         oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
-        oos_data, oos_labels, oos_ranges = self.prepare_dataset(oos_data, oos_labels)
 
-        return data, labels, ranges, oos_data, oos_labels, oos_ranges
+        return data, labels, oos_data, oos_labels
 
     def run_experiment(self, flags):
         (
             data,
             labels,
-            ranges,
             oos_data,
             oos_labels,
-            oos_ranges,
         ) = self.prepare_datasets()
 
         preprocessing_pipeline = model.create_vgg_pipeline()
         data = preprocessing_pipeline.fit_transform(data)
         oos_data = preprocessing_pipeline.fit_transform(oos_data)
 
-        (
-            data_train,
-            data_test,
-            labels_train,
-            labels_test,
-        ) = model_selection.train_test_split(data, labels)
+        (data_train, data_test) = labels.train_test_split(data)
         pipeline = model.build_lasso_pipeline()
 
         grid_params = self.get_random_grid()
         pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=300, cv=3)
-        pipeline.fit(data_train, labels_train)
+        pipeline.fit(data_train, labels.train)
 
         print(pipeline.get_params())
         print("Best Score: ", pipeline.best_score_)
@@ -112,11 +98,9 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         scores = model.evaluate_model(
             best_pipeline,
             data_test,
-            labels_test,
+            labels,
             oos_data,
             oos_labels,
-            ranges,
-            oos_ranges,
         )
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 

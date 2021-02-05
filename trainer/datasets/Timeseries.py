@@ -1,7 +1,5 @@
-from trainer.utils import normalize_and_numericalize
 import pandas as pd
 from itertools import takewhile
-from sklearn import model_selection
 
 from trainer.datasets.Dataset import Dataset
 from trainer import model
@@ -38,7 +36,6 @@ class Timeseries(Dataset):
     def prepare_dataset(self, data, labels):
         indices = get_indicies(labels)
         data = self.select_columns_and_fill_na(data)
-        labels = normalize_and_numericalize(labels)
         return data, labels, indices
 
     def prepare_datasets(self):
@@ -64,18 +61,16 @@ class Timeseries(Dataset):
         (
             indices_train,
             indices_test,
-            labels_train,
-            labels_test,
-        ) = model_selection.train_test_split(indices, labels)
+        ) = labels.train_test_split(indices)
 
         pipeline = model.build_pipeline(flags)
         model.set_dataset(pipeline, data)
-        pipeline.fit(indices_train, labels_train)
+        pipeline.fit(indices_train, labels.train)
 
         scores = model.evaluate_model(
             pipeline,
             indices_test,
-            labels_test,
+            labels,
             oos_indices,
             oos_labels,
             oos_data,
@@ -101,4 +96,4 @@ def get_header(file):
 
 
 def get_indicies(labels):
-    return pd.DataFrame(index=labels.index).astype("int64")
+    return pd.DataFrame(index=labels.original_labels.index).astype("int64")

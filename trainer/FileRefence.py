@@ -24,7 +24,7 @@ class FileReference:
         return self.blob.download_to_filename(destination_file_name)
 
     def open(self, *args):
-        if Blob:
+        if Blob and not globals.FORCE_LOCAL_FILES:
             self.cached_download_data()
         return open(self.reference, *args)
 
