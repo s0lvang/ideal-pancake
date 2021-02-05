@@ -38,17 +38,28 @@ class Timeseries(Dataset):
     def prepare_dataset(self, data, labels):
         indices = get_indicies(labels)
         data = self.select_columns_and_fill_na(data)
-        labels = normalize_and_numericalize(labels)
-        return data, labels, indices
+        labels, ranges = normalize_and_numericalize(labels)
+        return data, labels, indices, ranges
 
     def prepare_datasets(self):
         data, labels = self.data_and_labels()
-        data, labels, indices = self.prepare_dataset(data, labels)
+        data, labels, indices, ranges = self.prepare_dataset(data, labels)
 
         oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
-        oos_data, oos_labels, oos_indices = self.prepare_dataset(oos_data, oos_labels)
+        oos_data, oos_labels, oos_indices, oos_ranges = self.prepare_dataset(
+            oos_data, oos_labels
+        )
 
-        return data, labels, indices, oos_data, oos_labels, oos_indices
+        return (
+            data,
+            labels,
+            indices,
+            ranges,
+            oos_data,
+            oos_labels,
+            oos_indices,
+            oos_ranges,
+        )
 
     def run_experiment(self, flags):
         """Testbed for running model training and evaluation."""
@@ -56,9 +67,11 @@ class Timeseries(Dataset):
             data,
             labels,
             indices,
+            ranges,
             oos_data,
             oos_labels,
             oos_indices,
+            oos_ranges,
         ) = self.prepare_datasets()
 
         (
@@ -73,12 +86,14 @@ class Timeseries(Dataset):
         pipeline.fit(indices_train, labels_train)
 
         scores = model.evaluate_model(
-            pipeline,
-            indices_test,
-            labels_test,
-            oos_indices,
-            oos_labels,
-            oos_data,
+            model=pipeline,
+            x_test=indices_test,
+            y_test=labels_test,
+            ranges=ranges,
+            oos_x_test=oos_indices,
+            oos_y_test=oos_labels,
+            oos_ranges=oos_ranges,
+            oos_dataset=oos_data,
         )
 
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
