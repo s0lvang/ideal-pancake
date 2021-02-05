@@ -1,6 +1,7 @@
 from trainer.timeseries.tsfresh_custom_calculators import load_custom_functions
 import pandas as pd
 from itertools import takewhile
+import numpy as np
 
 from trainer.datasets.Dataset import Dataset
 from trainer import model

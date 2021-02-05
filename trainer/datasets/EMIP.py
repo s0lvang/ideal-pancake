@@ -31,6 +31,7 @@ class EMIP(Timeseries):
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
         labels = labels.replace(encoding)
         dataset = dataset[dataset["status"] == "READING"]
+        labels = Labels(labels, self.labels_are_categorical)
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
@@ -40,7 +41,6 @@ class EMIP(Timeseries):
         csv[self.column_names["subject_id"]] = int(subject_id)
         dataset = dataset.append(csv, ignore_index=True)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
-        labels = Labels(labels, self.labels_are_categorical)
         return dataset, labels
 
     def __str__(self):
