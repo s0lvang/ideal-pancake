@@ -2,6 +2,7 @@ from trainer.utils import normalize_and_numericalize
 import pandas as pd
 from itertools import takewhile
 from sklearn import model_selection
+import numpy as np
 
 from trainer.datasets.Dataset import Dataset
 from trainer import model
@@ -99,7 +100,9 @@ class Timeseries(Dataset):
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     def select_columns_and_fill_na(self, data):
-        return data[self.columns_to_use].fillna(method="ffill")
+        df = data[self.columns_to_use]
+        data_with_nan = df.replace({0: np.nan})
+        return data_with_nan.dropna()
 
     def __str__(self):
         return super().__str__()
