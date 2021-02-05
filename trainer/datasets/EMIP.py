@@ -28,6 +28,7 @@ class EMIP(Timeseries):
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
         labels = labels.replace(encoding)
+        dataset = dataset[dataset["status"] == "READING"]
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
