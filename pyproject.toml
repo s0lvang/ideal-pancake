@@ -30,6 +30,7 @@ cloudml-hypertune = "^0.1.0-alpha.6"
 Keras = "^2.4.3"
 opencv-python = "^4.4.0"
 scikeras = "^0.2.0"
+PyWavelets = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

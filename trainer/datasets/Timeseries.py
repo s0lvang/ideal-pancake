@@ -25,7 +25,7 @@ class Timeseries(Dataset):
             # "fft_aggregated": [
             #    {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             # ],
-            "yolo": None,
+            "lhipa": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
