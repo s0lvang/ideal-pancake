@@ -35,7 +35,7 @@ class FileReference:
             directory = os.path.join(data_directory, "/".join(split_name[: i + 1]))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-        if not os.path.isfile(self.reference) or globals.FORCE_GCS_DOWNLOAD:
+        if not os.path.isfile(self.reference):
             self.download_to_filename(self.reference)
 
     def human_sorting_keys(self, reference):
