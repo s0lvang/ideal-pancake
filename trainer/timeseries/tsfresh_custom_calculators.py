@@ -1,3 +1,4 @@
+from trainer.timeseries.garch_and_arima import optimize_arima
 from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 import math
@@ -19,11 +20,18 @@ def garch(x):
 
 
 @set_property("fctype", "simple")
+def arima(d):
+    best_arima_coeff = optimize_arima(d, 2)
+    print(best_arima_coeff)
+    return best_arima_coeff
+
+
+@set_property("fctype", "simple")
 def lhipa(d):
     return calculate_lhipa(d)
 
 
 def load_custom_functions():
-    custom_functions = [garch, lhipa]
+    custom_functions = [garch, lhipa, arima]
     for func in custom_functions:
         setattr(feature_calculators, func.__name__, func)
