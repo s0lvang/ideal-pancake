@@ -15,6 +15,7 @@ from trainer.neural_network.vgg16 import (
 )
 from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
+from tsfresh.feature_extraction import ComprehensiveFCParameters
 from scikeras.wrappers import KerasRegressor
 
 from sklearn.metrics import mean_squared_error
@@ -46,11 +47,11 @@ def build_pipeline():
                 FeatureAugmenter(
                     column_id=globals.dataset.column_names["subject_id"],
                     column_sort=globals.dataset.column_names["time"],
-                    default_fc_parameters=globals.dataset.tsfresh_features,
+                    default_fc_parameters=ComprehensiveFCParameters(),
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
-            # ("Lasso", SelectFromModel(Lasso())),
+            ("Lasso", SelectFromModel(Lasso())),
             ("regressor", regressor),
         ]
     )
