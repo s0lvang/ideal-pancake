@@ -1,4 +1,3 @@
-from trainer.utils import normalize_and_numericalize
 from sklearn.model_selection import RandomizedSearchCV
 from trainer import model
 from trainer.datasets.Dataset import Dataset
@@ -9,7 +8,6 @@ from scipy.stats import uniform
 import pandas as pd
 import cv2
 import numpy as np
-from sklearn import model_selection
 from abc import ABCMeta, abstractmethod
 
 

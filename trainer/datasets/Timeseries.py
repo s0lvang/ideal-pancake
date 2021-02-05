@@ -1,9 +1,6 @@
-from trainer.utils import normalize_and_numericalize
 import pandas as pd
 from itertools import takewhile
-from sklearn import model_selection
 
-from trainer.Labels import Labels
 from trainer.datasets.Dataset import Dataset
 from trainer import model
 from trainer import globals
