@@ -22,9 +22,9 @@ class Timeseries(Dataset):
         }
         load_custom_functions()
         self.tsfresh_features = {
-            # "fft_aggregated": [
-            #    {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            # ],
+            "fft_aggregated": [
+                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+            ],
             "lhipa": None,
         }
         self.numeric_features = [
