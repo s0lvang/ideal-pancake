@@ -8,7 +8,7 @@ def init(in_study, out_of_study):
     global FORCE_GCS_DOWNLOAD
     FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
-    FORCE_LOCAL_FILES = False
+    FORCE_LOCAL_FILES = True
     global METRIC_FILE_NAME
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
