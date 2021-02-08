@@ -19,11 +19,12 @@ def garch(x):
     return 42
 
 
-@set_property("fctype", "simple")
-def arima(d):
-    best_arima_coeff = optimize_arima(d, 2)
-    print(best_arima_coeff)
-    return best_arima_coeff
+@set_property("fctype", "combiner")
+def arima(d, param):
+    arima_coeff_names = ["exog", "ar", "ma"]
+    best_arima_coeffs = optimize_arima(d, 2)
+
+    return [(name, coeff) for name, coeff in zip(arima_coeff_names, best_arima_coeffs)]
 
 
 @set_property("fctype", "simple")

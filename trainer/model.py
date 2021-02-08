@@ -1,7 +1,5 @@
 import os
-import math
 import scipy.stats
-from tempfile import mkdtemp
 
 
 from sklearn import ensemble
@@ -16,15 +14,13 @@ from trainer.neural_network.vgg16 import (
 from trainer.neural_network.TensorboardCallback import BucketTensorBoard
 from tsfresh.transformers import FeatureAugmenter
 from scikeras.wrappers import KerasRegressor
-from tsfresh.feature_extraction import ComprehensiveFCParameters
 
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
-from joblib import Memory
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import Normalizer
 
 
 def print_and_return(data):
@@ -42,6 +38,7 @@ def build_pipeline():
 
     return pipeline.Pipeline(
         [
+            ("normalizer", Normalizer()),
             (
                 "augmenter",
                 FeatureAugmenter(
@@ -52,7 +49,7 @@ def build_pipeline():
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
-            ("Lasso", SelectFromModel(Lasso())),
+            # ("Lasso", SelectFromModel(Lasso())),
             ("regressor", regressor),
         ]
     )

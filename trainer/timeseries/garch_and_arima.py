@@ -6,7 +6,7 @@ from statsmodels.tsa.arima.model import ARIMA
 
 
 def pdq_combinations(ceiling):
-    p = d = q = range(0, ceiling)
+    p = d = q = range(1, ceiling)
     return list(itertools.product(p, d, q))
 
 
@@ -31,6 +31,9 @@ def optimize_arima(timeseries, param_ceiling):
                 best_aic = aic
                 best_parameter_set = fit.params
                 print(parameter_set, aic, "new best fit")
+                print(fit.param_terms, aic, "new best fit")
+                print(fit.arparams)
+                print(fit.maparams)
 
             else:
                 print(parameter_set, aic)
