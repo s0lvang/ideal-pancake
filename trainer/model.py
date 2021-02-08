@@ -20,7 +20,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
-from sklearn.preprocessing import Normalizer
 
 
 def print_and_return(data):
@@ -38,7 +37,6 @@ def build_pipeline():
 
     return pipeline.Pipeline(
         [
-            ("normalizer", Normalizer()),
             (
                 "augmenter",
                 FeatureAugmenter(

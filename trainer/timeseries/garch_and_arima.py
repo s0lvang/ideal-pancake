@@ -11,40 +11,42 @@ def pdq_combinations(ceiling):
 
 
 # Should take training data, after splitting
-def arima(timeseries, pdq):
+def fit_arima(timeseries, pdq):
     arima_model = ARIMA(timeseries, order=pdq)
     fit = arima_model.fit()
     aic = fit.aic
     return fit, aic
 
 
-def optimize_arima(timeseries, param_ceiling):
+def fit_garch(timeseries, poq):
+    garch = arch_model(timeseries, vol="garch", p=poq[0], o=poq[1], q=poq[2])
+    fit = garch.fit()
+    aic = fit.aic
+    return fit, aic
+
+
+def optimize_model(timeseries, param_ceiling, model):
     params = pdq_combinations(param_ceiling)
-    best_parameter_set = None
+    best_fit = None
     best_aic = math.inf
 
     for parameter_set in params:
         try:
-            fit, aic = arima(timeseries, parameter_set)
-
+            fit, aic = model(timeseries, parameter_set)
             if aic < best_aic:
                 best_aic = aic
-                best_parameter_set = fit.params
-                print(parameter_set, aic, "new best fit")
-                print(fit.param_terms, aic, "new best fit")
-                print(fit.arparams)
-                print(fit.maparams)
-
-            else:
-                print(parameter_set, aic)
+                best_fit = fit
         except Exception as e:
             print(e)
             continue
-    print(best_parameter_set, best_aic, "Completed, best fit")
-    return best_parameter_set
+    return best_fit
 
 
-def garch(timeseries, poq):
-    garch = arch_model(timeseries, vol="garch", p=poq[0], o=poq[1], q=poq[2])
-    fit = garch.fit()
-    return fit
+def optimize_garch(timeseries, param_ceiling):
+    fit = optimize_model(timeseries, param_ceiling, fit_garch)
+    return fit.params
+
+
+def optimize_arima(timeseries, param_ceiling):
+    fit = optimize_model(timeseries, param_ceiling, fit_arima)
+    return fit.params
