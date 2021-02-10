@@ -135,6 +135,7 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels, oos_dataset=No
     oos_nrmses, oos_rmse, oos_nrmse = evaluate_oos(
         model, oos_x_test, oos_labels, oos_dataset
     )
+    FGI = anosim(nrmses, oos_nrmses)
     print("RMSE")
     print(rmse)
 
@@ -148,7 +149,15 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels, oos_dataset=No
     print(oos_nrmse)
 
     print("ANOSIM score - FGI:")
-    print(anosim(nrmses, oos_nrmses))
+    print(FGI)
+    metrics = {
+        "rmse": rmse,
+        "nrmse": nrmse,
+        "oos_rmse": oos_rmse,
+        "oos_nrmse": oos_nrmse,
+        "FGI": FGI,
+    }
+    globals.comet_logger.log_metrics(metrics)
 
 
 # Write model and eval metrics to `output_dir`

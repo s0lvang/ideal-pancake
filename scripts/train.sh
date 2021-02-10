@@ -75,6 +75,7 @@ TRAINER_ARGS="\
   --in_study $IN_STUDY \
   --out_of_study $OUT_OF_STUDY \
   --environment $RUN_ENV \
+  --experiment-name $JOB_NAME \
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \
