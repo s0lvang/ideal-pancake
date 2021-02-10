@@ -1,5 +1,7 @@
+from trainer.timeseries.tsfresh_custom_calculators import load_custom_functions
 import pandas as pd
 from itertools import takewhile
+import numpy as np
 
 from trainer.datasets.Dataset import Dataset
 from trainer import model
@@ -16,12 +18,14 @@ class Timeseries(Dataset):
             "y": "y",
             "pupil_diameter": "pupil_diameter",
         }
+        load_custom_functions()
         self.tsfresh_features = {
-            "length": None,
-            "fft_aggregated": [
-                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            ],
-            "fft_coefficient": [{"coeff": k, "attr": "real"} for k in range(100)],
+            # "fft_aggregated": [
+            #     {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+            # ],
+            # "lhipa": None,
+            # "arima": None,
+            "garch": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
@@ -63,7 +67,7 @@ class Timeseries(Dataset):
             indices_test,
         ) = labels.train_test_split(indices)
 
-        pipeline = model.build_pipeline(flags)
+        pipeline = model.build_pipeline()
         model.set_dataset(pipeline, data)
         pipeline.fit(indices_train, labels.train)
 
@@ -79,7 +83,9 @@ class Timeseries(Dataset):
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     def select_columns_and_fill_na(self, data):
-        return data[self.columns_to_use].fillna(method="ffill")
+        df = data[self.columns_to_use]
+        data_with_nan = df.replace({0: np.nan})
+        return data_with_nan.dropna()
 
     def __str__(self):
         return super().__str__()

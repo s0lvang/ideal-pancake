@@ -1,7 +1,5 @@
 import os
-import math
 import scipy.stats
-from tempfile import mkdtemp
 
 
 from sklearn import ensemble
@@ -20,10 +18,8 @@ from scikeras.wrappers import KerasRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import SelectFromModel
-from joblib import Memory
 from keras.callbacks import EarlyStopping
 from sklearn.linear_model import Lasso
-from sklearn.neighbors import KNeighborsRegressor
 
 
 def print_and_return(data):
@@ -35,9 +31,9 @@ def set_dataset(model, dataset):
     model.set_params(augmenter__timeseries_container=dataset)
 
 
-def build_pipeline(flags):
+def build_pipeline():
 
-    regressor = ensemble.RandomForestRegressor(n_estimators=flags.n_estimators)
+    regressor = ensemble.RandomForestRegressor()
 
     return pipeline.Pipeline(
         [
@@ -47,9 +43,11 @@ def build_pipeline(flags):
                     column_id=globals.dataset.column_names["subject_id"],
                     column_sort=globals.dataset.column_names["time"],
                     default_fc_parameters=globals.dataset.tsfresh_features,
+                    n_jobs=16,
                 ),
             ),
             ("printer", FunctionTransformer(print_and_return)),
+            # ("Lasso", SelectFromModel(Lasso())),
             ("regressor", regressor),
         ]
     )
