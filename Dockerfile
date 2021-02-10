@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
      rm -rf /var/lib/apt/lists/*
 
 
-
 RUN mkdir /app 
 RUN mkdir /app/datasets
 COPY pyproject.toml poetry.lock  /app
@@ -30,5 +29,6 @@ RUN poetry install --no-dev --no-root
 COPY ./trainer /app/trainer
 RUN poetry install --no-dev
 
+ENV COMET_API_KEY ${COMET_API_KEY}
 
 ENTRYPOINT ["poetry", "run", "python", "trainer/task.py"]
