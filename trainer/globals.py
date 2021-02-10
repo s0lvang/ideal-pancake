@@ -13,8 +13,6 @@ def init(in_study, out_of_study, experiment):
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
     MODEL_FILE_NAME = "model.joblib"
-    global comet_logger
-    comet_logger = experiment
 
     global dataset
     dataset = get_dataset(dataset_name=in_study)
@@ -23,6 +21,12 @@ def init(in_study, out_of_study, experiment):
         out_of_study_dataset = get_dataset(dataset_name=out_of_study)
     else:
         out_of_study_dataset = None
+    global comet_logger
+    comet_logger = experiment
+    dataset_type = (
+        str(dataset.__class__.__bases__[0]).split(".")[-1].strip(">'")
+    )  # it gets the parentsclass name
+    comet_logger.add_tag(dataset_type)
 
 
 def get_dataset(dataset_name):

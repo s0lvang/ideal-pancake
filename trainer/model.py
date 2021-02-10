@@ -48,7 +48,7 @@ def build_pipeline():
             ),
             ("printer", FunctionTransformer(print_and_return)),
             # ("Lasso", SelectFromModel(Lasso())),
-            ("regressor", regressor),
+            ("classifier", regressor),
         ]
     )
 

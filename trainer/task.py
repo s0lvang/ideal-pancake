@@ -123,7 +123,6 @@ def main():
     seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
-
     experiment = Experiment(
         api_key=os.environ.get("COMET_API_KEY"),
         project_name="ideal-pancake",

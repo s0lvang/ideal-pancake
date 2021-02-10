@@ -1,10 +1,12 @@
 import os
+from comet_ml import Experiment
 import joblib
 from tensorflow.io import gfile
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
 from collections import Counter
 from random import uniform
+from trainer import globals
 
 
 def preprocess_for_imagenet(dataset):
@@ -39,3 +41,17 @@ def dump_object(object_to_dump, output_path):
         gfile.makedirs(os.path.dirname(output_path))
     with gfile.open(output_path, "w") as wf:
         joblib.dump(object_to_dump, wf)
+
+
+def log_hyperparameters_to_comet(clf):
+    for i in range(len(clf.cv_results_["params"])):
+        exp = Experiment(
+            workspace="s0lvang",
+            project_name=f"hp_tuning_{globals.comet_logger.get_name()}",
+            api_key=os.environ.get("COMET_API_KEY"),
+        )
+        for k, v in clf.cv_results_.items():
+            if k == "params":
+                exp.log_parameters(v[i])
+            else:
+                exp.log_metric(k, v[i])
