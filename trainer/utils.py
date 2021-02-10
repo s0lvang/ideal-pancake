@@ -47,9 +47,10 @@ def log_hyperparameters_to_comet(clf):
     for i in range(len(clf.cv_results_["params"])):
         exp = Experiment(
             workspace="s0lvang",
-            project_name=f"hp_tuning_{globals.comet_logger.get_name()}",
+            project_name="ideal-pancake",
             api_key=os.environ.get("COMET_API_KEY"),
         )
+        exp.add_tag("hp_tuning")
         for k, v in clf.cv_results_.items():
             if k == "params":
                 exp.log_parameters(v[i])
