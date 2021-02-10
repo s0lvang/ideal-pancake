@@ -26,7 +26,6 @@ def calculate_lhipa(d):
     lambda_univ = np.std(cD_LHm) * math.sqrt(2.0 * np.log2(len(cD_LHm)))
     cD_LHt = pywt.threshold(cD_LHm, lambda_univ, mode="less")
     # get signal duration (in seconds)
-    print(d[-1])
     sampling_rate = 250
     tt = len(d) // sampling_rate
     # compute LHIPA

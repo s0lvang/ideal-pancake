@@ -76,10 +76,7 @@ class Timeseries(Dataset):
         pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
         pipeline.fit(indices_train, labels.train)
 
-        print(pipeline.get_params())
         log_hyperparameters_to_comet(pipeline)
-        print("Best Score: ", pipeline.best_score_)
-        print("Best Params: ", pipeline.best_params_)
         best_pipeline = pipeline.best_estimator_
 
         scores = model.evaluate_model(
