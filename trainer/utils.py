@@ -50,6 +50,7 @@ def log_hyperparameters_to_comet(clf):
             api_key=globals.flags.comet_api_key,
         )
         exp.add_tag("hp_tuning")
+        exp.add_tags(globals.comet_logger.get_tags())
         for k, v in clf.cv_results_.items():
             if k == "params":
                 exp.log_parameters(v[i])
