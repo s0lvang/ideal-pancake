@@ -4,7 +4,7 @@ from trainer.datasets.MoocImages import MoocImages
 from trainer.datasets.EMIPImages import EMIPImages
 
 
-def init(in_study, out_of_study, experiment):
+def init(in_study, out_of_study, experiment, _flags):
     global FORCE_GCS_DOWNLOAD
     FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
@@ -13,6 +13,8 @@ def init(in_study, out_of_study, experiment):
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
     MODEL_FILE_NAME = "model.joblib"
+    global flags
+    flags = _flags
 
     global dataset
     dataset = get_dataset(dataset_name=in_study)

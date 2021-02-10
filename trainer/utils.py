@@ -5,7 +5,6 @@ from tensorflow.io import gfile
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
 from collections import Counter
-from random import uniform
 from trainer import globals
 
 
@@ -48,7 +47,7 @@ def log_hyperparameters_to_comet(clf):
         exp = Experiment(
             workspace="s0lvang",
             project_name="ideal-pancake",
-            api_key=os.environ.get("COMET_API_KEY"),
+            api_key=globals.flags.comet_api_key,
         )
         exp.add_tag("hp_tuning")
         for k, v in clf.cv_results_.items():

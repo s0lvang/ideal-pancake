@@ -75,7 +75,8 @@ TRAINER_ARGS="\
   --in_study $IN_STUDY \
   --out_of_study $OUT_OF_STUDY \
   --environment $RUN_ENV \
-  --experiment-name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
+  --experiment_name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
+  --comet_api_key $COMET_API_KEY
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \
@@ -89,7 +90,7 @@ echo "To run tensorboard: "
 echo "kill \$(lsof -ti tcp:6006) && tensorboard --logdir=\"$JOB_DIR/tensorboard\" &
 open \"http://localhost:6006\""
 if [ "$RUN_ENV" = 'remote' ]; then
-  eval "docker build --build-arg COMET_API_KEY=$COMET_API_KEY -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
+  eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else
   echo "Running command: $CMD"
   eval "$CMD"
