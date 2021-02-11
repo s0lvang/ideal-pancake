@@ -2,6 +2,7 @@ from trainer.FileRefence import FileReference
 from collections import Counter
 from random import uniform
 from sklearn import model_selection
+import pandas as pd
 
 
 class Labels:
@@ -63,6 +64,11 @@ class Labels:
             self.labels.max() - self.labels.min()
         )
 
+    def denormalize_labels(self, labels):
+        return (
+            labels * (self.original_max - self.original_min) + self.original_min
+        ).astype(int)
+
     def get_cluster_from_value(self, value):
         for key, cluster in self.clusters.items():
             if value > cluster[0] and value < cluster[1]:
@@ -70,7 +76,7 @@ class Labels:
         raise Exception("not in any cluster in ", self.clusters)
 
     def get_clusters_from_values(self, values):
-        return [self.get_cluster_from_value(value) for value in values]
+        return pd.Series([self.get_cluster_from_value(value) for value in values])
 
     def __str__(self):
         return self.original_labels_test.__str__()

@@ -1,5 +1,5 @@
 import os
-from comet_ml import Experiment
+from comet_ml import ExistingExperiment, Experiment
 import joblib
 from tensorflow.io import gfile
 import numpy as np
@@ -56,3 +56,10 @@ def log_hyperparameters_to_comet(clf):
                 exp.log_parameters(v[i])
             else:
                 exp.log_metric(k, v[i])
+        exp.end()
+
+    old_experiment = ExistingExperiment(
+        api_key=globals.flags.comet_api_key,
+        previous_experiment=globals.comet_logger.get_key(),
+    )
+    globals.comet_logger = old_experiment

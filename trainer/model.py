@@ -104,16 +104,21 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def predict_and_evaluate(model, x_test, labels):
     prediction = model.predict(x_test)
     prediction = labels.get_clusters_from_values(prediction)
+    denormalized_prediction = labels.denormalize_labels(prediction)
+    y_test = labels.get_clusters_from_values(labels.test)
+    print(denormalized_prediction)
+    print(labels.original_labels_test)
+    globals.comet_logger.log_confusion_matrix(
+        list(labels.original_labels_test), list(denormalized_prediction)
+    )
     scaling_factor = labels.original_max - labels.original_min
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
-        original_values=labels.original_labels_test,
+        original_values=y_test,
         scaling_factor=scaling_factor,
     )
-    rmse = mean_squared_error(prediction, labels.original_labels_test, squared=False)
-    nrmse = normalized_root_mean_squared_error(
-        prediction, labels.original_labels_test, scaling_factor
-    )
+    rmse = mean_squared_error(prediction, y_test, squared=False)
+    nrmse = normalized_root_mean_squared_error(prediction, y_test, scaling_factor)
     return nrmses, rmse, nrmse
 
 
