@@ -14,7 +14,7 @@ class Dataset:
 
     def data_and_labels(self):
         validate_config()
-        file_references = self.get_file_references("data/")[0:20]
+        file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
         data, labels = self.prepare_files(file_references, metadata_references)
 
