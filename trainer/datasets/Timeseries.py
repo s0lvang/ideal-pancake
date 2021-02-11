@@ -1,4 +1,4 @@
-from trainer.utils import log_hyperparameters_to_comet
+from trainer.utils import log_dataframe_to_comet, log_hyperparameters_to_comet
 from trainer.timeseries.tsfresh_custom_calculators import load_custom_functions
 import pandas as pd
 from itertools import takewhile
@@ -64,28 +64,35 @@ class Timeseries(Dataset):
             oos_indices,
         ) = self.prepare_datasets()
 
-        (
-            indices_train,
-            indices_test,
-        ) = labels.train_test_split(indices)
+        preprocessing_pipeline = model.build_ts_fresh_extraction_pipeline()
+        model.set_dataset(preprocessing_pipeline, data)
+        data = preprocessing_pipeline.fit_transform(indices)
+        log_dataframe_to_comet(data, "in_study_features")
 
-        pipeline = model.build_pipeline()
-        model.set_dataset(pipeline, data)
+        model.set_dataset(preprocessing_pipeline, oos_data)
+        oos_data = preprocessing_pipeline.fit_transform(oos_indices)
+        log_dataframe_to_comet(oos_data, "out_of_study_features")
+
+        (
+            data_train,
+            data_test,
+        ) = labels.train_test_split(data)
+
+        pipeline = model.build_timeseries_pipeline()
 
         grid_params = self.get_random_grid()
         pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
-        pipeline.fit(indices_train, labels.train)
+        pipeline.fit(data_train, labels.train)
 
         log_hyperparameters_to_comet(pipeline)
         best_pipeline = pipeline.best_estimator_
 
         scores = model.evaluate_model(
             best_pipeline,
-            indices_test,
+            data_test,
             labels,
-            oos_indices,
-            oos_labels,
             oos_data,
+            oos_labels,
         )
 
         model.store_model_and_metrics(pipeline, scores, flags.job_dir)

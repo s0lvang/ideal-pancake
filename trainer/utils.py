@@ -63,3 +63,7 @@ def log_hyperparameters_to_comet(clf):
         previous_experiment=globals.comet_logger.get_key(),
     )
     globals.comet_logger = old_experiment
+
+
+def log_dataframe_to_comet(df, name):
+    globals.comet_logger.log_table(f"{name}.csv", tabular_data=df)
