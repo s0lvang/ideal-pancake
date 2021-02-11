@@ -1,9 +1,10 @@
+from comet_ml import Experiment
+from trainer import globals
 import argparse
 import os
 import numpy as np
 import logging
 import sys
-from trainer import globals
 import tensorflow as tf
 import subprocess
 import random
@@ -31,6 +32,12 @@ def _parse_args(argv):
     parser.add_argument(
         "--job-dir",
         help="Output directory for exporting model and other metadata.",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--experiment_name",
+        help="name of the experiment",
         required=True,
     )
 
@@ -76,10 +83,10 @@ def _parse_args(argv):
     )
 
     parser.add_argument(
-        "--min_samples_leaf",
-        help="The minimum number of samples required to be at a leaf node.",
+        "--comet_api_key",
+        help="apikey",
         default=1,
-        type=int,
+        type=str,
     )
 
     parser.add_argument(
@@ -116,8 +123,20 @@ def main():
     seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
     logging.basicConfig(level=flags.log_level.upper())
+
+    experiment = Experiment(
+        api_key=flags.comet_api_key,
+        project_name="ideal-pancake",
+        workspace="s0lvang",
+    )
+    experiment.set_name(flags.experiment_name)
     # Set up config and select datasets
-    globals.init(in_study=flags.in_study, out_of_study=flags.out_of_study)
+    globals.init(
+        in_study=flags.in_study,
+        out_of_study=flags.out_of_study,
+        experiment=experiment,
+        _flags=flags,
+    )
     # Trigger the experiment
     if globals.FORCE_GCS_DOWNLOAD or flags.environment == "remote":
         download_datasets()

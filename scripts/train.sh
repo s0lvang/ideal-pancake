@@ -75,6 +75,8 @@ TRAINER_ARGS="\
   --in_study $IN_STUDY \
   --out_of_study $OUT_OF_STUDY \
   --environment $RUN_ENV \
+  --experiment_name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
+  --comet_api_key $COMET_API_KEY
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \

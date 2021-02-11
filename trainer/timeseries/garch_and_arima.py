@@ -3,6 +3,8 @@ import itertools
 import math
 from arch import arch_model
 from statsmodels.tsa.arima.model import ARIMA
+import sys
+import os
 
 
 def pdq_combinations(ceiling):
@@ -43,7 +45,9 @@ def optimize_model(timeseries, param_ceiling, model):
 
 
 def optimize_garch(timeseries, param_ceiling):
+    sys.stdout = open(os.devnull, "w")
     fit = optimize_model(timeseries, param_ceiling, fit_garch)
+    sys.stdout = sys.__stdout__
     return fit.params
 
 

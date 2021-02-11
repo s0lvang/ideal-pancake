@@ -91,7 +91,6 @@ class Heatmap(Dataset, metaclass=ABCMeta):
         pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=300, cv=3)
         pipeline.fit(data_train, labels.train)
 
-        print(pipeline.get_params())
         print("Best Score: ", pipeline.best_score_)
         print("Best Params: ", pipeline.best_params_)
         best_pipeline = pipeline.best_estimator_

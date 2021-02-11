@@ -31,10 +31,7 @@ def set_dataset(model, dataset):
     model.set_params(augmenter__timeseries_container=dataset)
 
 
-def build_pipeline():
-
-    regressor = ensemble.RandomForestRegressor()
-
+def build_ts_fresh_extraction_pipeline():
     return pipeline.Pipeline(
         [
             (
@@ -46,9 +43,19 @@ def build_pipeline():
                     n_jobs=16,
                 ),
             ),
-            ("printer", FunctionTransformer(print_and_return)),
+        ]
+    )
+
+
+def build_timeseries_pipeline():
+
+    regressor = ensemble.RandomForestRegressor()
+
+    return pipeline.Pipeline(
+        [
+            # ("printer", FunctionTransformer(print_and_return)),
             # ("Lasso", SelectFromModel(Lasso())),
-            ("regressor", regressor),
+            ("classifier", regressor),
         ]
     )
 
@@ -104,37 +111,39 @@ def build_lstm_pipeline(shape, classes, output_dir):
 def predict_and_evaluate(model, x_test, labels):
     prediction = model.predict(x_test)
     prediction = labels.get_clusters_from_values(prediction)
+    y_test = labels.get_clusters_from_values(labels.test)
+
+    denormalized_prediction = labels.denormalize_labels(prediction)
+    globals.comet_logger.log_confusion_matrix(
+        list(labels.original_labels_test), list(denormalized_prediction)
+    )
+
     scaling_factor = labels.original_max - labels.original_min
     nrmses = nrmse_per_subject(
         predicted_values=prediction,
-        original_values=labels.original_labels_test,
+        original_values=y_test,
         scaling_factor=scaling_factor,
     )
-    rmse = mean_squared_error(prediction, labels.original_labels_test, squared=False)
-    nrmse = normalized_root_mean_squared_error(
-        prediction, labels.original_labels_test, scaling_factor
-    )
+    rmse = mean_squared_error(prediction, y_test, squared=False)
+    nrmse = normalized_root_mean_squared_error(prediction, y_test, scaling_factor)
     return nrmses, rmse, nrmse
 
 
-def evaluate_oos(model, oos_x_test, oos_labels, oos_dataset):
-    if oos_dataset is not None:
-        set_dataset(model, oos_dataset)
+def evaluate_oos(model, oos_x_test, oos_labels):
 
     return predict_and_evaluate(model, oos_x_test, oos_labels)
 
 
 # This method handles all evaluation of the model. Since we don't actually need the prediction for anything it is also handled in here.
-def evaluate_model(model, x_test, labels, oos_x_test, oos_labels, oos_dataset=None):
+def evaluate_model(model, x_test, labels, oos_x_test, oos_labels):
     (
         nrmses,
         rmse,
         nrmse,
     ) = predict_and_evaluate(model, x_test, labels)
 
-    oos_nrmses, oos_rmse, oos_nrmse = evaluate_oos(
-        model, oos_x_test, oos_labels, oos_dataset
-    )
+    oos_nrmses, oos_rmse, oos_nrmse = evaluate_oos(model, oos_x_test, oos_labels)
+    FGI = anosim(nrmses, oos_nrmses)
     print("RMSE")
     print(rmse)
 
@@ -148,7 +157,15 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels, oos_dataset=No
     print(oos_nrmse)
 
     print("ANOSIM score - FGI:")
-    print(anosim(nrmses, oos_nrmses))
+    print(FGI)
+    metrics = {
+        "rmse": rmse,
+        "nrmse": nrmse,
+        "oos_rmse": oos_rmse,
+        "oos_nrmse": oos_nrmse,
+        "FGI": FGI,
+    }
+    globals.comet_logger.log_metrics(metrics)
 
 
 # Write model and eval metrics to `output_dir`
@@ -197,8 +214,6 @@ def all_ranks(in_study, out_of_study):
 
 
 def anosim(in_study, out_of_study):
-    print(in_study, "in_study")
-    print(out_of_study, "out_of_study")
     in_study_ranks, out_of_study_ranks, combined_ranks = all_ranks(
         in_study, out_of_study
     )

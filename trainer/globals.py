@@ -4,7 +4,7 @@ from trainer.datasets.MoocImages import MoocImages
 from trainer.datasets.EMIPImages import EMIPImages
 
 
-def init(in_study, out_of_study):
+def init(in_study, out_of_study, experiment, _flags):
     global FORCE_GCS_DOWNLOAD
     FORCE_GCS_DOWNLOAD = False
     global FORCE_LOCAL_FILES
@@ -13,6 +13,8 @@ def init(in_study, out_of_study):
     METRIC_FILE_NAME = "eval_metrics.joblib"
     global MODEL_FILE_NAME
     MODEL_FILE_NAME = "model.joblib"
+    global flags
+    flags = _flags
 
     global dataset
     dataset = get_dataset(dataset_name=in_study)
@@ -21,6 +23,12 @@ def init(in_study, out_of_study):
         out_of_study_dataset = get_dataset(dataset_name=out_of_study)
     else:
         out_of_study_dataset = None
+    global comet_logger
+    comet_logger = experiment
+    dataset_type = (
+        str(dataset.__class__.__bases__[0]).split(".")[-1].strip(">'")
+    )  # it gets the parentsclass name
+    comet_logger.add_tag(dataset_type)
 
 
 def get_dataset(dataset_name):
