@@ -25,9 +25,9 @@ def lhipa(d):
     return calculate_lhipa(d)
 
 
-@set_property("fctype", "simple")
-def markov(d):
-    return calculate_markov(d)
+@set_property("fctype", "combiner")
+def markov(d, param):
+    return [(str(index), value) for index, value in enumerate(calculate_markov(d, 5))]
 
 
 def load_custom_functions():
