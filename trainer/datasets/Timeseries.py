@@ -81,12 +81,12 @@ class Timeseries(Dataset):
 
         pipeline = model.build_timeseries_pipeline()
 
-        grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
+        # grid_params = self.get_random_grid()
+        # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
         pipeline.fit(data_train, labels.train)
 
-        log_hyperparameters_to_comet(pipeline)
-        best_pipeline = pipeline.best_estimator_
+        # log_hyperparameters_to_comet(pipeline)
+        best_pipeline = pipeline  # .best_estimator_
 
         scores = model.evaluate_model(
             best_pipeline,
