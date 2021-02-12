@@ -2,6 +2,7 @@ from trainer.timeseries.garch_and_arima import optimize_arima, optimize_garch
 from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 from .lhipa import calculate_lhipa
+from .markov import calculate_markov
 
 
 @set_property("fctype", "combiner")
@@ -24,7 +25,12 @@ def lhipa(d):
     return calculate_lhipa(d)
 
 
+@set_property("fctype", "simple")
+def markov(d):
+    return calculate_markov(d)
+
+
 def load_custom_functions():
-    custom_functions = [garch, lhipa, arima]
+    custom_functions = [garch, lhipa, arima, markov]
     for func in custom_functions:
         setattr(feature_calculators, func.__name__, func)
