@@ -54,7 +54,7 @@ def build_timeseries_pipeline():
     return pipeline.Pipeline(
         [
             # ("printer", FunctionTransformer(print_and_return)),
-            ("Lasso", SelectFromModel(Lasso())),
+            # ("Lasso", SelectFromModel(Lasso())),
             ("classifier", regressor),
         ]
     )
