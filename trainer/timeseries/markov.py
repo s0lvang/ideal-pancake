@@ -19,7 +19,7 @@ def optimize_markov(timeseries, param_ceiling):
     best_transistion_matrix = None
     best_aic = math.inf
 
-    for i in range(1, param_ceiling):
+    for i in range(5, param_ceiling):
         try:
             transition_matrix, aic = fit_markov(timeseries, i)
             if aic < best_aic:
@@ -37,5 +37,10 @@ def calculate_markov(timeseries, n_components_ceiling):
     )
     bins = [i / 100 for i in range(0, 100, 5)]
     discrete_timeseries = np.digitize(normalized_timeseries, bins)
-    transition_matrix = optimize_markov(discrete_timeseries, n_components_ceiling)
-    return transition_matrix.flatten()
+    transition_matrix = optimize_markov(
+        discrete_timeseries, n_components_ceiling
+    ).flatten()
+    padded_trans_matrix = np.pad(
+        transition_matrix, (0, n_components_ceiling ** 2 - len(transition_matrix))
+    )
+    return padded_trans_matrix
