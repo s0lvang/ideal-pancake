@@ -35,11 +35,17 @@ def dump_object(object_to_dump, output_path):
     Returns:
       None
     """
-
-    if not gfile.exists(output_path):
-        gfile.makedirs(os.path.dirname(output_path))
-    with gfile.open(output_path, "w") as wf:
+    path = f"g://{output_path}"
+    if not gfile.exists(path):
+        gfile.makedirs(os.path.dirname(path))
+    with gfile.GFile(path, "w") as wf:
         joblib.dump(object_to_dump, wf)
+
+
+def download_object(path):
+    bucket_path = f"g://{path}"
+    obj = joblib.load(bucket_path)
+    return obj
 
 
 def log_hyperparameters_to_comet(clf):

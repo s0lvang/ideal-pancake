@@ -1,6 +1,6 @@
 from trainer.FileRefence import FileReference
 from trainer import globals
-from trainer.Labels import Labels
+from trainer.utils import dump_object, download_object
 
 import os
 import json
@@ -30,6 +30,15 @@ class Dataset:
                 bucket_name=self.name, prefix=directory_name
             )
         return file_references
+
+    def upload_features_to_gcs(self, features, labels):
+        features_output_path = os.path.join(self.name, "features", "features")
+        dump_object((features, labels), features_output_path)
+
+    def download_premade_features(self):
+        features_path = os.path.join(self.name, "features", "features")
+        features, labels = download_object(features_path)
+        return features, labels
 
     def __str__(self):
         variables = vars(self).copy()
