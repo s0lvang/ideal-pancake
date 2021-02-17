@@ -70,6 +70,7 @@ class Timeseries(Dataset):
 
         model.set_dataset(preprocessing_pipeline, oos_data)
         oos_data = preprocessing_pipeline.fit_transform(oos_indices)
+
         if globals.flags.environment == "remote":
             globals.dataset.upload_features_to_gcs(data, labels)
             globals.out_of_study_dataset.upload_features_to_gcs(data, labels)
