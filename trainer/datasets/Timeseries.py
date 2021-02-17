@@ -67,11 +67,12 @@ class Timeseries(Dataset):
         preprocessing_pipeline = model.build_ts_fresh_extraction_pipeline()
         model.set_dataset(preprocessing_pipeline, data)
         data = preprocessing_pipeline.fit_transform(indices)
-        globals.dataset.upload_features_to_gcs(data, labels)
 
         model.set_dataset(preprocessing_pipeline, oos_data)
         oos_data = preprocessing_pipeline.fit_transform(oos_indices)
-        globals.out_of_study_dataset.upload_features_to_gcs(data, labels)
+        if globals.flags.environment == "remote":
+            globals.dataset.upload_features_to_gcs(data, labels)
+            globals.out_of_study_dataset.upload_features_to_gcs(data, labels)
 
         return (
             data,
