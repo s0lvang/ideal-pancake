@@ -35,7 +35,7 @@ def dump_object(object_to_dump, output_path):
     Returns:
       None
     """
-    path = f"g://{output_path}"
+    path = f"gs://{output_path}"
     if not gfile.exists(path):
         gfile.makedirs(os.path.dirname(path))
     with gfile.GFile(path, "w") as wf:
