@@ -58,8 +58,10 @@ def _parse_args(argv):
     parser.add_argument(
         "--download_files",
         help="Should files be downloaded",
-        required=True,
+        default=False,
         type=str2bool,
+        nargs="?",
+        const="",
     )
 
     return parser.parse_args(argv)
