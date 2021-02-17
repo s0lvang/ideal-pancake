@@ -13,7 +13,6 @@ class Dataset:
         self.labels_are_categorical = False
 
     def data_and_labels(self):
-        validate_config()
         file_references = self.get_file_references("data/")
         metadata_references = self.get_file_references("metadata/")
         data, labels = self.prepare_files(file_references, metadata_references)
@@ -21,14 +20,9 @@ class Dataset:
         return data, labels
 
     def get_file_references(self, directory_name):
-        if globals.FORCE_LOCAL_FILES:
-            file_references = get_file_names_from_directory(
-                f"datasets/{self.name}/{directory_name}"
-            )
-        else:
-            file_references = get_blobs_from_gcs(
-                bucket_name=self.name, prefix=directory_name
-            )
+        file_references = get_file_names_from_directory(
+            f"datasets/{self.name}/{directory_name}"
+        )
         return file_references
 
     def upload_features_to_gcs(self, features, labels):
@@ -60,24 +54,3 @@ def recursive_file_names_from_dir(path, paths):
         return paths
     else:
         raise ValueError(f"Got a path that isn't dir or file: {path}")
-
-
-def get_blobs_from_gcs(bucket_name, prefix):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket_name)
-    blobs = list(bucket.list_blobs(prefix=prefix))
-    file_references = list(
-        map(FileReference, filter(lambda file: file.name != prefix, blobs))
-    )
-    return file_references
-
-
-def validate_config():
-    validate_download_settings()
-
-
-def validate_download_settings():
-    if globals.FORCE_LOCAL_FILES and globals.FORCE_GCS_DOWNLOAD:
-        raise ValueError(
-            "Both force_local_files and force_gcs_download cannot be true at the same time."
-        )

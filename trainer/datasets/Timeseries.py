@@ -26,9 +26,9 @@ class Timeseries(Dataset):
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
             "lhipa": None,
-            "arima": None,
-            "garch": None,
-            "markov": None,
+            # "arima": None,
+            # "garch": None,
+            # "markov": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
@@ -95,8 +95,6 @@ class Timeseries(Dataset):
             oos_data,
             oos_labels,
         )
-
-        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     def get_random_grid(self):
         # Number of trees in random forest

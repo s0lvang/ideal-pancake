@@ -101,7 +101,6 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             oos_data,
             oos_labels,
         )
-        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
         return scores
 

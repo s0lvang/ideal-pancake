@@ -10,6 +10,17 @@ import subprocess
 import random
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 def _parse_args(argv):
     """Parses command-line arguments."""
 
@@ -42,44 +53,10 @@ def _parse_args(argv):
     )
 
     parser.add_argument(
-        "--log_level",
-        help="Logging level.",
-        choices=[
-            "DEBUG",
-            "ERROR",
-            "FATAL",
-            "INFO",
-            "WARN",
-        ],
-        default="INFO",
-    )
-
-    parser.add_argument(
-        "--num_samples",
-        help="Number of samples to read from `input`",
-        type=int,
-        default=None,
-    )
-
-    parser.add_argument(
-        "--n_estimators",
-        help="Number of trees in the forest.",
-        default=10,
-        type=int,
-    )
-
-    parser.add_argument(
         "--environment",
         help="local or remote",
         default="local",
         type=str,
-    )
-
-    parser.add_argument(
-        "--max_depth",
-        help="The maximum depth of the tree.",
-        type=int,
-        default=None,
     )
 
     parser.add_argument(
@@ -90,13 +67,10 @@ def _parse_args(argv):
     )
 
     parser.add_argument(
-        "--criterion",
-        help="The function to measure the quality of a split.",
-        choices=[
-            "gini",
-            "entropy",
-        ],
-        default="gini",
+        "--download_files",
+        help="Should files be downloaded",
+        required=True,
+        type=str2bool,
     )
 
     return parser.parse_args(argv)
@@ -122,8 +96,6 @@ def main():
     print(random_seed, "random_seed")
     seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
-    logging.basicConfig(level=flags.log_level.upper())
-
     experiment = Experiment(
         api_key=flags.comet_api_key,
         project_name="ideal-pancake",
@@ -138,7 +110,7 @@ def main():
         _flags=flags,
     )
     # Trigger the experiment
-    if globals.FORCE_GCS_DOWNLOAD or flags.environment == "remote":
+    if flags.download_files or flags.environment == "remote":
         download_datasets()
     globals.dataset.run_experiment(flags)
 
