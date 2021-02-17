@@ -64,6 +64,15 @@ def _parse_args(argv):
         const="",
     )
 
+    parser.add_argument(
+        "--generate_features",
+        help="Should features be generated or should they be downloaded",
+        default=True,
+        type=str2bool,
+        nargs="?",
+        const="",
+    )
+
     return parser.parse_args(argv)
 
 

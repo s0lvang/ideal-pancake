@@ -19,8 +19,7 @@
 RUN_ENV=$1
 IN_STUDY=$2
 OUT_OF_STUDY=$3
-DOWNLOAD_FILES=$4
-EXTRA_TRAINER_ARGS=$5
+EXTRA_TRAINER_ARGS="${@:4}"
 IMAGE_URI=eu.gcr.io/$PROJECT_ID/trainer:0.1
 
 if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
@@ -69,7 +68,6 @@ TRAINER_ARGS="\
   --environment $RUN_ENV \
   --experiment_name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
   --comet_api_key $COMET_API_KEY \
-  --download_files $DOWNLOAD_FILES
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \
