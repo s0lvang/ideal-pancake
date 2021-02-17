@@ -43,8 +43,9 @@ def dump_object(object_to_dump, output_path):
 
 
 def download_object(path):
-    bucket_path = f"g://{path}"
-    obj = joblib.load(bucket_path)
+    bucket_path = f"gs://{path}"
+    with gfile.GFile(bucket_path, "rb") as wf:
+        obj = joblib.load(wf)
     return obj
 
 

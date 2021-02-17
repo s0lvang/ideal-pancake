@@ -26,11 +26,13 @@ class Dataset:
         return file_references
 
     def upload_features_to_gcs(self, features, labels):
-        features_output_path = os.path.join(self.name, "features", "features")
+        features_output_path = os.path.join(
+            "pregenerated-features", self.name, "features"
+        )
         dump_object((features, labels), features_output_path)
 
     def download_premade_features(self):
-        features_path = os.path.join(self.name, "features", "features")
+        features_path = os.path.join("pregenerated-features", self.name, "features")
         features, labels = download_object(features_path)
         return features, labels
 
