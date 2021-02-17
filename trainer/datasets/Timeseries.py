@@ -67,12 +67,10 @@ class Timeseries(Dataset):
         preprocessing_pipeline = model.build_ts_fresh_extraction_pipeline()
         model.set_dataset(preprocessing_pipeline, data)
         data = preprocessing_pipeline.fit_transform(indices)
-        log_dataframe_to_comet(data, "in_study_features")
         globals.dataset.upload_features_to_gcs(data, labels)
 
         model.set_dataset(preprocessing_pipeline, oos_data)
         oos_data = preprocessing_pipeline.fit_transform(oos_indices)
-        log_dataframe_to_comet(oos_data, "out_of_study_features")
         globals.out_of_study_dataset.upload_features_to_gcs(data, labels)
 
         return (
@@ -111,6 +109,8 @@ class Timeseries(Dataset):
             data_train,
             data_test,
         ) = labels.train_test_split(data)
+        log_dataframe_to_comet(data, "in_study_features")
+        log_dataframe_to_comet(oos_data, "out_of_study_features")
 
         pipeline = model.build_timeseries_pipeline()
 
