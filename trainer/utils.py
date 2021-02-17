@@ -4,8 +4,8 @@ import joblib
 from tensorflow.io import gfile
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
-from collections import Counter
 from trainer import globals
+import argparse
 
 
 def preprocess_for_imagenet(dataset):
@@ -73,3 +73,14 @@ def log_hyperparameters_to_comet(clf):
 
 def log_dataframe_to_comet(df, name):
     globals.comet_logger.log_table(f"{name}.csv", tabular_data=df)
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")

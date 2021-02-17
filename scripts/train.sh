@@ -27,9 +27,6 @@ if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
   RUN_ENV=local
 fi
 
-if [[ ! "$DOWNLOAD_FILES" =~ ^(True|False)$ ]]; then
-  DOWNLOAD_FILES=False
-fi
 NOW="$(date +"%d%m_%H%M")"
 JOB_PREFIX="hardcore_ml_shit"
 COMMIT_HASH="$(git rev-parse --verify HEAD)"
@@ -41,6 +38,7 @@ JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=trainer
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
 REGION=europe-west1
+CONFIG_FILE=config/config.yaml
 
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
 echo "$RUN_ENV"

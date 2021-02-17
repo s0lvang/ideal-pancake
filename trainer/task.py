@@ -1,24 +1,13 @@
 from comet_ml import Experiment
 from trainer import globals
+from trainer.utils import str2bool
 import argparse
 import os
 import numpy as np
-import logging
 import sys
 import tensorflow as tf
 import subprocess
 import random
-
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ("yes", "true", "t", "y", "1"):
-        return True
-    elif v.lower() in ("no", "false", "f", "n", "0"):
-        return False
-    else:
-        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def _parse_args(argv):
