@@ -26,9 +26,9 @@ class Timeseries(Dataset):
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
             "lhipa": None,
-            # "arima": None,
-            # "garch": None,
-            # "markov": None,
+            "arima": None,
+            "garch": None,
+            "markov": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
