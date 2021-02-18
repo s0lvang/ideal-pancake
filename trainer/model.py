@@ -168,17 +168,6 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels):
     globals.comet_logger.log_metrics(metrics)
 
 
-# Write model and eval metrics to `output_dir`
-def store_model_and_metrics(model, metrics, output_dir):
-    model_output_path = os.path.join(output_dir, "model", globals.MODEL_FILE_NAME)
-    metric_output_path = os.path.join(
-        output_dir, "experiment", globals.METRIC_FILE_NAME
-    )
-
-    utils.dump_object(model, model_output_path)
-    utils.dump_object(metrics, metric_output_path)
-
-
 def nrmse_per_subject(predicted_values, original_values, scaling_factor):
     if scaling_factor == 0:
         raise ZeroDivisionError(

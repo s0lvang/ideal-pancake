@@ -54,8 +54,7 @@ class Timeseries(Dataset):
 
         return data, labels, indices, oos_data, oos_labels, oos_indices
 
-    def run_experiment(self, flags):
-        """Testbed for running model training and evaluation."""
+    def generate_features(self):
         (
             data,
             labels,
@@ -68,16 +67,52 @@ class Timeseries(Dataset):
         preprocessing_pipeline = model.build_ts_fresh_extraction_pipeline()
         model.set_dataset(preprocessing_pipeline, data)
         data = preprocessing_pipeline.fit_transform(indices)
-        log_dataframe_to_comet(data, "in_study_features")
 
         model.set_dataset(preprocessing_pipeline, oos_data)
         oos_data = preprocessing_pipeline.fit_transform(oos_indices)
-        log_dataframe_to_comet(oos_data, "out_of_study_features")
+
+        if globals.flags.environment == "remote":
+            globals.dataset.upload_features_to_gcs(data, labels)
+            globals.out_of_study_dataset.upload_features_to_gcs(data, labels)
+
+        return (
+            data,
+            labels,
+            oos_data,
+            oos_labels,
+        )
+
+    def get_features_from_gcs(self):
+        data, labels = globals.dataset.download_premade_features()
+        oos_data, oos_labels = globals.out_of_study_dataset.download_premade_features()
+        return (
+            data,
+            labels,
+            oos_data,
+            oos_labels,
+        )
+
+    def get_preprocessed_data(self):
+        if globals.flags.generate_features:
+            return self.generate_features()
+        else:
+            return self.get_features_from_gcs()
+
+    def run_experiment(self, flags):
+        """Testbed for running model training and evaluation."""
+        (
+            data,
+            labels,
+            oos_data,
+            oos_labels,
+        ) = self.get_preprocessed_data()
 
         (
             data_train,
             data_test,
         ) = labels.train_test_split(data)
+        log_dataframe_to_comet(data, "in_study_features")
+        log_dataframe_to_comet(oos_data, "out_of_study_features")
 
         pipeline = model.build_timeseries_pipeline()
 
@@ -95,8 +130,6 @@ class Timeseries(Dataset):
             oos_data,
             oos_labels,
         )
-
-        model.store_model_and_metrics(pipeline, scores, flags.job_dir)
 
     def get_random_grid(self):
         # Number of trees in random forest

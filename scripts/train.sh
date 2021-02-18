@@ -19,17 +19,13 @@
 RUN_ENV=$1
 IN_STUDY=$2
 OUT_OF_STUDY=$3
-RUN_TYPE=$4
-EXTRA_TRAINER_ARGS=$5
+EXTRA_TRAINER_ARGS="${@:4}"
 IMAGE_URI=eu.gcr.io/$PROJECT_ID/trainer:0.1
 
 if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
   RUN_ENV=local
 fi
 
-if [[ ! "$RUN_TYPE" =~ ^(train|hptuning)$ ]]; then
-  RUN_TYPE=train
-fi
 NOW="$(date +"%d%m_%H%M")"
 JOB_PREFIX="hardcore_ml_shit"
 COMMIT_HASH="$(git rev-parse --verify HEAD)"
@@ -41,12 +37,7 @@ JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=trainer
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
 REGION=europe-west1
-
-if [ "$RUN_TYPE" = 'hptuning' ]; then
-  CONFIG_FILE=config/hptuning_config.yaml
-else # Assume `train`
-  CONFIG_FILE=config/config.yaml
-fi
+CONFIG_FILE=config/config.yaml
 
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
 echo "$RUN_ENV"
@@ -76,7 +67,7 @@ TRAINER_ARGS="\
   --out_of_study $OUT_OF_STUDY \
   --environment $RUN_ENV \
   --experiment_name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
-  --comet_api_key $COMET_API_KEY
+  --comet_api_key $COMET_API_KEY \
   "
 
 CMD="gcloud ai-platform $RUN_ENV_ARGS \

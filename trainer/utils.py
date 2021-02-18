@@ -4,8 +4,8 @@ import joblib
 from tensorflow.io import gfile
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
-from collections import Counter
 from trainer import globals
+import argparse
 
 
 def preprocess_for_imagenet(dataset):
@@ -35,11 +35,18 @@ def dump_object(object_to_dump, output_path):
     Returns:
       None
     """
-
-    if not gfile.exists(output_path):
-        gfile.makedirs(os.path.dirname(output_path))
-    with gfile.open(output_path, "w") as wf:
+    path = f"gs://{output_path}"
+    if not gfile.exists(path):
+        gfile.makedirs(os.path.dirname(path))
+    with gfile.GFile(path, "w") as wf:
         joblib.dump(object_to_dump, wf)
+
+
+def download_object(path):
+    bucket_path = f"gs://{path}"
+    with gfile.GFile(bucket_path, "rb") as wf:
+        obj = joblib.load(wf)
+    return obj
 
 
 def log_hyperparameters_to_comet(clf):
@@ -67,3 +74,14 @@ def log_hyperparameters_to_comet(clf):
 
 def log_dataframe_to_comet(df, name):
     globals.comet_logger.log_table(f"{name}.csv", tabular_data=df)
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0", ""):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
