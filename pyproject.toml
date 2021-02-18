@@ -30,6 +30,7 @@ opencv-python = "^4.4.0"
 scikeras = "^0.2.0"
 PyWavelets = "^1.1.1"
 comet-ml = "^3.3.2"
+hmmlearn = "^0.2.5"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

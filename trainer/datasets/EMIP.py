@@ -2,7 +2,7 @@
 from trainer.Labels import Labels
 import pandas as pd
 from itertools import takewhile
-
+import time
 from trainer.datasets.Timeseries import Timeseries
 
 encoding = {"high": 3, "medium": 2, "low": 1, "none": 0}
@@ -23,12 +23,16 @@ class EMIP(Timeseries):
 
     def prepare_files(self, file_references, metadata_references):
         labels = pd.Series()
-        dataset = pd.DataFrame()
+        dataset = []
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f)
+        start = time.time()
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
+        dataset = pd.concat(dataset)
+        end = time.time()
+        print(end - start, "it takes this long")
         labels = labels.replace(encoding)
         dataset = dataset[dataset["status"] == "READING"]
         labels = Labels(labels, self.labels_are_categorical)
@@ -36,10 +40,10 @@ class EMIP(Timeseries):
 
     def prepare_file(self, f, metadata_file, dataset, labels):
         subject_id = get_header(f)["Subject"][0]
-        csv = pd.read_csv(f, sep="\t", comment="#")
+        csv = pd.read_csv(f, sep="\t", comment="#", engine="c")
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
-        dataset = dataset.append(csv, ignore_index=True)
+        dataset.append(csv)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
         return dataset, labels
 

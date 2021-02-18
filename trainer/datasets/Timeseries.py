@@ -22,12 +22,13 @@ class Timeseries(Dataset):
         }
         load_custom_functions()
         self.tsfresh_features = {
-            # "fft_aggregated": [
-            #     {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            # ],
-            # "lhipa": None,
-            # "arima": None,
+            "fft_aggregated": [
+                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+            ],
+            "lhipa": None,
+            "arima": None,
             "garch": None,
+            "markov": None,
         }
         self.numeric_features = [
             self.column_names["pupil_diameter"],
@@ -80,12 +81,12 @@ class Timeseries(Dataset):
 
         pipeline = model.build_timeseries_pipeline()
 
-        grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
+        # grid_params = self.get_random_grid()
+        # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
         pipeline.fit(data_train, labels.train)
 
-        log_hyperparameters_to_comet(pipeline)
-        best_pipeline = pipeline.best_estimator_
+        # log_hyperparameters_to_comet(pipeline)
+        best_pipeline = pipeline  # .best_estimator_
 
         scores = model.evaluate_model(
             best_pipeline,
