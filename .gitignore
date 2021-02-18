@@ -1,5 +1,6 @@
 /datasets/
 images/
+/credentials/env.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
