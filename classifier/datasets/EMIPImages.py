@@ -1,4 +1,4 @@
-from trainer.datasets.Heatmap import Heatmap
+from classifier.datasets.Heatmap import Heatmap
 
 
 class EMIPImages(Heatmap):

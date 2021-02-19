@@ -2,14 +2,8 @@ import os
 from comet_ml import ExistingExperiment, Experiment
 import joblib
 from tensorflow.io import gfile
-import numpy as np
-from keras.applications.imagenet_utils import preprocess_input
-from trainer import globals
+from classifier import globals
 import argparse
-
-
-def preprocess_for_imagenet(dataset):
-    return np.array([preprocess_input(x) for x in dataset])
 
 
 def upload_to_gcs(local_path, gcs_path):

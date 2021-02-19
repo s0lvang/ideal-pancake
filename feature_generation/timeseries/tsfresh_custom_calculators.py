@@ -1,4 +1,4 @@
-from trainer.timeseries.garch_and_arima import optimize_arima, optimize_garch
+from feature_generation.timeseries.garch_and_arima import optimize_arima, optimize_garch
 from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 from .lhipa import calculate_lhipa
@@ -8,7 +8,7 @@ from .markov import calculate_markov
 @set_property("fctype", "combiner")
 def arima(d, param):
     arima_coeff_names = ["exog", "ar", "ma"]
-    best_arima_coeffs = optimize_arima(d, 2)
+    best_arima_coeffs = optimize_arima(d, 3)
 
     return [(name, coeff) for name, coeff in zip(arima_coeff_names, best_arima_coeffs)]
 
@@ -16,7 +16,7 @@ def arima(d, param):
 @set_property("fctype", "combiner")
 def garch(d, param):
     garch_coeff_names = ["mu", "omega", "alpha", "gamma", "beta"]
-    best_garch_coeffs = optimize_garch(d, 2)
+    best_garch_coeffs = optimize_garch(d, 3)
     return [(name, coeff) for name, coeff in zip(garch_coeff_names, best_garch_coeffs)]
 
 

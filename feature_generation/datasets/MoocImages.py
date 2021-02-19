@@ -1,4 +1,4 @@
-from trainer.datasets.Heatmap import Heatmap
+from feature_generation.datasets.Heatmap import Heatmap
 
 
 class MoocImages(Heatmap):

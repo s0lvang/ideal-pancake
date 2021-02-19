@@ -1,7 +1,7 @@
 from google.cloud.storage.blob import Blob
 import re
 import os
-from trainer import globals
+from feature_generation import globals
 
 
 class FileReference:

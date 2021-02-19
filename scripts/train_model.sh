@@ -27,17 +27,17 @@ if [[ ! "$RUN_ENV" =~ ^(local|remote)$ ]]; then
 fi
 
 NOW="$(date +"%d%m_%H%M")"
-JOB_PREFIX="hardcore_ml_shit"
+JOB_PREFIX="train_model"
 COMMIT_HASH="$(git rev-parse --verify HEAD)"
 COMMIT_MESSAGE="$(git log -1 --pretty=%B)"
 COMMIT_MESSAGE_WITHOUT_BLANK="${COMMIT_MESSAGE//[[:blank:]]/_}"
 COMMIT_MESSAGE_WITHOUT_NEWLINE="${COMMIT_MESSAGE_WITHOUT_BLANK//$'\n'/_}"
-JOB_NAME="${RUN_TYPE}_${NOW}_${COMMIT_MESSAGE_WITHOUT_NEWLINE////_}_${COMMIT_HASH}"
+JOB_NAME="${JOB_PREFIX}_${RUN_TYPE}_${NOW}_${COMMIT_MESSAGE_WITHOUT_NEWLINE////_}_${COMMIT_HASH}"
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
-PACKAGE_PATH=trainer
+PACKAGE_PATH=classifier
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
 REGION=europe-west1
-CONFIG_FILE=config/config.yaml
+CONFIG_FILE=config/config.yaml #TODO different configs
 
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
 echo "$RUN_ENV"
@@ -76,10 +76,6 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   $TRAINER_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
-kill $(lsof -ti tcp:6006) # Kill tensoboard if it runs
-echo "To run tensorboard: "
-echo "kill \$(lsof -ti tcp:6006) && tensorboard --logdir=\"$JOB_DIR/tensorboard\" &
-open \"http://localhost:6006\""
 if [ "$RUN_ENV" = 'remote' ]; then
   eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else

@@ -1,8 +1,7 @@
 from sklearn.model_selection import RandomizedSearchCV
-from trainer import model
-from trainer.datasets.Dataset import Dataset
-from trainer.Labels import Labels
-from trainer import globals
+from feature_generation import model
+from feature_generation.datasets.Dataset import Dataset
+from feature_generation import globals
 from scipy.stats import uniform
 
 import pandas as pd
@@ -32,7 +31,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             subjects_labels.append(subject_label)
         subjects_frames = np.array(subjects_frames)
         subjects_labels = pd.Series(subjects_labels)
-        subjects_labels = Labels(subjects_labels, self.labels_are_categorical)
+        subjects_labels = subjects_labels
         return subjects_frames, subjects_labels
 
     def prepare_subject(self, id, file_references, metadata_file):
@@ -66,70 +65,14 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             print(file_reference)
             raise error
 
-    def prepare_datasets(self):
+    def generate_features(self):
         data, labels = self.data_and_labels()
-        oos_data, oos_labels = globals.out_of_study_dataset.data_and_labels()
-
-        return data, labels, oos_data, oos_labels
-
-    def run_experiment(self, flags):
-        (
-            data,
-            labels,
-            oos_data,
-            oos_labels,
-        ) = self.prepare_datasets()
 
         preprocessing_pipeline = model.create_vgg_pipeline()
         data = preprocessing_pipeline.fit_transform(data)
-        oos_data = preprocessing_pipeline.fit_transform(oos_data)
 
-        (data_train, data_test) = labels.train_test_split(data)
-        pipeline = model.build_lasso_pipeline()
-
-        grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=300, cv=3)
-        pipeline.fit(data_train, labels.train)
-
-        print("Best Score: ", pipeline.best_score_)
-        print("Best Params: ", pipeline.best_params_)
-        best_pipeline = pipeline.best_estimator_
-        scores = model.evaluate_model(
-            best_pipeline,
-            data_test,
-            labels,
-            oos_data,
-            oos_labels,
-        )
-
-        return scores
-
-    def get_random_grid(self):
-        # Number of trees in random forest
-        n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
-        # Number of features to consider at every split
-        max_features = ["auto", "sqrt"]
-        # Maximum number of levels in tree
-        max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
-        max_depth.append(None)
-        # Minimum number of samples required to split a node
-        min_samples_split = [2, 5, 10]
-        # Minimum number of samples required at each leaf node
-        min_samples_leaf = [1, 2, 4]
-        # Method of selecting samples for training each tree
-        bootstrap = [True]
-        # Create the random grid
-        alphas = uniform()
-        random_grid = {
-            "Lasso__estimator__alpha": alphas,
-            "classifier__n_estimators": n_estimators,
-            "classifier__max_depth": max_depth,
-            "classifier__min_samples_split": min_samples_split,
-            "classifier__min_samples_leaf": min_samples_leaf,
-            "classifier__max_features": max_features,
-            "classifier__bootstrap": bootstrap,
-        }
-        return random_grid
+        if globals.flags.environment == "remote":
+            globals.dataset.upload_features_to_gcs(data, labels)
 
     def __str__(self):
         return super().__str__()

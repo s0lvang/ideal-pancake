@@ -1,4 +1,3 @@
-from trainer.FileRefence import FileReference
 from collections import Counter
 from random import uniform
 from sklearn import model_selection
