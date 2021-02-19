@@ -62,9 +62,7 @@ def _parse_args(argv):
 
 def download_datasets():
     dataset_cmd = f"gsutil -m cp -R gs://{globals.dataset.name} ./datasets/"
-    oos_cmd = f"gsutil -m cp -R gs://{globals.out_of_study_dataset.name} ./datasets"
     subprocess.run(dataset_cmd.split())
-    subprocess.run(oos_cmd.split())
 
 
 def seed_libraries(seed):
