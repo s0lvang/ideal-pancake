@@ -23,19 +23,9 @@ def build_pipeline():
     return pipeline.Pipeline(
         [
             # ("printer", FunctionTransformer(print_and_return)),
-            # ("Lasso", SelectFromModel(Lasso())),
+            ("Lasso", SelectFromModel(Lasso())),
             ("classifier", regressor),
         ]
-    )
-
-
-def build_lasso_pipeline():
-    classifier = RandomForestRegressor()
-    return pipeline.Pipeline(
-        [
-            ("Lasso", SelectFromModel(Lasso())),
-            ("classifier", classifier),
-        ],
     )
 
 

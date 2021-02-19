@@ -1,7 +1,6 @@
 from sklearn.model_selection import RandomizedSearchCV
 from feature_generation import model
 from feature_generation.datasets.Dataset import Dataset
-from feature_generation.Labels import Labels
 from feature_generation import globals
 from scipy.stats import uniform
 
@@ -32,7 +31,7 @@ class Heatmap(Dataset, metaclass=ABCMeta):
             subjects_labels.append(subject_label)
         subjects_frames = np.array(subjects_frames)
         subjects_labels = pd.Series(subjects_labels)
-        subjects_labels = Labels(subjects_labels, self.labels_are_categorical)
+        subjects_labels = subjects_labels
         return subjects_frames, subjects_labels
 
     def prepare_subject(self, id, file_references, metadata_file):
