@@ -1,4 +1,4 @@
-from trainer.timeseries.garch_and_arima import optimize_arima, optimize_garch
+from feature_generation.timeseries.garch_and_arima import optimize_arima, optimize_garch
 from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 from .lhipa import calculate_lhipa

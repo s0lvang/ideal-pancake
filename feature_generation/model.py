@@ -1,9 +1,9 @@
 from sklearn import pipeline
 from sklearn.preprocessing import FunctionTransformer
-from trainer import globals
-from trainer import utils
+from feature_generation import globals
+from feature_generation import utils
 from tsfresh.transformers import FeatureAugmenter
-from trainer.neural_network.vgg16 import extract_features_from_vgg16
+from feature_generation.neural_network.vgg16 import extract_features_from_vgg16
 
 
 def print_and_return(data):

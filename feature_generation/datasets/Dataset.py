@@ -1,5 +1,5 @@
-from trainer.FileRefence import FileReference
-from trainer.utils import dump_object
+from feature_generation.FileRefence import FileReference
+from feature_generation.utils import dump_object
 
 import os
 import json

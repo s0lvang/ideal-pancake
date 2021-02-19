@@ -1,8 +1,8 @@
 from sklearn.model_selection import RandomizedSearchCV
-from trainer import model
-from trainer.datasets.Dataset import Dataset
-from trainer.Labels import Labels
-from trainer import globals
+from feature_generation import model
+from feature_generation.datasets.Dataset import Dataset
+from feature_generation.Labels import Labels
+from feature_generation import globals
 from scipy.stats import uniform
 
 import pandas as pd

@@ -1,6 +1,6 @@
 from comet_ml import Experiment
-from trainer import globals
-from trainer.utils import str2bool
+from feature_generation import globals
+from feature_generation.utils import str2bool
 import argparse
 import os
 import numpy as np

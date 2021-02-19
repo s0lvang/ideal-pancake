@@ -1,7 +1,7 @@
-from trainer.datasets.Jetris import Jetris
-from trainer.datasets.EMIP import EMIP
-from trainer.datasets.MoocImages import MoocImages
-from trainer.datasets.EMIPImages import EMIPImages
+from feature_generation.datasets.Jetris import Jetris
+from feature_generation.datasets.EMIP import EMIP
+from feature_generation.datasets.MoocImages import MoocImages
+from feature_generation.datasets.EMIPImages import EMIPImages
 
 
 def init(dataset_name, experiment, _flags):

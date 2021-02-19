@@ -1,10 +1,12 @@
-from trainer.timeseries.tsfresh_custom_calculators import load_custom_functions
+from feature_generation.timeseries.tsfresh_custom_calculators import (
+    load_custom_functions,
+)
 import pandas as pd
 import numpy as np
 
-from trainer.datasets.Dataset import Dataset
-from trainer import model
-from trainer import globals
+from feature_generation.datasets.Dataset import Dataset
+from feature_generation import model
+from feature_generation import globals
 
 
 class Timeseries(Dataset):

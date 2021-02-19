@@ -1,7 +1,7 @@
-from trainer.Labels import Labels
+from feature_generation.Labels import Labels
 import pandas as pd
 
-from trainer.datasets.Timeseries import Timeseries
+from feature_generation.datasets.Timeseries import Timeseries
 
 
 class Jetris(Timeseries):
