@@ -4,17 +4,12 @@ from trainer.datasets.MoocImages import MoocImages
 from trainer.datasets.EMIPImages import EMIPImages
 
 
-def init(in_study, out_of_study, experiment, _flags):
+def init(dataset_name, experiment, _flags):
     global flags
     flags = _flags
 
     global dataset
-    dataset = get_dataset(dataset_name=in_study)
-    global out_of_study_dataset
-    if out_of_study:
-        out_of_study_dataset = get_dataset(dataset_name=out_of_study)
-    else:
-        out_of_study_dataset = None
+    dataset = get_dataset(dataset_name=dataset_name)
     global comet_logger
     comet_logger = experiment
     dataset_type = (

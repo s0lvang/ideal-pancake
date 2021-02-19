@@ -1,16 +1,13 @@
 from trainer.FileRefence import FileReference
-from trainer import globals
-from trainer.utils import dump_object, download_object
+from trainer.utils import dump_object
 
 import os
 import json
-from google.cloud import storage
 
 
 class Dataset:
     def __init__(self, name):
         self.name = name
-        self.labels_are_categorical = False
 
     def data_and_labels(self):
         file_references = self.get_file_references("data/")
@@ -30,11 +27,6 @@ class Dataset:
             "pregenerated-features", self.name, "features"
         )
         dump_object((features, labels), features_output_path)
-
-    def download_premade_features(self):
-        features_path = os.path.join("pregenerated-features", self.name, "features")
-        features, labels = download_object(features_path)
-        return features, labels
 
     def __str__(self):
         variables = vars(self).copy()

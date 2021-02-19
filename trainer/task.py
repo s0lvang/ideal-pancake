@@ -16,17 +16,10 @@ def _parse_args(argv):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--in_study",
+        "--dataset",
         help="""Dataset to use for training and evaluation.
             """,
         required=True,
-    )
-
-    parser.add_argument(
-        "--out_of_study",
-        help="""Dataset to use for evaluating FGI.
-            """,
-        required=False,
     )
 
     parser.add_argument(
@@ -64,15 +57,6 @@ def _parse_args(argv):
         const="",
     )
 
-    parser.add_argument(
-        "--generate_features",
-        help="Should features be generated or should they be downloaded",
-        default=True,
-        type=str2bool,
-        nargs="?",
-        const="",
-    )
-
     return parser.parse_args(argv)
 
 
@@ -98,21 +82,20 @@ def main():
     flags = _parse_args(sys.argv[1:])
     experiment = Experiment(
         api_key=flags.comet_api_key,
-        project_name="ideal-pancake",
+        project_name="ideal-pancake-feature-generation",
         workspace="s0lvang",
     )
     experiment.set_name(flags.experiment_name)
     # Set up config and select datasets
     globals.init(
-        in_study=flags.in_study,
-        out_of_study=flags.out_of_study,
+        dataset_name=flags.dataset,
         experiment=experiment,
         _flags=flags,
     )
     # Trigger the experiment
     if flags.download_files or flags.environment == "remote":
         download_datasets()
-    globals.dataset.run_experiment(flags)
+    globals.dataset.generate_features()
 
 
 if __name__ == "__main__":

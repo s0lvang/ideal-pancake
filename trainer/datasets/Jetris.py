@@ -12,7 +12,6 @@ class Jetris(Timeseries):
             "time[milliseconds]": self.column_names["time"],
             "Pupil.size": self.column_names["pupil_diameter"],
         }
-        self.labels_are_categorical = False
 
     def prepare_files(self, file_references, metadata_references):
         labels = pd.Series()
