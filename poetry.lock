@@ -508,7 +508,7 @@ tool = ["click"]
 
 [[package]]
 name = "google-cloud-bigquery"
-version = "2.8.0"
+version = "2.9.0"
 description = "Google BigQuery API client library"
 category = "main"
 optional = false
@@ -1538,6 +1538,14 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-pygaze"
+version = "0.7.1"
+description = "A Python library for eye tracking"
+category = "main"
+optional = false
+python-versions = ">=3"
 
 [[package]]
 name = "pytz"

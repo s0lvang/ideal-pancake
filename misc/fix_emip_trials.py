@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from itertools import takewhile
 import numpy as np
+from pygazeanalyser import detectors
 
 
 def get_header(file):
@@ -23,7 +24,7 @@ def remove_nonimportant_messages(df):
 
 def mark_trials_and_calibration(df):
     messages = df[df["Type"] == "MSG"]
-    df = df[(df.iloc[:, 4:10] != 0).any(1)]  # remove rows with all zeros
+    df = df[df["Type"] == "SMP"]
 
     df["status"] = ""
     df["trial_number"] = 0
@@ -44,7 +45,6 @@ def mark_trials_and_calibration(df):
             status = "TEST"
         else:
             status = "READING"
-        print(status)
         current_message_time = current_message.loc["Time"]
         next_message_time = next_message.loc["Time"]
         df.loc[
@@ -67,16 +67,45 @@ def rewrite_df(df):
     return df
 
 
+def get_fixations(df):
+    df = df[df["Type"] == "SMP"]
+    fixations = detectors.fixation_detection(
+        df["L POR X [px]"].to_numpy(),
+        df["L POR Y [px]"].to_numpy(),
+        df["Time"].to_numpy(),
+        maxdist=25,
+        mindur=500,
+    )
+    entries = [create_dataframe_entry(*fixation, df) for fixation in fixations[1]]
+    return pd.DataFrame(entries)
+
+
+def create_dataframe_entry(starttime, endtime, duration, endx, endy, df):
+    df = df[df["Time"].between(starttime, endtime)]
+    entry = {
+        "fixationStart": starttime // 1000,
+        "fixationEnd": endtime // 1000,
+        "duration": duration // 1000,
+        "x": df["L POR X [px]"].mean(),
+        "y": df["L POR Y [px]"].mean(),
+        "averagePupilSize": df["L Mapped Diameter [mm]"].mean(),
+        "trial_number": df["trial_number"].mode()[0],
+        "status": df["status"].mode()[0],
+    }
+    return entry
+
+
 basepath = "../datasets/emip/data"
 for file in os.listdir(basepath):
     with open(os.path.join(basepath, file)) as f:
         header, length = get_header(f)
         df = pd.read_csv(f, sep="\t", skiprows=length)
         rewritten_df = rewrite_df(df)
-        rewritten_df.to_csv(
-            f"../datasets/emip-rewritten/data/{file}", sep="\t"
+        fixations = get_fixations(rewritten_df)
+        fixations.to_csv(
+            f"../datasets/emip-fixations/data/{file}", sep="\t"
         )  # prepend the headers after write
-    with open(f"../datasets/emip-rewritten/data/{file}", "r+") as fr:
+    with open(f"../datasets/emip-fixations/data/{file}", "r+") as fr:
         content = fr.read()
         fr.seek(0, 0)
         fr.write("".join(header) + content)
