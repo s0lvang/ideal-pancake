@@ -44,7 +44,7 @@ def convert_tsv_to_arff(path):
         data = f.read().replace("@attribute", "@ATTRIBUTE").replace("@relation","@RELATION").replace("@data","@DATA").replace("real", "NUMERIC")
 
     with open(destination,"w") as f: f.write(metadata+data)
-     
+
 
 
 for path in pathlist:

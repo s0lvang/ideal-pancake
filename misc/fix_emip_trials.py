@@ -25,7 +25,7 @@ def remove_nonimportant_messages(df):
 def mark_trials_and_calibration(df):
     messages = df[df["Type"] == "MSG"]
     df = df[df["Type"] == "SMP"]
-
+    df = df[df["L Raw X [px]"].astype(float) != 0]  # remove rows with all zeroes
     df["status"] = ""
     df["trial_number"] = 0
     trial_number = 0
@@ -102,6 +102,8 @@ for file in os.listdir(basepath):
         df = pd.read_csv(f, sep="\t", skiprows=length)
         rewritten_df = rewrite_df(df)
         fixations = get_fixations(rewritten_df)
+        fixations = fixations.replace({0: np.nan})
+        fixations = fixations.dropna()
         fixations.to_csv(
             f"../datasets/emip-fixations/data/{file}", sep="\t"
         )  # prepend the headers after write
