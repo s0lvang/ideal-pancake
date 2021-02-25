@@ -8,13 +8,13 @@ from feature_generation.datasets.Timeseries import Timeseries
 
 class EMIP(Timeseries):
     def __init__(self):
-        super().__init__("emip-enhanced")
+        super().__init__("emip-fixations")
         self.column_name_mapping = {
             "id": self.column_names["subject_id"],
-            "Time": self.column_names["time"],
-            "L POR X [px]": self.column_names["x"],
-            "L POR Y [px]": self.column_names["y"],
-            "L Mapped Diameter [mm]": self.column_names["pupil_diameter"],
+            "fixationStart": self.column_names["time"],
+            "x": self.column_names["x"],
+            "y": self.column_names["y"],
+            "averagePupilSize": self.column_names["pupil_diameter"],
         }
         self.label = "expertise_programming"
 
