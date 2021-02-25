@@ -26,18 +26,23 @@ These are created by creating service accounts on `cloud.google.com`. Get in tou
 
 `. ./credentials/env.sh`
 
-### Starting
+### Extracting features
 
-`poetry run ./scripts/train.sh [environment] [in_study_dataset] [out_of_study_dataset] --generate_features [bool] --download_files [bool]`
-
+`poetry run ./scripts/generate_features.sh [environment] [dataset] --download_files [bool]`
 Environment has the possible values `remote` or `local`. Which decides if a job should be run locally or dispatched as a job to gcp
-
-in_study_dataset and out_of_study has the possible values `["emip", "jetris", "emip-images", "mooc-images]`
-
-Generate features decides if the features should be generated or premade features should be downloaded from gcp
-
+dataset has the possible values `["emip", "jetris", "emip-images", "mooc-images", "cscw", "fractions"]`
 download_files decides if the dataset should be downloaded or local files should be used
 
-#### Example
+If the feature extraction is run remotely, the features will be saved to a bucket which the classifier can fetch
 
-` poetry run ./scripts/train.sh local emip emip --generate_features true --download_files false`
+### Training the model
+
+`poetry run ./scripts/train_model.sh [environment] [in_study_dataset] [out_of_study_dataset]`
+
+in_study_dataset and out_of_study has the possible values `["emip", "jetris", "emip-images", "mooc-images", "cscw", "fractions"]`
+This script fetches the premade features from gcs and trains on them
+
+#### Examples
+
+` poetry run ./scripts/generate_features.sh remote emip --download_files True`
+` poetry run ./scripts/train_model.sh local emip cscw`
