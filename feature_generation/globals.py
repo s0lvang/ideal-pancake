@@ -1,3 +1,5 @@
+from feature_generation.datasets.CSCW import CSCW
+from feature_generation.datasets.Fractions import Fractions
 from feature_generation.datasets.Jetris import Jetris
 from feature_generation.datasets.EMIP import EMIP
 from feature_generation.datasets.MoocImages import MoocImages
@@ -27,5 +29,9 @@ def get_dataset(dataset_name):
         return EMIP()
     elif dataset_name == "jetris":
         return Jetris()
+    elif dataset_name == "fractions":
+        return Fractions()
+    elif dataset_name == "cscw":
+        return CSCW()
     else:
         raise ValueError(f"{dataset_name} is not a valid dataset name.")
