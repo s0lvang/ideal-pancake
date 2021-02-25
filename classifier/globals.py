@@ -1,7 +1,9 @@
+from classifier.datasets.Fractions import Fractions
 from classifier.datasets.Jetris import Jetris
 from classifier.datasets.EMIP import EMIP
 from classifier.datasets.MoocImages import MoocImages
 from classifier.datasets.EMIPImages import EMIPImages
+from classifier.datasets.CSCW import CSCW
 
 
 def init(in_study, out_of_study, experiment, _flags):
@@ -32,5 +34,9 @@ def get_dataset(dataset_name):
         return EMIP()
     elif dataset_name == "jetris":
         return Jetris()
+    elif dataset_name == "fractions":
+        return Fractions()
+    elif dataset_name == "cscw":
+        return CSCW()
     else:
         raise ValueError(f"{dataset_name} is not a valid dataset name.")
