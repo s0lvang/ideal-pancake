@@ -23,7 +23,6 @@ class Fractions(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
-        dataset = pd.concat(dataset)
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):
@@ -33,7 +32,6 @@ class Fractions(Timeseries):
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
         dataset.append(csv)
-        print(subject_id)
         labels.at[int(subject_id)] = (
             metadata_file[metadata_file["StudentID"] == int(subject_id)]
             .loc[:, self.label]

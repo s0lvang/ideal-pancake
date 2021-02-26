@@ -7,6 +7,7 @@ import numpy as np
 from feature_generation.datasets.Dataset import Dataset
 from feature_generation import model
 from feature_generation import globals
+import tsfresh
 
 
 class Timeseries(Dataset):
@@ -41,21 +42,29 @@ class Timeseries(Dataset):
 
     def prepare_dataset(self):
         data, labels = self.data_and_labels()
-        indices = get_indicies(labels)
-        data = self.select_columns_and_fill_na(data)
-        return data, labels, indices
-
-    def select_columns_and_fill_na(self, data):
-        df = data[self.columns_to_use]
-        data_with_nan = df.replace({0: np.nan})
-        return data_with_nan.dropna()
+        # Generate more columns xD
+        return data, labels
 
     def generate_features(self):
-        data, labels, indices = self.prepare_dataset()
+        data, labels = self.prepare_dataset()
 
-        preprocessing_pipeline = model.build_ts_fresh_extraction_pipeline()
-        model.set_dataset(preprocessing_pipeline, data)
-        data = preprocessing_pipeline.fit_transform(indices)
+        heatmap_pipeline = model.create_vgg_pipeline()
+        heatmaps_features = heatmap_pipeline.fit_transform(data)
+        heatmaps_features.index = labels.index
+
+        data = pd.concat(data)
+        time_series_features = tsfresh.extract_features(
+            data.loc[:, self.columns_to_use],
+            column_id=globals.dataset.column_names["subject_id"],
+            column_sort=globals.dataset.column_names["time"],
+            default_fc_parameters=globals.dataset.tsfresh_features,
+        )
+        data = pd.merge(
+            time_series_features,
+            heatmaps_features,
+            left_index=True,
+            right_index=True,
+        )
 
         if globals.flags.environment == "remote":
             globals.dataset.upload_features_to_gcs(data, labels)

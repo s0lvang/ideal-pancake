@@ -24,7 +24,6 @@ class CSCW(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
-        dataset = pd.concat(dataset)
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):

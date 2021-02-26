@@ -26,8 +26,6 @@ class EMIP(Timeseries):
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
-        dataset = pd.concat(dataset)
-        dataset = dataset[dataset["status"] == "READING"]
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
@@ -35,6 +33,7 @@ class EMIP(Timeseries):
         csv = pd.read_csv(f, sep="\t", comment="#", engine="c")
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
+        csv = csv[csv["status"] == "READING"]
         dataset.append(csv)
         labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
         return dataset, labels
