@@ -77,7 +77,7 @@ CMD="gcloud ai-platform $RUN_ENV_ARGS \
   $EXTRA_TRAINER_ARGS \
   "
 if [ "$RUN_ENV" = 'remote' ]; then
-  eval "docker build -f Dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
+  eval "docker build -f classifier.dockerfile -t $IMAGE_URI ./ && docker push $IMAGE_URI && $CMD"
 else
   echo "Running command: $CMD"
   eval "$CMD"

@@ -11,6 +11,8 @@ class Fractions(Timeseries):
             "x": self.column_names["x"],
             "y": self.column_names["y"],
             "Avg_Pupil_Size_X": self.column_names["pupil_diameter"],
+            "duration": self.column_names["duration"],
+            "end": self.column_names["fixation_end"],
         }
         self.label = "Post_SumOfCorrect_NewSum"
 
@@ -23,7 +25,6 @@ class Fractions(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
-        dataset = pd.concat(dataset)
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):
@@ -33,7 +34,6 @@ class Fractions(Timeseries):
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
         dataset.append(csv)
-        print(subject_id)
         labels.at[int(subject_id)] = (
             metadata_file[metadata_file["StudentID"] == int(subject_id)]
             .loc[:, self.label]

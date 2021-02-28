@@ -12,6 +12,8 @@ class CSCW(Timeseries):
             "Position X": self.column_names["x"],
             "Position Y": self.column_names["y"],
             "Average Pupil Size [px] X": self.column_names["pupil_diameter"],
+            "Fixation Duration [ms]": self.column_names["duration"],
+            "Fixation End [ms]": self.column_names["fixation_end"],
         }
         self.label = "Posttest.Score"
 
@@ -24,7 +26,6 @@ class CSCW(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
-        dataset = pd.concat(dataset)
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):

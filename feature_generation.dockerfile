@@ -26,9 +26,9 @@ ENV PATH $PATH:/root/google-cloud-sdk/bin
 RUN pip install poetry
 RUN poetry install --no-dev --no-root
 
-COPY ./trainer /app/trainer
+COPY ./feature_generation /app/feature_generation
 RUN poetry install --no-dev
 
 ENV COMET_API_KEY ${COMET_API_KEY}
 
-ENTRYPOINT ["poetry", "run", "python", "trainer/task.py"]
+ENTRYPOINT ["poetry", "run", "python", "feature_generation/task.py"]
