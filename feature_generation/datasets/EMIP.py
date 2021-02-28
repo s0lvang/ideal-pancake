@@ -15,6 +15,8 @@ class EMIP(Timeseries):
             "x": self.column_names["x"],
             "y": self.column_names["y"],
             "averagePupilSize": self.column_names["pupil_diameter"],
+            "duration": self.column_names["duration"],
+            "fixationEnd": self.column_names["fixation_end"],
         }
         self.label = "expertise_programming"
 

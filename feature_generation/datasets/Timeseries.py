@@ -19,6 +19,8 @@ class Timeseries(Dataset):
             "x": "x",
             "y": "y",
             "pupil_diameter": "pupil_diameter",
+            "duration": "duration",
+            "fixation_end": "fixation_end",
         }
         load_custom_functions()
         self.tsfresh_features = {

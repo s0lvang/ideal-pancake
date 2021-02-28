@@ -12,6 +12,8 @@ class CSCW(Timeseries):
             "Position X": self.column_names["x"],
             "Position Y": self.column_names["y"],
             "Average Pupil Size [px] X": self.column_names["pupil_diameter"],
+            "Fixation Duration [ms]": self.column_names["duration"],
+            "Fixation End [ms]": self.column_names["fixation_end"],
         }
         self.label = "Posttest.Score"
 

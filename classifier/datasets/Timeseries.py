@@ -38,8 +38,6 @@ class Timeseries(Dataset):
             data_train,
             data_test,
         ) = labels.train_test_split(data)
-        log_dataframe_to_comet(data, "in_study_features")
-        log_dataframe_to_comet(oos_data, "out_of_study_features")
 
         pipeline = model.build_pipeline()
 
