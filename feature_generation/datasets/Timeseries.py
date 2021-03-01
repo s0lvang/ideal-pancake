@@ -58,6 +58,8 @@ class Timeseries(Dataset):
         heatmaps_features = heatmap_pipeline.fit_transform(data)
         heatmaps_features.index = labels.index
 
+        eye_tracking_features = calculate_eye_tracking_features(data)
+
         data = pd.concat(data)
         time_series_features = tsfresh.extract_features(
             data.loc[:, self.columns_to_use],
