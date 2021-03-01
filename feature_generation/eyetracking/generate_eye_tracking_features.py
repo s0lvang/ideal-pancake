@@ -13,7 +13,17 @@ def generate_features(subject):
     eye_tracking_features["information_processing_ratio"] = [
         get_information_processing_ratio(subject)
     ]
+    eye_tracking_features["saccade_speed_skewness"] = get_saccade_speed_skewness(
+        subject
+    )
     return eye_tracking_features
+
+
+def get_saccade_speed_skewness(subject):
+    saccade_speed = (
+        subject.loc[:, "saccade_length"] / subject.loc[:, "saccade_duration"]
+    )
+    return saccade_speed.skew()
 
 
 def get_information_processing_ratio(subject):
