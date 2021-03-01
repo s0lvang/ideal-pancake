@@ -3,12 +3,13 @@ from feature_generation.timeseries.tsfresh_custom_calculators import (
 )
 import pandas as pd
 import numpy as np
+from functools import reduce
 
 from feature_generation.datasets.Dataset import Dataset
 from feature_generation import model
 from feature_generation import globals
 import tsfresh
-from feature_generation.eyetracking import saccades
+from feature_generation.eyetracking import saccades, generate_eye_tracking_features
 
 
 class Timeseries(Dataset):
@@ -58,7 +59,10 @@ class Timeseries(Dataset):
         heatmaps_features = heatmap_pipeline.fit_transform(data)
         heatmaps_features.index = labels.index
 
-        eye_tracking_features = calculate_eye_tracking_features(data)
+        eye_tracking_features = (
+            generate_eye_tracking_features.generate_eye_tracking_features(data)
+        )
+        eye_tracking_features.index = labels.index
 
         data = pd.concat(data)
         time_series_features = tsfresh.extract_features(
@@ -67,13 +71,13 @@ class Timeseries(Dataset):
             column_sort=globals.dataset.column_names["time"],
             default_fc_parameters=globals.dataset.tsfresh_features,
         )
-        data = pd.merge(
-            time_series_features,
-            heatmaps_features,
-            left_index=True,
-            right_index=True,
+        dataframes = [time_series_features, heatmaps_features, eye_tracking_features]
+        data = reduce(
+            lambda left, right: pd.merge(
+                left, right, left_index=True, right_index=True
+            ),
+            dataframes,
         )
-
         if globals.flags.environment == "remote":
             globals.dataset.upload_features_to_gcs(data, labels)
 

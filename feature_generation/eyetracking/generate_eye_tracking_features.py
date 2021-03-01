@@ -5,14 +5,15 @@ import numpy as np
 
 
 def generate_eye_tracking_features(data):
-    return [generate_features(subject) for subject in data]
+    return pd.concat([generate_features(subject) for subject in data])
 
 
 def generate_features(subject):
     eye_tracking_features = pd.DataFrame()
-    eye_tracking_features[
-        "information_processing_ratio"
-    ] = get_information_processing_ratio(subject)
+    eye_tracking_features["information_processing_ratio"] = [
+        get_information_processing_ratio(subject)
+    ]
+    return eye_tracking_features
 
 
 def get_information_processing_ratio(subject):
@@ -20,9 +21,11 @@ def get_information_processing_ratio(subject):
     percentiles_fixation_duration = np.percentile(subject.loc[:, "duration"], 25)
     LIP = 0
     GIP = 0
-    for row in subject:
-        fixation_is_short = row["duration"] < percentiles_fixation_duration
-        saccade_is_short = row["saccade_length"] < percentiles_saccade_length
+    for saccade_length, fixation_duration in subject.loc[
+        :, ["saccade_length", "duration"]
+    ].to_numpy():
+        fixation_is_short = fixation_duration < percentiles_fixation_duration
+        saccade_is_short = saccade_length < percentiles_saccade_length
         if not fixation_is_short and saccade_is_short:
             LIP += 1
         elif fixation_is_short and not saccade_is_short:
