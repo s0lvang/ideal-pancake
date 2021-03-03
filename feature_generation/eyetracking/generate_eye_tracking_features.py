@@ -1,7 +1,8 @@
 from numpy.lib.function_base import percentile
 import pandas as pd
 import numpy as np
-import numpy as np
+from scipy.stats import entropy
+from scipy.special import softmax
 
 
 def generate_eye_tracking_features(data):
@@ -16,6 +17,7 @@ def generate_features(subject):
     eye_tracking_features["saccade_speed_skewness"] = get_saccade_speed_skewness(
         subject
     )
+    eye_tracking_features["entropy_xy"] = get_entropy(subject)
     return eye_tracking_features
 
 
@@ -24,6 +26,16 @@ def get_saccade_speed_skewness(subject):
         subject.loc[:, "saccade_length"] / subject.loc[:, "saccade_duration"]
     )
     return saccade_speed.skew()
+
+
+def get_entropy(subject):
+    x = subject.loc[:, "x"]
+    y = subject.loc[:, "y"]
+    xedges = [i for i in range(0, int(x.max()), 50)]
+    yedges = [i for i in range(0, int(y.max()), 50)]
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+    # softmax_h = H.flatten() / H.sum()
+    return entropy(H)
 
 
 def get_information_processing_ratio(subject):
