@@ -14,10 +14,14 @@ class Dataset:
         )
         dump_object((features, labels), features_output_path)
 
+    def get_labels(self, label_dataframe):
+        labels = label_dataframe.loc[:, self.label]
+        return labels.apply(lambda x: self.encoding.get(x, x))
+
     def download_premade_features(self):
         features_path = os.path.join("pregenerated-features", self.name, "features")
-        features, labels = download_object(features_path)
-        return features, labels
+        features, labels_df = download_object(features_path)
+        return features, self.get_labels(labels_df)
 
     def __str__(self):
         variables = vars(self).copy()

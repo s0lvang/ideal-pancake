@@ -21,23 +21,27 @@ class EMIP(Timeseries):
         self.label = "expertise_programming"
 
     def prepare_files(self, file_references, metadata_references):
-        labels = pd.Series()
+        labels = pd.DataFrame()
         dataset = []
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f)
         for file_reference in file_references:
             with file_reference.open("r") as f:
                 dataset, labels = self.prepare_file(f, metadata_file, dataset, labels)
+        labels = labels.T
+        print(labels)
         return dataset, labels
 
     def prepare_file(self, f, metadata_file, dataset, labels):
-        subject_id = get_header(f)["Subject"][0]
+        subject_id = int(get_header(f)["Subject"][0])
         csv = pd.read_csv(f, sep="\t", comment="#", engine="c")
         csv = csv.rename(columns=self.column_name_mapping)
-        csv[self.column_names["subject_id"]] = int(subject_id)
+        csv[self.column_names["subject_id"]] = subject_id
         csv = csv[csv["status"] == "READING"]
         dataset.append(csv)
-        labels.at[int(subject_id)] = metadata_file.loc[int(subject_id) - 1, self.label]
+        labels[subject_id] = metadata_file[
+            metadata_file["id"].astype(int) == subject_id
+        ].iloc[0]
         return dataset, labels
 
     def __str__(self):

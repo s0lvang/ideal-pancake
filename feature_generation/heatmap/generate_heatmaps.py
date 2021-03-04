@@ -10,7 +10,7 @@ def create_heatmap(df):
     gaze_data = df.loc[:, ["x", "y"]].to_numpy()
     heatmapper = Heatmapper()
     heatmap = heatmapper.heatmap_on_img(gaze_data, img)
-    heatmap = heatmap.resize((640, 360))
+    heatmap = heatmap.resize((175, 90))
     heatmap = remove_alpha_channel(heatmap)
     return np.asarray(heatmap)
 

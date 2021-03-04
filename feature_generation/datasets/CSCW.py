@@ -18,7 +18,7 @@ class CSCW(Timeseries):
         self.label = "Posttest.Score"
 
     def prepare_files(self, file_references, metadata_references):
-        labels = pd.Series()
+        labels = pd.DataFrame()
         dataset = []
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f, sep=";")
@@ -26,6 +26,7 @@ class CSCW(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
+        labels = labels.T
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):
@@ -37,11 +38,9 @@ class CSCW(Timeseries):
         csv[self.column_names["subject_id"]] = participant_name
         dataset.append(csv)
         print(participant_name)
-        labels.at[participant_name] = (
-            metadata_file[metadata_file["Participant"] == participant_name]
-            .loc[:, self.label]
-            .iat[0]
-        )
+        labels[participant_name] = metadata_file[
+            metadata_file["Participant"] == participant_name
+        ].iloc[0]
         return dataset, labels
 
     def __str__(self):
