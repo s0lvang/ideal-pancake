@@ -33,6 +33,7 @@ class Fractions(Timeseries):
             csv = pd.read_csv(f)
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = int(subject_id)
+        csv[csv["Event_Type"] == "Fixation L"]
         dataset.append(csv)
         labels.at[int(subject_id)] = (
             metadata_file[metadata_file["StudentID"] == int(subject_id)]
