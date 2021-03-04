@@ -10,6 +10,7 @@ from feature_generation import model
 from feature_generation import globals
 import tsfresh
 from feature_generation.eyetracking import saccades, generate_eye_tracking_features
+from feature_generation.normalize.normalize import normalize_data
 
 
 class Timeseries(Dataset):
@@ -49,6 +50,7 @@ class Timeseries(Dataset):
 
     def prepare_dataset(self):
         data, labels = self.data_and_labels()
+        normalize_data(data)
         generate_eye_tracking_columns(data)
         return data, labels
 
