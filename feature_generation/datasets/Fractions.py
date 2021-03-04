@@ -17,7 +17,7 @@ class Fractions(Timeseries):
         self.label = "Post_SumOfCorrect_NewSum"
 
     def prepare_files(self, file_references, metadata_references):
-        labels = pd.Series()
+        labels = pd.DataFrame()
         dataset = []
         with metadata_references[0].open("r") as f:
             metadata_file = pd.read_csv(f)
@@ -25,20 +25,19 @@ class Fractions(Timeseries):
             dataset, labels = self.prepare_file(
                 file_reference, metadata_file, dataset, labels
             )
+        labels = labels.T
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):
-        subject_id = file_reference.reference.split("_")[-2]
+        subject_id = int(file_reference.reference.split("_")[-2])
         with file_reference.open("r") as f:
             csv = pd.read_csv(f)
         csv = csv.rename(columns=self.column_name_mapping)
-        csv[self.column_names["subject_id"]] = int(subject_id)
+        csv[self.column_names["subject_id"]] = subject_id
         dataset.append(csv)
-        labels.at[int(subject_id)] = (
-            metadata_file[metadata_file["StudentID"] == int(subject_id)]
-            .loc[:, self.label]
-            .iat[0]
-        )
+        labels[subject_id] = metadata_file[
+            metadata_file["StudentID"].astype(int) == subject_id
+        ].iloc[0]
         return dataset, labels
 
     def __str__(self):

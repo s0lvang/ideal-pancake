@@ -35,7 +35,7 @@ def get_entropy(subject):
     yedges = [i for i in range(0, int(y.max()), 50)]
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
     # softmax_h = H.flatten() / H.sum()
-    return entropy(H)
+    return entropy(H.flatten())
 
 
 def get_information_processing_ratio(subject):

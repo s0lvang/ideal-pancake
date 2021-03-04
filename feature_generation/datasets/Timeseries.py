@@ -82,6 +82,7 @@ class Timeseries(Dataset):
             globals.dataset.upload_features_to_gcs(data, labels)
 
         print(data)
+        print(labels)
 
     def __str__(self):
         return super().__str__()
