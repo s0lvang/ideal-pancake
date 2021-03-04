@@ -3,11 +3,13 @@ from feature_generation.timeseries.tsfresh_custom_calculators import (
 )
 import pandas as pd
 import numpy as np
+from functools import reduce
 
 from feature_generation.datasets.Dataset import Dataset
 from feature_generation import model
 from feature_generation import globals
 import tsfresh
+from feature_generation.eyetracking import saccades, generate_eye_tracking_features
 
 
 class Timeseries(Dataset):
@@ -21,6 +23,9 @@ class Timeseries(Dataset):
             "pupil_diameter": "pupil_diameter",
             "duration": "duration",
             "fixation_end": "fixation_end",
+            "saccade_length": "saccade_length",
+            "saccade_angle": "saccade_angle",
+            "saccade_duration": "saccade_duration",
         }
         load_custom_functions()
         self.tsfresh_features = {
@@ -44,7 +49,7 @@ class Timeseries(Dataset):
 
     def prepare_dataset(self):
         data, labels = self.data_and_labels()
-        # Generate more columns xD
+        generate_eye_tracking_columns(data)
         return data, labels
 
     def generate_features(self):
@@ -54,6 +59,11 @@ class Timeseries(Dataset):
         heatmaps_features = heatmap_pipeline.fit_transform(data)
         heatmaps_features.index = labels.index
 
+        eye_tracking_features = (
+            generate_eye_tracking_features.generate_eye_tracking_features(data)
+        )
+        eye_tracking_features.index = labels.index
+
         data = pd.concat(data)
         time_series_features = tsfresh.extract_features(
             data.loc[:, self.columns_to_use],
@@ -61,13 +71,13 @@ class Timeseries(Dataset):
             column_sort=globals.dataset.column_names["time"],
             default_fc_parameters=globals.dataset.tsfresh_features,
         )
-        data = pd.merge(
-            time_series_features,
-            heatmaps_features,
-            left_index=True,
-            right_index=True,
+        dataframes = [time_series_features, heatmaps_features, eye_tracking_features]
+        data = reduce(
+            lambda left, right: pd.merge(
+                left, right, left_index=True, right_index=True
+            ),
+            dataframes,
         )
-
         if globals.flags.environment == "remote":
             globals.dataset.upload_features_to_gcs(data, labels)
 
@@ -75,6 +85,14 @@ class Timeseries(Dataset):
 
     def __str__(self):
         return super().__str__()
+
+
+def generate_eye_tracking_columns(data):
+    for df in data:
+        df["saccade_length"] = saccades.get_saccade_length(df)
+        df["saccade_duration"] = saccades.get_saccade_duration(df)
+        df["angle_of_saccades"] = saccades.get_angle_of_saccades(df)
+    return data
 
 
 def get_indicies(labels):
