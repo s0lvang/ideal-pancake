@@ -54,4 +54,4 @@ def get_information_processing_ratio(subject):
             GIP += 1
         else:
             continue
-    return GIP / LIP
+    return GIP / (LIP + 1)

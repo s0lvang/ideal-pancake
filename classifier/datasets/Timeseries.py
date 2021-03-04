@@ -13,10 +13,14 @@ class Timeseries(Dataset):
 
     def get_features_from_gcs(self):
         data, labels = globals.dataset.download_premade_features()
-        labels = Labels(labels, globals.dataset.labels_are_categorical)
+        labels = Labels(
+            labels,
+            globals.dataset.labels_are_categorical,
+        )
         oos_data, oos_labels = globals.out_of_study_dataset.download_premade_features()
         oos_labels = Labels(
-            oos_labels, globals.out_of_study_dataset.labels_are_categorical
+            oos_labels,
+            globals.out_of_study_dataset.labels_are_categorical,
         )
         return (
             data,

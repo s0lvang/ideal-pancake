@@ -7,6 +7,7 @@ import pandas as pd
 
 class Labels:
     def __init__(self, labels, categorical):
+        print(labels)
         self.original_labels = labels
         self.original_max = max(self.original_labels)
         self.original_min = min(self.original_labels)
