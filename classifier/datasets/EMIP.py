@@ -1,7 +1,7 @@
-from classifier.datasets.Timeseries import Timeseries
+from classifier.datasets.Dataset import Dataset
 
 
-class EMIP(Timeseries):
+class EMIP(Dataset):
     def __init__(self):
         super().__init__("emip-fixations")
         self.label = "expertise_programming"

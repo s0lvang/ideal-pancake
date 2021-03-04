@@ -1,8 +1,6 @@
 from classifier.datasets.Fractions import Fractions
 from classifier.datasets.Jetris import Jetris
 from classifier.datasets.EMIP import EMIP
-from classifier.datasets.MoocImages import MoocImages
-from classifier.datasets.EMIPImages import EMIPImages
 from classifier.datasets.CSCW import CSCW
 
 
@@ -26,11 +24,7 @@ def init(in_study, out_of_study, experiment, _flags):
 
 
 def get_dataset(dataset_name):
-    if dataset_name == "emip-images":
-        return EMIPImages()
-    elif dataset_name == "mooc-images":
-        return MoocImages()
-    elif dataset_name == "emip":
+    if dataset_name == "emip":
         return EMIP()
     elif dataset_name == "jetris":
         return Jetris()

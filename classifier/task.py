@@ -1,4 +1,4 @@
-from comet_ml import Experiment
+from comet_ml import Experiment as Comet_Experiment
 from classifier import globals
 import argparse
 import os
@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import tensorflow as tf
 import random
+from classifier.Experiment import Experiment
 
 
 def _parse_args(argv):
@@ -69,7 +70,7 @@ def main():
     print(random_seed, "random_seed")
     seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
-    experiment = Experiment(
+    experiment = Comet_Experiment(
         api_key=flags.comet_api_key,
         project_name="ideal-pancake",
         workspace="s0lvang",
@@ -83,7 +84,8 @@ def main():
         _flags=flags,
     )
     # Trigger the experiment
-    globals.dataset.run_experiment(flags)
+    experiment = Experiment()
+    experiment.run_experiment(flags)
 
 
 if __name__ == "__main__":

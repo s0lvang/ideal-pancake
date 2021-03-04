@@ -1,27 +1,23 @@
-from sklearn.model_selection import RandomizedSearchCV
-from classifier import model
-from classifier.datasets.Dataset import Dataset
-
 from classifier.Labels import Labels
-from classifier import globals
-from scipy.stats import uniform
-
-import pandas as pd
-import cv2
+from classifier.utils import log_dataframe_to_comet, log_hyperparameters_to_comet
 import numpy as np
 
+from classifier.datasets.Dataset import Dataset
+from classifier import model
+from classifier import globals
 
-class Heatmap(Dataset):
-    def __init__(self, name):
-        super().__init__(name)
-        self.image_size = (150, 100)
 
+class Experiment:
     def get_features_from_gcs(self):
         data, labels = globals.dataset.download_premade_features()
-        labels = Labels(labels, globals.dataset.labels_are_categorical)
+        labels = Labels(
+            labels,
+            globals.dataset.labels_are_categorical,
+        )
         oos_data, oos_labels = globals.out_of_study_dataset.download_premade_features()
         oos_labels = Labels(
-            oos_labels, globals.out_of_study_dataset.labels_are_categorical
+            oos_labels,
+            globals.out_of_study_dataset.labels_are_categorical,
         )
         return (
             data,
@@ -31,6 +27,7 @@ class Heatmap(Dataset):
         )
 
     def run_experiment(self, flags):
+        """Testbed for running model training and evaluation."""
         (
             data,
             labels,
@@ -38,16 +35,20 @@ class Heatmap(Dataset):
             oos_labels,
         ) = self.get_features_from_gcs()
 
-        (data_train, data_test) = labels.train_test_split(data)
+        (
+            data_train,
+            data_test,
+        ) = labels.train_test_split(data)
+
         pipeline = model.build_pipeline()
 
-        grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=1, cv=3)
+        # grid_params = self.get_random_grid()
+        # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
         pipeline.fit(data_train, labels.train)
 
-        print("Best Score: ", pipeline.best_score_)
-        print("Best Params: ", pipeline.best_params_)
-        best_pipeline = pipeline.best_estimator_
+        # log_hyperparameters_to_comet(pipeline)
+        best_pipeline = pipeline  # .best_estimator_
+
         scores = model.evaluate_model(
             best_pipeline,
             data_test,
@@ -55,8 +56,6 @@ class Heatmap(Dataset):
             oos_data,
             oos_labels,
         )
-
-        return scores
 
     def get_random_grid(self):
         # Number of trees in random forest
@@ -73,9 +72,7 @@ class Heatmap(Dataset):
         # Method of selecting samples for training each tree
         bootstrap = [True]
         # Create the random grid
-        alphas = uniform()
         random_grid = {
-            "Lasso__estimator__alpha": alphas,
             "classifier__n_estimators": n_estimators,
             "classifier__max_depth": max_depth,
             "classifier__min_samples_split": min_samples_split,
@@ -87,12 +84,3 @@ class Heatmap(Dataset):
 
     def __str__(self):
         return super().__str__()
-
-    def group_file_references_by_subject_id(self, file_references):
-        grouped = {}
-
-        for file_reference in file_references:
-            id = self.subject_id(file_reference)
-            grouped[id] = [*grouped.get(id, []), file_reference]
-
-        return grouped
