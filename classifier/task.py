@@ -1,3 +1,4 @@
+from classifier.ExperimentManager import ExperimentManager
 from comet_ml import Experiment as Comet_Experiment
 from classifier import globals
 import argparse
@@ -15,17 +16,11 @@ def _parse_args(argv):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--in_study",
-        help="""Dataset to use for training and evaluation.
+        "--datasets",
+        help="""Datasets to use for training and out of study-testing.
             """,
         required=True,
-    )
-
-    parser.add_argument(
-        "--out_of_study",
-        help="""Dataset to use for evaluating FGI.
-            """,
-        required=False,
+        nargs="+",
     )
 
     parser.add_argument(
@@ -78,14 +73,12 @@ def main():
     experiment.set_name(flags.experiment_name)
     # Set up config and select datasets
     globals.init(
-        in_study=flags.in_study,
-        out_of_study=flags.out_of_study,
         experiment=experiment,
         _flags=flags,
     )
     # Trigger the experiment
-    experiment = Experiment()
-    experiment.run_experiment(flags)
+    experiment = ExperimentManager(flags.datasets)
+    experiment.run_experiments()
 
 
 if __name__ == "__main__":

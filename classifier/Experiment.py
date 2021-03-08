@@ -1,50 +1,27 @@
-from classifier.Labels import Labels
-from classifier.utils import log_dataframe_to_comet, log_hyperparameters_to_comet
+from classifier.utils import log_hyperparameters_to_comet
 import numpy as np
-
-from classifier.datasets.Dataset import Dataset
 from classifier import model
-from classifier import globals
 
 
 class Experiment:
-    def get_features_from_gcs(self):
-        data, labels = globals.dataset.download_premade_features()
-        labels = Labels(
-            labels,
-            globals.dataset.labels_are_categorical,
-        )
-        oos_data, oos_labels = globals.out_of_study_dataset.download_premade_features()
-        oos_labels = Labels(
-            oos_labels,
-            globals.out_of_study_dataset.labels_are_categorical,
-        )
-        return (
-            data,
-            labels,
-            oos_data,
-            oos_labels,
-        )
+    def __init__(self, dataset, labels, oos_dataset, oos_labels):
+        self.dataset = dataset
+        self.labels = labels
+        self.oos_dataset = oos_dataset
+        self.oos_labels = oos_labels
 
-    def run_experiment(self, flags):
+    def run_experiment(self):
         """Testbed for running model training and evaluation."""
-        (
-            data,
-            labels,
-            oos_data,
-            oos_labels,
-        ) = self.get_features_from_gcs()
-
         (
             data_train,
             data_test,
-        ) = labels.train_test_split(data)
+        ) = self.labels.train_test_split(self.dataset)
 
         pipeline = model.build_pipeline()
 
         # grid_params = self.get_random_grid()
         # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
-        pipeline.fit(data_train, labels.train)
+        pipeline.fit(data_train, self.labels.train)
 
         # log_hyperparameters_to_comet(pipeline)
         best_pipeline = pipeline  # .best_estimator_
@@ -52,9 +29,9 @@ class Experiment:
         scores = model.evaluate_model(
             best_pipeline,
             data_test,
-            labels,
-            oos_data,
-            oos_labels,
+            self.labels,
+            self.oos_dataset,
+            self.oos_labels,
         )
 
     def get_random_grid(self):
