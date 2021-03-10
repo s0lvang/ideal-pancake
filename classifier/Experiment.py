@@ -1,6 +1,7 @@
 from classifier.utils import log_hyperparameters_to_comet
 import numpy as np
 from classifier import model
+from sklearn.model_selection import train_test_split
 
 
 class Experiment:
@@ -15,13 +16,15 @@ class Experiment:
         (
             data_train,
             data_test,
-        ) = self.labels.train_test_split(self.dataset)
+            labels_train,
+            labels_test,
+        ) = train_test_split(self.dataset, self.labels)
 
         pipeline = model.build_pipeline()
 
         # grid_params = self.get_random_grid()
         # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
-        pipeline.fit(data_train, self.labels.train)
+        pipeline.fit(data_train, labels_train)
 
         # log_hyperparameters_to_comet(pipeline)
         best_pipeline = pipeline  # .best_estimator_
@@ -29,7 +32,7 @@ class Experiment:
         scores = model.evaluate_model(
             best_pipeline,
             data_test,
-            self.labels,
+            labels_test,
             self.oos_dataset,
             self.oos_labels,
         )
