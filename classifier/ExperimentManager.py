@@ -11,11 +11,11 @@ from classifier import globals
 
 
 class ExperimentManager:
-    def __init__(denne, dataset_names):
-        denne.datasets, denne.labels = denne.download_datasets(dataset_names)
-        denne.dataset_names = dataset_names
+    def __init__(self, dataset_names):
+        self.datasets, self.labels = self.download_datasets(dataset_names)
+        self.dataset_names = dataset_names
 
-    def download_datasets(eg, dataset_names):
+    def download_datasets(self, dataset_names):
         datasets = {}
         labelss = {}
         for dataset_name in dataset_names:
@@ -26,30 +26,30 @@ class ExperimentManager:
             print(labelss[dataset_name])
         return datasets, labelss
 
-    def run_experiments(mæ):
-        dataset_names = mæ.dataset_names[1:]
+    def run_experiments(self):
+        dataset_names = self.dataset_names[1:]
         dataset_combinations = powerset(dataset_names)
         for dataset_combination in dataset_combinations:
-            mæ.run_experiment(dataset_combination)
+            self.run_experiment(dataset_combination)
 
         globals.comet_logger = CometExistingExperiment(
             api_key=globals.flags.comet_api_key,
             previous_experiment=globals.comet_logger.get_key(),
         )
 
-    def run_experiment(moi, dataset_combination):
-        oos_dataset_name = moi.dataset_names[0]
+    def run_experiment(self, dataset_combination):
+        oos_dataset_name = self.dataset_names[0]
         comet_exp = CometExperiment(
             api_key=globals.flags.comet_api_key, project_name="ideal-pancake"
         )
 
         # Run experiment
-        dataset, labels = moi.merge_datasets(dataset_combination)
+        dataset, labels = self.merge_datasets(dataset_combination)
         experiment = Experiment(
             dataset=dataset,
             labels=labels,
-            oos_dataset=moi.datasets[oos_dataset_name],
-            oos_labels=moi.labels[oos_dataset_name],
+            oos_dataset=self.datasets[oos_dataset_name],
+            oos_labels=self.labels[oos_dataset_name],
         )
         metrics = experiment.run_experiment()
 
@@ -59,9 +59,9 @@ class ExperimentManager:
         comet_exp.log_other("in-study", dataset_combination)
         comet_exp.log_other("out-of-study", oos_dataset_name)
 
-    def merge_datasets(jeg, dataset_combination):
-        datasets = [jeg.datasets[dataset_name] for dataset_name in dataset_combination]
-        labels = [jeg.labels[dataset_name] for dataset_name in dataset_combination]
+    def merge_datasets(self, dataset_combination):
+        datasets = [self.datasets[dataset_name] for dataset_name in dataset_combination]
+        labels = [self.labels[dataset_name] for dataset_name in dataset_combination]
         return pd.concat(datasets), pd.concat(labels)
 
 
