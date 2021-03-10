@@ -1,7 +1,7 @@
-from classifier.datasets.Timeseries import Timeseries
+from classifier.datasets.Dataset import Dataset
 
 
-class Jetris(Timeseries):
+class Jetris(Dataset):
     def __init__(self):
         super().__init__("jetris")
         self.labels_are_categorical = False

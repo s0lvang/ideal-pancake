@@ -1,7 +1,7 @@
-from classifier.datasets.Timeseries import Timeseries
+from classifier.datasets.Dataset import Dataset
 
 
-class CSCW(Timeseries):
+class CSCW(Dataset):
     def __init__(self):
         super().__init__("cscw")
         self.label = "Posttest.Score"

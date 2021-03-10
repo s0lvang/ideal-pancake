@@ -1,7 +1,7 @@
-from classifier.datasets.Timeseries import Timeseries
+from classifier.datasets.Dataset import Dataset
 
 
-class Fractions(Timeseries):
+class Fractions(Dataset):
     def __init__(self):
         super().__init__("fractions")
         self.label = "Post_SumOfCorrect_NewSum"

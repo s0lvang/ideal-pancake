@@ -1,4 +1,5 @@
-from comet_ml import Experiment
+from classifier.ExperimentManager import ExperimentManager
+from comet_ml import Experiment as Comet_Experiment
 from classifier import globals
 import argparse
 import os
@@ -6,6 +7,7 @@ import numpy as np
 import sys
 import tensorflow as tf
 import random
+from classifier.Experiment import Experiment
 
 
 def _parse_args(argv):
@@ -14,17 +16,11 @@ def _parse_args(argv):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--in_study",
-        help="""Dataset to use for training and evaluation.
+        "--datasets",
+        help="""Datasets to use for training and out of study-testing.
             """,
         required=True,
-    )
-
-    parser.add_argument(
-        "--out_of_study",
-        help="""Dataset to use for evaluating FGI.
-            """,
-        required=False,
+        nargs="+",
     )
 
     parser.add_argument(
@@ -69,7 +65,7 @@ def main():
     print(random_seed, "random_seed")
     seed_libraries(random_seed)
     flags = _parse_args(sys.argv[1:])
-    experiment = Experiment(
+    experiment = Comet_Experiment(
         api_key=flags.comet_api_key,
         project_name="ideal-pancake",
         workspace="s0lvang",
@@ -77,13 +73,12 @@ def main():
     experiment.set_name(flags.experiment_name)
     # Set up config and select datasets
     globals.init(
-        in_study=flags.in_study,
-        out_of_study=flags.out_of_study,
         experiment=experiment,
         _flags=flags,
     )
     # Trigger the experiment
-    globals.dataset.run_experiment(flags)
+    experiment = ExperimentManager(flags.datasets)
+    experiment.run_experiments()
 
 
 if __name__ == "__main__":
