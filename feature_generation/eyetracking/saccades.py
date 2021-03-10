@@ -32,6 +32,5 @@ def get_angle_of_saccades(data):
 
 
 def angle_between_coordinates(a, b):
-    radians = math.atan2(b[0] - a[0], b[1] - a[1])
-    radians = radians if radians >= 0 else radians + 2 * math.pi
-    return math.degrees(radians)
+    radians = math.atan2(b[1] - a[1], b[0] - a[0])
+    return abs(radians)
