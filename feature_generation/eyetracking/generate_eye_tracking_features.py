@@ -1,4 +1,5 @@
 from numpy.lib.function_base import percentile
+import math
 import pandas as pd
 import numpy as np
 from scipy.stats import entropy
@@ -18,6 +19,9 @@ def generate_features(subject):
         subject
     )
     eye_tracking_features["entropy_xy"] = get_entropy(subject)
+    eye_tracking_features["saccade_verticality"] = get_horizontallity_of_saccades(
+        subject
+    )
     return eye_tracking_features
 
 
@@ -26,6 +30,12 @@ def get_saccade_speed_skewness(subject):
         subject.loc[:, "saccade_length"] / subject.loc[:, "saccade_duration"]
     )
     return saccade_speed.skew()
+
+
+def get_horizontallity_of_saccades(subject):
+    angles = subject.loc[:, "angle_of_saccades"]
+    sinus_values = angles.apply(math.sin)
+    return sinus_values.mean()
 
 
 def get_entropy(subject):
