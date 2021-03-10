@@ -69,7 +69,7 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels):
         "oos_rmse": oos_rmse,
         "FGI": FGI,
     }
-    globals.comet_logger.log_metrics(metrics)
+    return metrics
 
 
 def all_ranks(in_study, out_of_study):

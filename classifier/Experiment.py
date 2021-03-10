@@ -29,13 +29,14 @@ class Experiment:
         # log_hyperparameters_to_comet(pipeline)
         best_pipeline = pipeline  # .best_estimator_
 
-        scores = model.evaluate_model(
+        metrics = model.evaluate_model(
             best_pipeline,
             data_test,
             labels_test,
             self.oos_dataset,
             self.oos_labels,
         )
+        return metrics
 
     def get_random_grid(self):
         # Number of trees in random forest

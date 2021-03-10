@@ -4,7 +4,9 @@ from classifier.datasets.Jetris import Jetris
 from classifier.datasets.EMIP import EMIP
 from classifier.datasets.CSCW import CSCW
 from classifier.utils import powerset, normalize_series
+from comet_ml import Experiment as CometExperiment
 import pandas as pd
+from classifier import globals
 
 
 class ExperimentManager:
@@ -28,6 +30,9 @@ class ExperimentManager:
         dataset_names = mæ.dataset_names[1:]
         dataset_combinations = powerset(dataset_names)
         for dataset_combination in dataset_combinations:
+            comet_exp = CometExperiment(
+                api_key=globals.flags.comet_api_key, project_name="ideal-pancake"
+            )
             dataset, labels = mæ.merge_datasets(dataset_combination)
             experiment = Experiment(
                 dataset=dataset,
@@ -35,7 +40,10 @@ class ExperimentManager:
                 oos_dataset=mæ.datasets[oos_dataset_name],
                 oos_labels=mæ.labels[oos_dataset_name],
             )
-            experiment.run_experiment()
+            metrics = experiment.run_experiment()
+            comet_exp.log_metrics(metrics)
+            comet_exp.log_other("in-study", dataset_combination)
+            comet_exp.log_other("out-of-study", oos_dataset_name)
 
     def merge_datasets(jeg, dataset_combination):
         datasets = [jeg.datasets[dataset_name] for dataset_name in dataset_combination]
