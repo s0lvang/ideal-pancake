@@ -18,7 +18,9 @@ def get_saccade_duration(data):
     starttimes = data.loc[:, "time"].to_numpy()
     shifted_starttimes = np.roll(starttimes, -1, axis=0).tolist()
     shifted_starttimes[-1] = starttimes[-1]
-    return shifted_starttimes - endtimes
+    saccades_durations = shifted_starttimes - endtimes
+    saccades_durations[-1] = 0
+    return saccades_durations
 
 
 def get_angle_of_saccades(data):
