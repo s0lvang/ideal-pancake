@@ -1,3 +1,4 @@
+from feature_generation.normalize.rolling_mean import rolling_mean
 from feature_generation.timeseries.tsfresh_custom_calculators import (
     load_custom_functions,
 )
@@ -9,8 +10,9 @@ from feature_generation.datasets.Dataset import Dataset
 from feature_generation import model
 from feature_generation import globals
 import tsfresh
-from feature_generation.eyetracking import saccades, generate_eye_tracking_features
+from feature_generation.eyetracking.saccades import generate_saccade_columns
 from feature_generation.normalize.normalize import normalize_data
+from feature_generation.eyetracking import generate_eye_tracking_features
 
 
 class Timeseries(Dataset):
@@ -38,20 +40,22 @@ class Timeseries(Dataset):
             "garch": None,
             "markov": None,
         }
-        self.numeric_features = [
+        self.timeseries_columns = [
             self.column_names["pupil_diameter"],
+            self.column_names["duration"],
+            self.column_names["saccade_length"],
+            self.column_names["saccade_duration"],
         ]
-        self.categorical_features = []
-        self.feature_columns = self.numeric_features + self.categorical_features
-        self.columns_to_use = self.feature_columns + [
+        self.tsfresh_columns = self.timeseries_columns + [
             self.column_names["time"],
             self.column_names["subject_id"],
         ]
 
     def prepare_dataset(self):
         data, labels = self.data_and_labels()
-        normalize_data(data)
-        generate_eye_tracking_columns(data)
+        data = normalize_data(data)
+        data = generate_saccade_columns(data)
+        data = rolling_mean(data)
         return data, labels
 
     def generate_features(self):
@@ -68,7 +72,7 @@ class Timeseries(Dataset):
 
         data = pd.concat(data)
         time_series_features = tsfresh.extract_features(
-            data.loc[:, self.columns_to_use],
+            data.loc[:, self.tsfresh_columns],
             column_id=globals.dataset.column_names["subject_id"],
             column_sort=globals.dataset.column_names["time"],
             default_fc_parameters=globals.dataset.tsfresh_features,
@@ -88,14 +92,6 @@ class Timeseries(Dataset):
 
     def __str__(self):
         return super().__str__()
-
-
-def generate_eye_tracking_columns(data):
-    for df in data:
-        df["saccade_length"] = saccades.get_saccade_length(df)
-        df["saccade_duration"] = saccades.get_saccade_duration(df)
-        df["angle_of_saccades"] = saccades.get_angle_of_saccades(df)
-    return data
 
 
 def get_indicies(labels):

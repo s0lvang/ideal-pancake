@@ -6,6 +6,17 @@ The fixations contains information of the following saccade
 """
 
 
+def generate_saccade_columns(data):
+    return [generate_saccade_columns_per_subject(df) for df in data]
+
+
+def generate_saccade_columns_per_subject(df):
+    df["saccade_length"] = get_saccade_length(df)
+    df["saccade_duration"] = get_saccade_duration(df)
+    df["angle_of_saccades"] = get_angle_of_saccades(df)
+    return df
+
+
 def get_saccade_length(data):
     coordinates = data.loc[:, ["x", "y"]].to_numpy()
     shifted_coordinates = np.roll(coordinates, -1, axis=0).tolist()
