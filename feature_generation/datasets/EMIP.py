@@ -38,11 +38,21 @@ class EMIP(Timeseries):
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = subject_id
         csv = csv[csv["status"] == "READING"]
+        csv = self.normalize_trials(csv)
         dataset.append(csv)
         labels[subject_id] = metadata_file[
             metadata_file["id"].astype(int) == subject_id
         ].iloc[0]
         return dataset, labels
+
+    def normalize_trials(self, df):
+        # Since we combine the trials and only look at sections where they are reading code, it is a huge gap in time in the middle
+        trial_1_endtime = df.loc[df["trial_number"] == 1, "fixation_end"].iloc[-1]
+        trial_2_starttime = df.loc[df["trial_number"] == 2, "time"].iloc[0]
+        diff = trial_2_starttime - trial_1_endtime
+        df.loc[df["trial_number"] == 2, "time"] -= diff
+        df.loc[df["trial_number"] == 2, "fixation_end"] -= diff
+        return df
 
     def __str__(self):
         return super().__str__()

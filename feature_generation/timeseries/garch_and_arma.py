@@ -7,15 +7,22 @@ import sys
 import os
 
 
-def pdq_combinations(ceiling):
-    p = d = q = range(1, ceiling)
-    return list(itertools.product(p, d, q))
+def poq_combinations(ceiling):
+    p = o = q = range(1, ceiling)
+    return list(itertools.product(p, o, q))
+
+
+def pq_combinations(ceiling):
+    p = q = range(1, ceiling)
+    return list(itertools.product(p, q))
 
 
 # Should take training data, after splitting
-def fit_arima(timeseries, pdq):
-    arima_model = ARIMA(timeseries, order=pdq)
-    fit = arima_model.fit()
+def fit_arma(timeseries, pq):
+    p, q = pq
+    order = (p, 0, q)
+    arma_model = ARIMA(timeseries, order=order)
+    fit = arma_model.fit()
     aic = fit.aic
     return fit, aic
 
@@ -27,12 +34,11 @@ def fit_garch(timeseries, poq):
     return fit, aic
 
 
-def optimize_model(timeseries, param_ceiling, model):
-    params = pdq_combinations(param_ceiling)
+def optimize_model(timeseries, combinations, model):
     best_fit = None
     best_aic = math.inf
 
-    for parameter_set in params:
+    for parameter_set in combinations:
         try:
             fit, aic = model(timeseries, parameter_set)
             if aic < best_aic:
@@ -46,11 +52,13 @@ def optimize_model(timeseries, param_ceiling, model):
 
 def optimize_garch(timeseries, param_ceiling):
     sys.stdout = open(os.devnull, "w")
-    fit = optimize_model(timeseries, param_ceiling, fit_garch)
+    combinations = poq_combinations(param_ceiling)
+    fit = optimize_model(timeseries, combinations, fit_garch)
     sys.stdout = sys.__stdout__
     return fit.params
 
 
-def optimize_arima(timeseries, param_ceiling):
-    fit = optimize_model(timeseries, param_ceiling, fit_arima)
+def optimize_arma(timeseries, param_ceiling):
+    combinations = pq_combinations(param_ceiling)
+    fit = optimize_model(timeseries, combinations, fit_arma)
     return fit.params
