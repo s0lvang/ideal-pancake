@@ -36,8 +36,8 @@ class Timeseries(Dataset):
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
             "lhipa": None,
-            "arma": 2,
-            "garch": 2,
+            "arma": 4,
+            "garch": 4,
             "markov": 8,
         }
         self.timeseries_columns = [
