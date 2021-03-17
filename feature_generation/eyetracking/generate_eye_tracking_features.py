@@ -26,6 +26,7 @@ def generate_features(subject):
 
 
 def get_saccade_speed_skewness(subject):
+    subject = subject[subject["saccade_duration"] != 0]
     saccade_speed = (
         subject.loc[:, "saccade_length"] / subject.loc[:, "saccade_duration"]
     )
