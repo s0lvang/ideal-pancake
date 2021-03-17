@@ -3,6 +3,7 @@ from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 from .lhipa import calculate_lhipa
 from .markov import calculate_markov
+import numpy as np
 
 
 @set_property("fctype", "combiner")
@@ -22,7 +23,11 @@ def garch(d, param):
 
 @set_property("fctype", "simple")
 def lhipa(d):
-    return calculate_lhipa(d)
+    try:
+        return calculate_lhipa(d)
+    except Exception as e:
+        print(e)
+        return np.nan
 
 
 @set_property("fctype", "combiner")
