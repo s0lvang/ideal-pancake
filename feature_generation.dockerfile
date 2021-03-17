@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN mkdir /app 
 RUN mkdir /app/datasets
-COPY pyproject.toml poetry.lock  /app
+COPY pyproject.toml poetry.lock  /app/
 
 WORKDIR /app
 
