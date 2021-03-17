@@ -11,6 +11,6 @@ def take_rolling_mean(df):
         "saccade_length",
     ]
     for column in columns_to_take_rolling_mean:
-        df[column] = df[column].rolling(window).mean()
+        df[f"{column}_rolling"] = df[column].rolling(window).mean()
     # index < window is nan
     return df.iloc[window:]

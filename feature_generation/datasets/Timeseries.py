@@ -41,10 +41,10 @@ class Timeseries(Dataset):
             "markov": None,
         }
         self.timeseries_columns = [
-            self.column_names["pupil_diameter"],
-            self.column_names["duration"],
-            self.column_names["saccade_length"],
-            self.column_names["saccade_duration"],
+            f"{self.column_names['pupil_diameter']}_rolling",
+            f"{self.column_names['duration']}_rolling",
+            f"{self.column_names['saccade_length']}_rolling",
+            f"{self.column_names['saccade_duration']}_rolling",
         ]
         self.tsfresh_columns = self.timeseries_columns + [
             self.column_names["time"],
