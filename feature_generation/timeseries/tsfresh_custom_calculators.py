@@ -8,7 +8,7 @@ from .markov import calculate_markov
 @set_property("fctype", "combiner")
 def arima(d, param):
     arima_coeff_names = ["exog", "ar", "ma"]
-    best_arima_coeffs = optimize_arima(d, 3)
+    best_arima_coeffs = optimize_arima(d, param)
 
     return [(name, coeff) for name, coeff in zip(arima_coeff_names, best_arima_coeffs)]
 
@@ -16,7 +16,7 @@ def arima(d, param):
 @set_property("fctype", "combiner")
 def garch(d, param):
     garch_coeff_names = ["mu", "omega", "alpha", "gamma", "beta"]
-    best_garch_coeffs = optimize_garch(d, 2)
+    best_garch_coeffs = optimize_garch(d, param)
     return [(name, coeff) for name, coeff in zip(garch_coeff_names, best_garch_coeffs)]
 
 
@@ -27,7 +27,9 @@ def lhipa(d):
 
 @set_property("fctype", "combiner")
 def markov(d, param):
-    return [(str(index), value) for index, value in enumerate(calculate_markov(d, 10))]
+    return [
+        (str(index), value) for index, value in enumerate(calculate_markov(d, param))
+    ]
 
 
 def load_custom_functions():

@@ -36,9 +36,9 @@ class Timeseries(Dataset):
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
             "lhipa": None,
-            "arima": None,
-            "garch": None,
-            "markov": None,
+            "arima": 2,
+            "garch": 2,
+            "markov": 8,
         }
         self.timeseries_columns = [
             f"{self.column_names['pupil_diameter']}_rolling",
