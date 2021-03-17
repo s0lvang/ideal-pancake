@@ -1,4 +1,4 @@
-from feature_generation.timeseries.garch_and_arima import optimize_arima, optimize_garch
+from feature_generation.timeseries.garch_and_arma import optimize_arma, optimize_garch
 from tsfresh.feature_extraction.feature_calculators import set_property
 from tsfresh.feature_extraction import feature_calculators
 from .lhipa import calculate_lhipa
@@ -6,11 +6,11 @@ from .markov import calculate_markov
 
 
 @set_property("fctype", "combiner")
-def arima(d, param):
-    arima_coeff_names = ["exog", "ar", "ma"]
-    best_arima_coeffs = optimize_arima(d, param)
+def arma(d, param):
+    arma_coeff_names = ["exog", "ar", "ma"]
+    best_arma_coeffs = optimize_arma(d, param)
 
-    return [(name, coeff) for name, coeff in zip(arima_coeff_names, best_arima_coeffs)]
+    return [(name, coeff) for name, coeff in zip(arma_coeff_names, best_arma_coeffs)]
 
 
 @set_property("fctype", "combiner")
@@ -33,6 +33,6 @@ def markov(d, param):
 
 
 def load_custom_functions():
-    custom_functions = [garch, lhipa, arima, markov]
+    custom_functions = [garch, lhipa, arma, markov]
     for func in custom_functions:
         setattr(feature_calculators, func.__name__, func)

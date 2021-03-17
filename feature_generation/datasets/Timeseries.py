@@ -36,7 +36,7 @@ class Timeseries(Dataset):
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
             "lhipa": None,
-            "arima": 2,
+            "arma": 2,
             "garch": 2,
             "markov": 8,
         }

@@ -18,11 +18,11 @@ def pq_combinations(ceiling):
 
 
 # Should take training data, after splitting
-def fit_arima(timeseries, pq):
+def fit_arma(timeseries, pq):
     p, q = pq
     order = (p, 0, q)
-    arima_model = ARIMA(timeseries, order=order)
-    fit = arima_model.fit()
+    arma_model = ARIMA(timeseries, order=order)
+    fit = arma_model.fit()
     aic = fit.aic
     return fit, aic
 
@@ -41,7 +41,6 @@ def optimize_model(timeseries, combinations, model):
     for parameter_set in combinations:
         try:
             fit, aic = model(timeseries, parameter_set)
-            print(aic)
             if aic < best_aic:
                 best_aic = aic
                 best_fit = fit
@@ -59,7 +58,7 @@ def optimize_garch(timeseries, param_ceiling):
     return fit.params
 
 
-def optimize_arima(timeseries, param_ceiling):
+def optimize_arma(timeseries, param_ceiling):
     combinations = pq_combinations(param_ceiling)
-    fit = optimize_model(timeseries, combinations, fit_arima)
+    fit = optimize_model(timeseries, combinations, fit_arma)
     return fit.params
