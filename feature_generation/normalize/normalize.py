@@ -44,7 +44,7 @@ def fix_outliers_in_time(df):
     saccade_durations = pd.Series(get_saccade_duration(df))
     saccade_durations.index = df.index
     median_duration = saccade_durations.median()
-    threshold = np.percentile(saccade_durations, 99)
+    threshold = 1000
     bool_series = saccade_durations > threshold
     indices = df[bool_series].index
     for i in indices:

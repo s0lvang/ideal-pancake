@@ -48,18 +48,22 @@ def get_entropy(subject):
 
 
 def get_information_processing_ratio(subject):
-    percentiles_saccade_length = np.percentile(subject.loc[:, "saccade_length"], 25)
-    percentiles_fixation_duration = np.percentile(subject.loc[:, "duration"], 25)
+    upper_threshold_saccade_length = np.percentile(subject.loc[:, "saccade_length"], 75)
+    lower_threshold_saccade_length = np.percentile(subject.loc[:, "saccade_length"], 25)
+    upper_threshold_fixation_duration = np.percentile(subject.loc[:, "duration"], 75)
+    lower_threshold_fixation_duration = np.percentile(subject.loc[:, "duration"], 25)
     LIP = 0
     GIP = 0
     for saccade_length, fixation_duration in subject.loc[
         :, ["saccade_length", "duration"]
     ].to_numpy():
-        fixation_is_short = fixation_duration < percentiles_fixation_duration
-        saccade_is_short = saccade_length < percentiles_saccade_length
-        if not fixation_is_short and saccade_is_short:
+        fixation_is_short = fixation_duration <= lower_threshold_fixation_duration
+        fixation_is_long = upper_threshold_fixation_duration <= fixation_duration
+        saccade_is_short = saccade_length <= lower_threshold_saccade_length
+        saccade_is_long = upper_threshold_saccade_length <= saccade_length
+        if fixation_is_long and saccade_is_short:
             LIP += 1
-        elif fixation_is_short and not saccade_is_short:
+        elif fixation_is_short and saccade_is_long:
             GIP += 1
         else:
             continue
