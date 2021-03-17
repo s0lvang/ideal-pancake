@@ -20,18 +20,14 @@ def pq_combinations(ceiling):
 # Should take training data, after splitting
 def fit_arima(timeseries, pq):
     p, q = pq
-    order = [p, 1, q]
-    print(order, "order")
-    print(len(timeseries))
-    arima_model = ARIMA(timeseries, order)
+    order = (p, 0, q)
+    arima_model = ARIMA(timeseries, order=order)
     fit = arima_model.fit()
     aic = fit.aic
-    print(aic)
     return fit, aic
 
 
 def fit_garch(timeseries, poq):
-    print(poq, "poq")
     garch = arch_model(timeseries, vol="garch", p=poq[0], o=poq[1], q=poq[2])
     fit = garch.fit()
     aic = fit.aic
