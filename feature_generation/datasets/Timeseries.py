@@ -37,7 +37,7 @@ class Timeseries(Dataset):
             ],
             "lhipa": None,
             "arma": 4,
-            "garch": 4,
+            # "garch": 4,
             # "markov": 8,
         }
         self.timeseries_columns = [
