@@ -11,7 +11,6 @@ def fit_markov(timeseries, n_components):
     # print(hmmmodel.transmat_)
     log_likelyhood = hmmmodel.score(timeseries.reshape(-1, 1))
     aic = -2 * log_likelyhood + 2 * n_components
-    print(aic)
     return hmmmodel.transmat_, aic
 
 

@@ -8,33 +8,41 @@ import numpy as np
 
 @set_property("fctype", "combiner")
 def arma(d, param):
+    print(d[0], "garch", "beginning")
     arma_coeff_names = ["exog", "ar", "ma"]
     best_arma_coeffs = optimize_arma(d, param)
-
+    print(d[0], "garch", "end")
     return [(name, coeff) for name, coeff in zip(arma_coeff_names, best_arma_coeffs)]
 
 
 @set_property("fctype", "combiner")
 def garch(d, param):
+    print(d[0], "garch", "beginning")
     garch_coeff_names = ["mu", "omega", "alpha", "gamma", "beta"]
     best_garch_coeffs = optimize_garch(d, param)
+    print(d[0], "garch", "end")
     return [(name, coeff) for name, coeff in zip(garch_coeff_names, best_garch_coeffs)]
 
 
 @set_property("fctype", "simple")
 def lhipa(d):
+    print(d[0], "lhipa", "beginning")
+    lhipa_value = np.nan
     try:
-        return calculate_lhipa(d)
+        lhipa_value = calculate_lhipa(d)
     except Exception as e:
         print(e)
-        return np.nan
+    finally:
+        print(d[0], "lhipa", "end")
+        return lhipa_value
 
 
 @set_property("fctype", "combiner")
 def markov(d, param):
-    return [
-        (str(index), value) for index, value in enumerate(calculate_markov(d, param))
-    ]
+    print(d[0], "lhipa", "beginning")
+    transition_matrix = calculate_markov(d, param)
+    print(d[0], "lhipa", "end")
+    return [(str(index), value) for index, value in enumerate(transition_matrix)]
 
 
 def load_custom_functions():

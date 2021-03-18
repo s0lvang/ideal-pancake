@@ -1,4 +1,3 @@
-import pandas as pd
 import itertools
 import math
 from arch import arch_model
