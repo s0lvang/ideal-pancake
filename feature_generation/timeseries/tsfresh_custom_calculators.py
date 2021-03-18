@@ -45,7 +45,12 @@ def markov(d, param):
     return [(str(index), value) for index, value in enumerate(transition_matrix)]
 
 
+@set_property("fctype", "simple")
+def yolo(d):
+    return 69
+
+
 def load_custom_functions():
-    custom_functions = [garch, lhipa, arma, markov]
+    custom_functions = [garch, lhipa, arma, markov, yolo]
     for func in custom_functions:
         setattr(feature_calculators, func.__name__, func)
