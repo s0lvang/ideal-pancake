@@ -32,14 +32,14 @@ class Timeseries(Dataset):
         }
         load_custom_functions()
         self.tsfresh_features = {
-            "fft_aggregated": [
-                {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
-            ],
-            "yolo": None,
-            "lhipa": None,
-            # "arma": 4,
+            # "fft_aggregated": [
+            #    {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
+            # ],
+            # "yolo": None,
+            # "lhipa": None,
+            "arma": 4,
             "garch": 4,
-            "markov": 8,
+            # "markov": 8,
         }
         self.timeseries_columns = [
             f"{self.column_names['pupil_diameter']}_rolling",
@@ -62,14 +62,14 @@ class Timeseries(Dataset):
     def generate_features(self):
         data, labels = self.prepare_dataset()
 
-        heatmap_pipeline = model.create_vgg_pipeline()
-        heatmaps_features = heatmap_pipeline.fit_transform(data)
-        heatmaps_features.index = labels.index
+        # heatmap_pipeline = model.create_vgg_pipeline()
+        # heatmaps_features = heatmap_pipeline.fit_transform(data)
+        # heatmaps_features.index = labels.index
 
-        eye_tracking_features = (
-            generate_eye_tracking_features.generate_eye_tracking_features(data)
-        )
-        eye_tracking_features.index = labels.index
+        # eye_tracking_features = (
+        #    generate_eye_tracking_features.generate_eye_tracking_features(data)
+        # )
+        # eye_tracking_features.index = labels.index
 
         data = pd.concat(data)
         time_series_features = tsfresh.extract_features(
@@ -78,7 +78,9 @@ class Timeseries(Dataset):
             column_sort=globals.dataset.column_names["time"],
             default_fc_parameters=globals.dataset.tsfresh_features,
         )
-        dataframes = [time_series_features, heatmaps_features, eye_tracking_features]
+        dataframes = [
+            time_series_features,
+        ]  # heatmaps_features, eye_tracking_features]
         data = reduce(
             lambda left, right: pd.merge(
                 left, right, left_index=True, right_index=True
