@@ -35,7 +35,6 @@ class Timeseries(Dataset):
             "fft_aggregated": [
                 {"aggtype": s} for s in ["centroid", "variance", "skew", "kurtosis"]
             ],
-            "yolo": None,
             "lhipa": None,
             "arma": 4,
             "garch": 4,

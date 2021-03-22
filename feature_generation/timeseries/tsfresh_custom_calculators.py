@@ -10,7 +10,7 @@ import numpy as np
 def arma(d, param):
     print(d[0], "arma", "beginning")
     arma_coeff_names = ["exog", "ar", "ma"]
-    best_arma_coeffs = optimize_arma(d, param)
+    best_arma_coeffs = optimize_arma(np.copy(d), param)
     print(d[0], "arma", "end", best_arma_coeffs)
     return [(name, coeff) for name, coeff in zip(arma_coeff_names, best_arma_coeffs)]
 
@@ -19,7 +19,7 @@ def arma(d, param):
 def garch(d, param):
     print(d[0], "garch", "beginning")
     garch_coeff_names = ["mu", "omega", "alpha", "gamma", "beta"]
-    best_garch_coeffs = optimize_garch(d, param)
+    best_garch_coeffs = optimize_garch(np.copy(d), param)
     print(d[0], "garch", "end", best_garch_coeffs)
     return [(name, coeff) for name, coeff in zip(garch_coeff_names, best_garch_coeffs)]
 
@@ -29,7 +29,7 @@ def lhipa(d):
     print(d[0], "lhipa", "beginning")
     lhipa_value = np.nan
     try:
-        lhipa_value = calculate_lhipa(d)
+        lhipa_value = calculate_lhipa(np.copy(d))
     except Exception as e:
         print(e)
     finally:
@@ -40,17 +40,12 @@ def lhipa(d):
 @set_property("fctype", "combiner")
 def markov(d, param):
     print(d[0], "markov", "beginning")
-    transition_matrix = calculate_markov(d, param)
+    transition_matrix = calculate_markov(np.copy(d), param)
     print(d[0], "markov", "end")
     return [(str(index), value) for index, value in enumerate(transition_matrix)]
 
 
-@set_property("fctype", "simple")
-def yolo(d):
-    return 69
-
-
 def load_custom_functions():
-    custom_functions = [garch, lhipa, arma, markov, yolo]
+    custom_functions = [garch, lhipa, arma, markov]
     for func in custom_functions:
         setattr(feature_calculators, func.__name__, func)
