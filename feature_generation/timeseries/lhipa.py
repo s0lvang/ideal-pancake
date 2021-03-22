@@ -30,7 +30,7 @@ def calculate_lhipa(d):
     tt = len(d) // sampling_rate
     # compute LHIPA
     ctr = 0
-    LHIPA = np.nan
+    LHIPA = -1337
     for i in range(len(cD_LHt)):
         if math.fabs(cD_LHt[i]) > 0:
             ctr += 1
