@@ -1,3 +1,4 @@
+import pandas as pd
 import scipy.stats
 
 
@@ -6,7 +7,7 @@ from sklearn import pipeline
 from classifier import globals
 
 from sklearn.metrics import mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import Lasso
 
@@ -18,7 +19,7 @@ def print_and_return(data):
 
 def build_pipeline():
 
-    regressor = ensemble.RandomForestRegressor()
+    regressor = ensemble.RandomForestClassifier()
 
     return pipeline.Pipeline(
         [
@@ -31,7 +32,11 @@ def build_pipeline():
 
 def predict_and_evaluate(model, x_test, labels):
     prediction = model.predict(x_test)
-
+    df_predictions = pd.DataFrame()
+    df_predictions["prediction"] = prediction
+    df_predictions["true"] = list(labels)
+    print(labels)
+    print(df_predictions)
     globals.comet_logger.log_confusion_matrix(list(labels), list(prediction))
 
     rmse = mean_squared_error(prediction, labels, squared=False)
