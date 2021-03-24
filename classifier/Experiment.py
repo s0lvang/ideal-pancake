@@ -20,7 +20,7 @@ class Experiment:
             labels_test,
         ) = train_test_split(self.dataset, self.labels)
 
-        pipeline = model.build_pipeline()
+        pipeline = model.build_ensemble_regression_pipeline()
 
         # grid_params = self.get_random_grid()
         # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
