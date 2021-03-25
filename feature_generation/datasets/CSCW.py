@@ -30,15 +30,16 @@ class CSCW(Timeseries):
         return dataset, labels
 
     def prepare_file(self, file_reference, metadata_file, dataset, labels):
-        participant_name_array = basename(file_reference.reference).split("_")[0:3]
-        participant_name = "_".join(participant_name_array)
+        participant_name_array = basename(file_reference.reference).split("_")
+        participant_name = "_".join(participant_name_array[0:3])
+        participant_name_with_type = "_".join(participant_name_array[0:4])
         with file_reference.open("r") as f:
             csv = pd.read_csv(f)
         csv = csv.rename(columns=self.column_name_mapping)
         csv[self.column_names["subject_id"]] = participant_name
         dataset.append(csv)
         print(participant_name)
-        labels[participant_name] = metadata_file[
+        labels[participant_name_with_type] = metadata_file[
             metadata_file["Participant"] == participant_name
         ].iloc[0]
         return dataset, labels
