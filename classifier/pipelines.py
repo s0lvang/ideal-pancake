@@ -61,7 +61,6 @@ def build_ensemble_classification_pipeline():
 
     return pipeline.Pipeline(
         [
-            # ("printer", FunctionTransformer(print_and_return)),
             ("zero_variance_filter", VarianceThreshold(threshold=0)),
             ("Lasso", SelectFromModel(Lasso())),
             ("classifier", regressor),

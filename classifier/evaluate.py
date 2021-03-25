@@ -9,7 +9,6 @@ def predict_and_evaluate(model, x_test, labels):
     df_predictions = pd.DataFrame()
     df_predictions["prediction"] = prediction
     df_predictions["true"] = list(labels)
-    print(labels)
     print(df_predictions)
     globals.comet_logger.log_confusion_matrix(list(labels), list(prediction))
 
