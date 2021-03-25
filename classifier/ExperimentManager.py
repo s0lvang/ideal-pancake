@@ -8,6 +8,7 @@ from comet_ml import Experiment as CometExperiment
 from comet_ml import ExistingExperiment as CometExistingExperiment
 import pandas as pd
 from classifier import globals
+import numpy as np
 
 
 class ExperimentManager:
@@ -21,9 +22,8 @@ class ExperimentManager:
         for dataset_name in dataset_names:
             dataset_class = get_dataset(dataset_name)
             dataset, labels = dataset_class.download_premade_features()
-            datasets[dataset_name] = dataset
+            datasets[dataset_name] = self.handle_nan(dataset)
             labelss[dataset_name] = normalize_series(labels)
-            print(labelss[dataset_name])
         return datasets, labelss
 
     def run_experiments(self):
@@ -63,6 +63,9 @@ class ExperimentManager:
         datasets = [self.datasets[dataset_name] for dataset_name in dataset_combination]
         labels = [self.labels[dataset_name] for dataset_name in dataset_combination]
         return pd.concat(datasets), pd.concat(labels)
+
+    def handle_nan(self, df):
+        return df.fillna(0)
 
 
 def get_dataset(dataset_name):

@@ -1,37 +1,15 @@
-import scipy.stats
-
-
-from sklearn import ensemble
-from sklearn import pipeline
+import pandas as pd
 from classifier import globals
-
 from sklearn.metrics import mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.feature_selection import SelectFromModel
-from sklearn.linear_model import Lasso
-
-
-def print_and_return(data):
-    print(data)
-    return data
-
-
-def build_pipeline():
-
-    regressor = ensemble.RandomForestRegressor()
-
-    return pipeline.Pipeline(
-        [
-            # ("printer", FunctionTransformer(print_and_return)),
-            ("Lasso", SelectFromModel(Lasso())),
-            ("classifier", regressor),
-        ]
-    )
+import scipy.stats
 
 
 def predict_and_evaluate(model, x_test, labels):
     prediction = model.predict(x_test)
-
+    df_predictions = pd.DataFrame()
+    df_predictions["prediction"] = prediction
+    df_predictions["true"] = list(labels)
+    print(df_predictions)
     globals.comet_logger.log_confusion_matrix(list(labels), list(prediction))
 
     rmse = mean_squared_error(prediction, labels, squared=False)
@@ -90,3 +68,28 @@ def anosim(in_study, out_of_study):
     return (
         combined_ranks.mean() - (in_study_ranks.mean() - out_of_study_ranks.mean())
     ) / ((amount_of_samples * (amount_of_samples - 1)) / 4)
+
+
+def normalized_root_mean_squared_error(
+    predicted_value,
+    original_value,
+    scaling_factor,
+):
+    return (
+        100
+        * mean_squared_error(predicted_value, original_value, squared=False)
+        / scaling_factor
+    )
+
+
+def nrmse_per_subject(predicted_values, original_values, scaling_factor):
+    if scaling_factor == 0:
+        raise ZeroDivisionError(
+            "The observations in the ground truth are constant, we would get a divide by zero error."
+        )
+    return [
+        normalized_root_mean_squared_error(
+            [predicted_value], [original_value], scaling_factor
+        )
+        for predicted_value, original_value in zip(predicted_values, original_values)
+    ]
