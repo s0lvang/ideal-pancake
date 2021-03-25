@@ -69,3 +69,28 @@ def anosim(in_study, out_of_study):
     return (
         combined_ranks.mean() - (in_study_ranks.mean() - out_of_study_ranks.mean())
     ) / ((amount_of_samples * (amount_of_samples - 1)) / 4)
+
+
+def normalized_root_mean_squared_error(
+    predicted_value,
+    original_value,
+    scaling_factor,
+):
+    return (
+        100
+        * mean_squared_error(predicted_value, original_value, squared=False)
+        / scaling_factor
+    )
+
+
+def nrmse_per_subject(predicted_values, original_values, scaling_factor):
+    if scaling_factor == 0:
+        raise ZeroDivisionError(
+            "The observations in the ground truth are constant, we would get a divide by zero error."
+        )
+    return [
+        normalized_root_mean_squared_error(
+            [predicted_value], [original_value], scaling_factor
+        )
+        for predicted_value, original_value in zip(predicted_values, original_values)
+    ]

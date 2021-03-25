@@ -23,9 +23,7 @@ class ExperimentManager:
             dataset_class = get_dataset(dataset_name)
             dataset, labels = dataset_class.download_premade_features()
             datasets[dataset_name] = self.handle_nan(dataset)
-            labelss[dataset_name] = labels  # normalize_series(labels)
-            print(labels)
-            print(labelss[dataset_name])
+            labelss[dataset_name] = normalize_series(labels)
         return datasets, labelss
 
     def run_experiments(self):
@@ -67,7 +65,6 @@ class ExperimentManager:
         return pd.concat(datasets), pd.concat(labels)
 
     def handle_nan(self, df):
-        df = df.replace({-1337: np.nan})
         return df.fillna(0)
 
 
