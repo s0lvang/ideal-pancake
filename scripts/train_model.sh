@@ -37,6 +37,9 @@ MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
 REGION=europe-west1
 CONFIG_FILE=config/config.yaml #TODO different configs
 
+echo -n "Enter the experiment-name: "
+read EXPERIMENT_NAME
+
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
 echo "$RUN_ENV"
 if [ "$RUN_ENV" = 'remote' ]; then
@@ -62,7 +65,7 @@ fi
 # Specify arguments to pass to the trainer module (trainer/task.py)
 TRAINER_ARGS="\
   --environment $RUN_ENV \
-  --experiment_name $COMMIT_MESSAGE_WITHOUT_NEWLINE \
+  --experiment_name '$EXPERIMENT_NAME' \
   --comet_api_key $COMET_API_KEY \
   "
 
