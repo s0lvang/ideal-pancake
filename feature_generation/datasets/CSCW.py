@@ -36,7 +36,7 @@ class CSCW(Timeseries):
         with file_reference.open("r") as f:
             csv = pd.read_csv(f)
         csv = csv.rename(columns=self.column_name_mapping)
-        csv[self.column_names["subject_id"]] = participant_name
+        csv[self.column_names["subject_id"]] = participant_name_with_type
         dataset.append(csv)
         print(participant_name)
         labels[participant_name_with_type] = metadata_file[
