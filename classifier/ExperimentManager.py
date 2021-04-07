@@ -1,3 +1,4 @@
+import itertools
 from classifier.Experiment import Experiment
 from classifier.datasets.Fractions import Fractions
 from classifier.datasets.Jetris import Jetris
@@ -100,19 +101,27 @@ class ExperimentManager:
 
     def run_experiments(self):
         results_list = []
-        in_study_dataset_names = self.dataset_names[1:]
-        dataset_combinations = powerset(in_study_dataset_names)
+        dataset_combinations = [
+            (set(in_study), list(set(self.dataset_names) - set(in_study))[0])
+            for in_study in itertools.combinations(
+                self.dataset_names, len(self.dataset_names) - 1
+            )
+        ]
         for dataset_combination in dataset_combinations:
             for feature_combination in feature_group_regexes:
+                in_study_names, oos_name = dataset_combination
+
                 start = time.time()
-                results = self.run_experiment(dataset_combination, feature_combination)
+                results = self.run_experiment(
+                    in_study_names, oos_name, feature_combination
+                )
                 end = time.time()
                 print(
                     (end - start),
                     f"An experiment takes this long {dataset_combination}, {feature_combination}",
                 )
-                results["out_of_study"] = self.dataset_names[0]
-                results["in_study"] = dataset_combination
+                results["out_of_study"] = oos_name
+                results["in_study"] = in_study_names
                 results["feature_combinations"] = feature_combination
                 results_list.append(results)
         result_df = pd.DataFrame(results_list)
@@ -123,36 +132,35 @@ class ExperimentManager:
         )
         globals.comet_logger.log_dataframe_profile(result_df)
 
-    def run_experiment(self, dataset_combination, feature_combination):
-        oos_dataset_name = self.dataset_names[0]
+    def run_experiment(self, in_study_names, out_of_study_name, feature_combination):
         comet_exp = CometExperiment(
             api_key=globals.flags.comet_api_key, project_name="ideal-pancake"
         )
 
         print("Starting Experiment with")
-        print(f"IN STUDY: {dataset_combination}")
-        print(f"OUT OF STUDY: {oos_dataset_name}")
+        print(f"IN STUDY: {in_study_names}")
+        print(f"OUT OF STUDY: {out_of_study_name}")
         print(f"FEATURES: {feature_combination}")
         # Run experiment
 
-        dataset, labels = self.merge_datasets(dataset_combination)
+        dataset, labels = self.merge_datasets(in_study_names)
         dataset = combine_regexes_and_filter_df(dataset, feature_combination)
         oos_dataset = combine_regexes_and_filter_df(
-            self.datasets[oos_dataset_name], feature_combination
+            self.datasets[out_of_study_name], feature_combination
         )
         experiment = Experiment(
             dataset=dataset,
             labels=labels,
             oos_dataset=oos_dataset,
-            oos_labels=self.labels[oos_dataset_name],
+            oos_labels=self.labels[out_of_study_name],
         )
         metrics = experiment.run_experiment()
 
         # Logging
         comet_exp.set_name(globals.flags.experiment_name)
         comet_exp.log_metrics(metrics)
-        comet_exp.log_other("in-study", dataset_combination)
-        comet_exp.log_other("out-of-study", oos_dataset_name)
+        comet_exp.log_other("in-study", in_study_names)
+        comet_exp.log_other("out-of-study", out_of_study_name)
         comet_exp.log_other("features", feature_combination)
         return metrics
 
