@@ -3,12 +3,42 @@ from classifier.datasets.Fractions import Fractions
 from classifier.datasets.Jetris import Jetris
 from classifier.datasets.EMIP import EMIP
 from classifier.datasets.CSCW import CSCW
-from classifier.utils import powerset, normalize_series
+from classifier.utils import combine_regexes_and_filter_df, powerset, normalize_series
 from comet_ml import Experiment as CometExperiment
 from comet_ml import ExistingExperiment as CometExistingExperiment
 import pandas as pd
 from classifier import globals
 import numpy as np
+import random
+import time
+
+feature_regexes = [
+    "information_processing_ratio",
+    "saccade_speed_skewness",
+    "entropy_xy",
+    "saccade_verticality",
+    "heatmaps_*",
+    "pupil_diameter_rolling__fft_aggregated_*",
+    "pupil_diameter_rolling__lhipa",
+    "pupil_diameter_rolling__markov",
+    "pupil_diameter_rolling__arma__*",
+    "pupil_diameter_rolling__garch",
+    "^duration_rolling__fft_aggregated__*",
+    "^duration_rolling__lhipa",
+    "^duration_rolling__markov",
+    "^duration_rolling__arma__*",
+    "^duration_rolling__garch",
+    "saccade_length_rolling__fft_aggregated__*",
+    "saccade_length_rolling__lhipa",
+    "saccade_length_rolling__markov",
+    "saccade_length_rolling__arma__*",
+    "saccade_length_rolling__garch",
+    "saccade_duration_rolling__fft_aggregated__*",
+    "saccade_duration_rolling__lhipa",
+    "saccade_duration_rolling__markov",
+    "saccade_duration_rolling__arma__*",
+    "saccade_duration_rolling__garch",
+]
 
 
 class ExperimentManager:
@@ -29,26 +59,43 @@ class ExperimentManager:
     def run_experiments(self):
         dataset_names = self.dataset_names[1:]
         dataset_combinations = powerset(dataset_names)
+        feature_combinations = random.sample(powerset(feature_regexes), 3)
         for dataset_combination in dataset_combinations:
-            self.run_experiment(dataset_combination)
+            for feature_combination in feature_combinations:
+                start = time.time()
+                self.run_experiment(dataset_combination, feature_combination)
+                end = time.time()
+                print(
+                    (end - start),
+                    f"An experiment takes this long {dataset_combination}, {feature_combination}",
+                )
 
         globals.comet_logger = CometExistingExperiment(
             api_key=globals.flags.comet_api_key,
             previous_experiment=globals.comet_logger.get_key(),
         )
 
-    def run_experiment(self, dataset_combination):
+    def run_experiment(self, dataset_combination, feature_combination):
         oos_dataset_name = self.dataset_names[0]
         comet_exp = CometExperiment(
             api_key=globals.flags.comet_api_key, project_name="ideal-pancake"
         )
 
+        print("Starting Experiment with")
+        print(f"IN STUDY: {dataset_combination}")
+        print(f"OUT OF STUDY: {oos_dataset_name}")
+        print(f"FEATURES: {feature_combination}")
         # Run experiment
+
         dataset, labels = self.merge_datasets(dataset_combination)
+        dataset = combine_regexes_and_filter_df(dataset, feature_combination)
+        oos_dataset = combine_regexes_and_filter_df(
+            self.datasets[oos_dataset_name], feature_combination
+        )
         experiment = Experiment(
             dataset=dataset,
             labels=labels,
-            oos_dataset=self.datasets[oos_dataset_name],
+            oos_dataset=oos_dataset,
             oos_labels=self.labels[oos_dataset_name],
         )
         metrics = experiment.run_experiment()
@@ -58,6 +105,7 @@ class ExperimentManager:
         comet_exp.log_metrics(metrics)
         comet_exp.log_other("in-study", dataset_combination)
         comet_exp.log_other("out-of-study", oos_dataset_name)
+        comet_exp.log_other("features", feature_combination)
 
     def merge_datasets(self, dataset_combination):
         datasets = [self.datasets[dataset_name] for dataset_name in dataset_combination]

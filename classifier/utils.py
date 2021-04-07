@@ -91,3 +91,10 @@ def powerset(iterable):
 
 def normalize_series(series):
     return (series - series.min()) / (series.max() - series.min())
+
+
+def combine_regexes_and_filter_df(df, regexes):
+    combined_regex = "|".join(regexes)
+    regex = f"^(?:{combined_regex})"
+    df = df.loc[:, df.columns.str.contains(regex)]
+    return df
