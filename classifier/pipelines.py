@@ -40,9 +40,8 @@ def build_ensemble_regression_pipeline():
 
     return pipeline.Pipeline(
         [
-            # ("printer", FunctionTransformer(print_and_return)),
             ("zero_variance_filter", VarianceThreshold(threshold=0)),
-            ("Lasso", SelectFromModel(Lasso())),
+            # ("Lasso", SelectFromModel(Lasso())),
             ("classifier", regressor),
         ]
     )
