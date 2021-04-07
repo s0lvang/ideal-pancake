@@ -41,7 +41,7 @@ def build_ensemble_regression_pipeline():
     return pipeline.Pipeline(
         [
             ("zero_variance_filter", VarianceThreshold(threshold=0)),
-            # ("Lasso", SelectFromModel(Lasso())),
+            ("Lasso", SelectFromModel(Lasso(), threshold="median")),
             ("classifier", regressor),
         ]
     )

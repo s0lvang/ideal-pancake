@@ -12,32 +12,74 @@ import numpy as np
 import random
 import time
 
-feature_regexes = [
-    "information_processing_ratio",
-    "saccade_speed_skewness",
-    "entropy_xy",
-    "saccade_verticality",
-    "heatmaps_*",
-    "pupil_diameter_rolling__fft_aggregated_*",
-    "pupil_diameter_rolling__lhipa",
-    "pupil_diameter_rolling__markov",
-    "pupil_diameter_rolling__arma__*",
-    "pupil_diameter_rolling__garch",
-    "^duration_rolling__fft_aggregated__*",
-    "^duration_rolling__lhipa",
-    "^duration_rolling__markov",
-    "^duration_rolling__arma__*",
-    "^duration_rolling__garch",
-    "saccade_length_rolling__fft_aggregated__*",
-    "saccade_length_rolling__lhipa",
-    "saccade_length_rolling__markov",
-    "saccade_length_rolling__arma__*",
-    "saccade_length_rolling__garch",
-    "saccade_duration_rolling__fft_aggregated__*",
-    "saccade_duration_rolling__lhipa",
-    "saccade_duration_rolling__markov",
-    "saccade_duration_rolling__arma__*",
-    "saccade_duration_rolling__garch",
+feature_group_regexes = [
+    [
+        "information_processing_ratio",
+        "saccade_speed_skewness",
+        "entropy_xy",
+        "saccade_verticality",
+    ],
+    [
+        "heatmaps_*",
+    ],
+    [
+        "pupil_diameter_rolling__fft_aggregated_*",
+        "^duration_rolling__fft_aggregated__*",
+        "saccade_length_rolling__fft_aggregated__*",
+        "saccade_duration_rolling__fft_aggregated__*",
+    ],
+    [
+        "pupil_diameter_rolling__lhipa",
+        "saccade_length_rolling__lhipa",
+        "saccade_duration_rolling__lhipa",
+        "^duration_rolling__lhipa",
+    ],
+    [
+        "^duration_rolling__markov",
+        "pupil_diameter_rolling__markov",
+        "saccade_duration_rolling__markov",
+        "saccade_length_rolling__markov",
+    ],
+    [
+        "pupil_diameter_rolling__arma__*",
+        "^duration_rolling__arma__*",
+        "saccade_length_rolling__arma__*",
+        "saccade_duration_rolling__arma__*",
+    ],
+    [
+        "saccade_duration_rolling__garch",
+        "^duration_rolling__garch",
+        "pupil_diameter_rolling__garch",
+        "saccade_length_rolling__garch",
+    ],
+    [
+        "pupil_diameter_rolling__fft_aggregated_*",
+        "pupil_diameter_rolling__lhipa",
+        "pupil_diameter_rolling__markov",
+        "pupil_diameter_rolling__arma__*",
+        "pupil_diameter_rolling__garch",
+    ],
+    [
+        "^duration_rolling__fft_aggregated__*",
+        "^duration_rolling__lhipa",
+        "^duration_rolling__markov",
+        "^duration_rolling__arma__*",
+        "^duration_rolling__garch",
+    ],
+    [
+        "saccade_length_rolling__fft_aggregated__*",
+        "saccade_length_rolling__lhipa",
+        "saccade_length_rolling__markov",
+        "saccade_length_rolling__arma__*",
+        "saccade_length_rolling__garch",
+    ],
+    [
+        "saccade_duration_rolling__fft_aggregated__*",
+        "saccade_duration_rolling__lhipa",
+        "saccade_duration_rolling__markov",
+        "saccade_duration_rolling__arma__*",
+        "saccade_duration_rolling__garch",
+    ],
 ]
 
 
@@ -60,9 +102,8 @@ class ExperimentManager:
         results_list = []
         in_study_dataset_names = self.dataset_names[1:]
         dataset_combinations = powerset(in_study_dataset_names)
-        feature_combinations = random.sample(powerset(feature_regexes), 1)
         for dataset_combination in dataset_combinations:
-            for feature_combination in feature_combinations:
+            for feature_combination in feature_group_regexes:
                 start = time.time()
                 results = self.run_experiment(dataset_combination, feature_combination)
                 end = time.time()
