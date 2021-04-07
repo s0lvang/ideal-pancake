@@ -57,23 +57,30 @@ class ExperimentManager:
         return datasets, labelss
 
     def run_experiments(self):
-        dataset_names = self.dataset_names[1:]
-        dataset_combinations = powerset(dataset_names)
-        feature_combinations = random.sample(powerset(feature_regexes), 3)
+        results_list = []
+        in_study_dataset_names = self.dataset_names[1:]
+        dataset_combinations = powerset(in_study_dataset_names)
+        feature_combinations = random.sample(powerset(feature_regexes), 1)
         for dataset_combination in dataset_combinations:
             for feature_combination in feature_combinations:
                 start = time.time()
-                self.run_experiment(dataset_combination, feature_combination)
+                results = self.run_experiment(dataset_combination, feature_combination)
                 end = time.time()
                 print(
                     (end - start),
                     f"An experiment takes this long {dataset_combination}, {feature_combination}",
                 )
+                results["out_of_study"] = self.dataset_names[0]
+                results["in_study"] = dataset_combination
+                results["feature_combinations"] = feature_combination
+                results_list.append(results)
+        result_df = pd.DataFrame(results_list)
 
         globals.comet_logger = CometExistingExperiment(
             api_key=globals.flags.comet_api_key,
             previous_experiment=globals.comet_logger.get_key(),
         )
+        globals.comet_logger.log_dataframe_profile(result_df)
 
     def run_experiment(self, dataset_combination, feature_combination):
         oos_dataset_name = self.dataset_names[0]
@@ -106,6 +113,7 @@ class ExperimentManager:
         comet_exp.log_other("in-study", dataset_combination)
         comet_exp.log_other("out-of-study", oos_dataset_name)
         comet_exp.log_other("features", feature_combination)
+        return metrics
 
     def merge_datasets(self, dataset_combination):
         datasets = [self.datasets[dataset_name] for dataset_name in dataset_combination]
