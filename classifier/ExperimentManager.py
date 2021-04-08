@@ -83,6 +83,8 @@ feature_group_regexes = [
     ],
 ]
 
+dimensionality_reduction_names = ["lasso", "PCA"]
+
 
 class ExperimentManager:
     def __init__(self, dataset_names):
@@ -107,23 +109,28 @@ class ExperimentManager:
                 self.dataset_names, len(self.dataset_names) - 1
             )
         ]
-        for dataset_combination in dataset_combinations:
-            for feature_combination in feature_group_regexes:
-                in_study_names, oos_name = dataset_combination
+        for dataset_combination in dataset_combinations[0:1]:
+            for feature_combination in feature_group_regexes[0:1]:
+                for dimensionality_reduction_name in dimensionality_reduction_names:
+                    in_study_names, oos_name = dataset_combination
 
-                start = time.time()
-                results = self.run_experiment(
-                    in_study_names, oos_name, feature_combination
-                )
-                end = time.time()
-                print(
-                    (end - start),
-                    f"An experiment takes this long {dataset_combination}, {feature_combination}",
-                )
-                results["out_of_study"] = oos_name
-                results["in_study"] = in_study_names
-                results["feature_combinations"] = feature_combination
-                results_list.append(results)
+                    start = time.time()
+                    results = self.run_experiment(
+                        in_study_names,
+                        oos_name,
+                        feature_combination,
+                        dimensionality_reduction_name,
+                    )
+                    end = time.time()
+                    print(
+                        (end - start),
+                        f"An experiment takes this long {dataset_combination}, {feature_combination}",
+                    )
+                    results["dimensionality_reduction"] = dimensionality_reduction_name
+                    results["out_of_study"] = oos_name
+                    results["in_study"] = in_study_names
+                    results["feature_combinations"] = feature_combination
+                    results_list.append(results)
         result_df = pd.DataFrame(results_list)
 
         globals.comet_logger = CometExistingExperiment(
@@ -132,7 +139,13 @@ class ExperimentManager:
         )
         globals.comet_logger.log_dataframe_profile(result_df)
 
-    def run_experiment(self, in_study_names, out_of_study_name, feature_combination):
+    def run_experiment(
+        self,
+        in_study_names,
+        out_of_study_name,
+        feature_combination,
+        dimensionality_reduction_name,
+    ):
         comet_exp = CometExperiment(
             api_key=globals.flags.comet_api_key, project_name="ideal-pancake"
         )
@@ -153,6 +166,7 @@ class ExperimentManager:
             labels=labels,
             oos_dataset=oos_dataset,
             oos_labels=self.labels[out_of_study_name],
+            dimensionality_reduction_name=dimensionality_reduction_name,
         )
         metrics, prediction_and_labels = experiment.run_experiment()
 
