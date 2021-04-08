@@ -154,7 +154,7 @@ class ExperimentManager:
             oos_dataset=oos_dataset,
             oos_labels=self.labels[out_of_study_name],
         )
-        metrics = experiment.run_experiment()
+        metrics, prediction_and_labels = experiment.run_experiment()
 
         # Logging
         comet_exp.set_name(globals.flags.experiment_name)
@@ -162,7 +162,7 @@ class ExperimentManager:
         comet_exp.log_other("in-study", in_study_names)
         comet_exp.log_other("out-of-study", out_of_study_name)
         comet_exp.log_other("features", feature_combination)
-        return metrics
+        return {**metrics, **prediction_and_labels}
 
     def merge_datasets(self, dataset_combination):
         datasets = [self.datasets[dataset_name] for dataset_name in dataset_combination]
