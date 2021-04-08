@@ -1,3 +1,4 @@
+from classifier.WeightedAverageEnsemble import WeightedAverageEnsemble
 from sklearn import ensemble
 from sklearn import pipeline
 
@@ -36,8 +37,7 @@ def build_ensemble_regression_pipeline(dimensionality_reduction_name):
         ("SVM", SVR()),
         ("RF", RandomForestRegressor()),
     ]
-    final_regressor = LinearRegression()
-    regressor = StackingRegressor(estimators=models, final_estimator=final_regressor)
+    regressor = WeightedAverageEnsemble(estimators=models)
     if dimensionality_reduction_name == "lasso":
         dimensionality_reduction = SelectFromModel(Lasso(), threshold="median")
     elif dimensionality_reduction_name == "PCA":
