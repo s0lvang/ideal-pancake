@@ -109,8 +109,8 @@ class ExperimentManager:
                 self.dataset_names, len(self.dataset_names) - 1
             )
         ]
-        for dataset_combination in dataset_combinations[0:1]:
-            for feature_combination in feature_group_regexes[0:1]:
+        for dataset_combination in dataset_combinations:
+            for feature_combination in feature_group_regexes:
                 for dimensionality_reduction_name in dimensionality_reduction_names:
                     in_study_names, oos_name = dataset_combination
 
