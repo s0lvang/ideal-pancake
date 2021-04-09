@@ -81,6 +81,33 @@ feature_group_regexes = [
         "saccade_duration_rolling__arma__*",
         "saccade_duration_rolling__garch",
     ],
+    [
+        "information_processing_ratio",
+        "saccade_speed_skewness",
+        "entropy_xy",
+        "saccade_verticality",
+        "heatmaps_*",
+        "pupil_diameter_rolling__fft_aggregated_*",
+        "pupil_diameter_rolling__lhipa",
+        "pupil_diameter_rolling__markov",
+        "pupil_diameter_rolling__arma__*",
+        "pupil_diameter_rolling__garch",
+        "^duration_rolling__fft_aggregated__*",
+        "^duration_rolling__lhipa",
+        "^duration_rolling__markov",
+        "^duration_rolling__arma__*",
+        "^duration_rolling__garch",
+        "saccade_length_rolling__fft_aggregated__*",
+        "saccade_length_rolling__lhipa",
+        "saccade_length_rolling__markov",
+        "saccade_length_rolling__arma__*",
+        "saccade_length_rolling__garch",
+        "saccade_duration_rolling__fft_aggregated__*",
+        "saccade_duration_rolling__lhipa",
+        "saccade_duration_rolling__markov",
+        "saccade_duration_rolling__arma__*",
+        "saccade_duration_rolling__garch",
+    ],
 ]
 
 dimensionality_reduction_names = ["lasso", "PCA"]
@@ -109,6 +136,7 @@ class ExperimentManager:
                 self.dataset_names, len(self.dataset_names) - 1
             )
         ]
+
         for dataset_combination in dataset_combinations:
             for feature_combination in feature_group_regexes:
                 for dimensionality_reduction_name in dimensionality_reduction_names:
