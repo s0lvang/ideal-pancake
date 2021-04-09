@@ -10,14 +10,13 @@ def predict_and_evaluate(model, x_test, labels):
     df_predictions["prediction"] = prediction
     df_predictions["true"] = list(labels)
     print(df_predictions)
-    globals.comet_logger.log_confusion_matrix(list(labels), list(prediction))
 
     rmse = mean_squared_error(prediction, labels, squared=False)
     rmse_per_subject = [
         mean_squared_error([pred], [label], squared=False)
         for pred, label in zip(prediction, labels)
     ]
-    return rmse, rmse_per_subject
+    return rmse, rmse_per_subject, prediction
 
 
 def evaluate_oos(model, oos_x_test, oos_labels):
@@ -30,9 +29,12 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels):
     (
         rmse,
         rmse_per_subject,
+        prediction,
     ) = predict_and_evaluate(model, x_test, labels)
 
-    oos_rmse, oos_rmse_per_subject = evaluate_oos(model, oos_x_test, oos_labels)
+    oos_rmse, oos_rmse_per_subject, oos_prediction = evaluate_oos(
+        model, oos_x_test, oos_labels
+    )
     FGI = anosim(rmse_per_subject, oos_rmse_per_subject)
     print("RMSE")
     print(rmse)
@@ -47,7 +49,13 @@ def evaluate_model(model, x_test, labels, oos_x_test, oos_labels):
         "oos_rmse": oos_rmse,
         "FGI": FGI,
     }
-    return metrics
+    predictions_and_labels = {
+        "in_study_prediction": prediction,
+        "in_study_labels": labels,
+        "oos_prediction": oos_prediction,
+        "oos_labels": oos_labels,
+    }
+    return metrics, predictions_and_labels
 
 
 def all_ranks(in_study, out_of_study):

@@ -5,11 +5,14 @@ from sklearn.model_selection import train_test_split
 
 
 class Experiment:
-    def __init__(self, dataset, labels, oos_dataset, oos_labels):
+    def __init__(
+        self, dataset, labels, oos_dataset, oos_labels, dimensionality_reduction_name
+    ):
         self.dataset = dataset
         self.labels = labels
         self.oos_dataset = oos_dataset
         self.oos_labels = oos_labels
+        self.dimensionality_reduction_name = dimensionality_reduction_name
 
     def run_experiment(self):
         """Testbed for running model training and evaluation."""
@@ -20,7 +23,9 @@ class Experiment:
             labels_test,
         ) = train_test_split(self.dataset, self.labels)
 
-        pipeline = pipelines.build_ensemble_regression_pipeline()
+        pipeline = pipelines.build_ensemble_regression_pipeline(
+            self.dimensionality_reduction_name
+        )
 
         # grid_params = self.get_random_grid()
         # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)

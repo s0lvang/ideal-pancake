@@ -1,3 +1,4 @@
+from classifier.WeightedAverageEnsemble import WeightedAverageEnsemble
 from sklearn import ensemble
 from sklearn import pipeline
 
@@ -8,6 +9,7 @@ from sklearn.neighbors import KNeighborsRegressor, KNeighborsClassifier
 from sklearn.svm import SVR, SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import StackingRegressor, StackingClassifier
+from sklearn.decomposition import PCA
 
 
 def print_and_return(data):
@@ -28,20 +30,23 @@ def build_pipeline():
     )
 
 
-def build_ensemble_regression_pipeline():
+def build_ensemble_regression_pipeline(dimensionality_reduction_name):
 
     models = [
         ("KNN", KNeighborsRegressor()),
         ("SVM", SVR()),
         ("RF", RandomForestRegressor()),
     ]
-    final_regressor = LinearRegression()
-    regressor = StackingRegressor(estimators=models, final_estimator=final_regressor)
+    regressor = WeightedAverageEnsemble(estimators=models)
+    if dimensionality_reduction_name == "lasso":
+        dimensionality_reduction = SelectFromModel(Lasso(), threshold="median")
+    elif dimensionality_reduction_name == "PCA":
+        dimensionality_reduction = PCA(n_components=0.75, svd_solver="full")
 
     return pipeline.Pipeline(
         [
             ("zero_variance_filter", VarianceThreshold(threshold=0)),
-            # ("Lasso", SelectFromModel(Lasso())),
+            (dimensionality_reduction_name, dimensionality_reduction),
             ("classifier", regressor),
         ]
     )
