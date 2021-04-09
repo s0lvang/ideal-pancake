@@ -34,8 +34,6 @@ class WeightedAverageEnsemble(VotingRegressor):
             The predicted values.
         """
         check_is_fitted(self)
-        print(self._weights_not_none, "weights")
-        print(np.array(self._predict(X)), "pred")
         return np.average(
             self._predict(X).astype("float"), axis=1, weights=self._weights_not_none
         )
