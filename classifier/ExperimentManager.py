@@ -130,13 +130,17 @@ class ExperimentManager:
 
     def run_experiments(self):
         results_list = []
+        # dataset_combinations = [
+        #    (set(in_study), list(set(self.dataset_names) - set(in_study))[0])
+        #    for in_study in itertools.combinations(
+        #        self.dataset_names, len(self.dataset_names) - 1
+        #    )
+        # ]
         dataset_combinations = [
-            (set(in_study), list(set(self.dataset_names) - set(in_study))[0])
-            for in_study in itertools.combinations(
-                self.dataset_names, len(self.dataset_names) - 1
-            )
+            ([dataset_combination[0]], dataset_combination[1])
+            for dataset_combination in itertools.permutations(self.dataset_names, 2)
         ]
-
+        print(dataset_combinations)
         for dataset_combination in dataset_combinations:
             for feature_combination in feature_group_regexes:
                 for dimensionality_reduction_name in dimensionality_reduction_names:
