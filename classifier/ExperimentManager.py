@@ -199,6 +199,7 @@ class ExperimentManager:
             oos_dataset=oos_dataset,
             oos_labels=self.labels[out_of_study_name],
             dimensionality_reduction_name=dimensionality_reduction_name,
+            comet_exp=comet_exp,
         )
         metrics, prediction_and_labels = experiment.run_experiment()
 

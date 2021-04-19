@@ -1,18 +1,25 @@
 from classifier.utils import log_hyperparameters_to_comet
 import numpy as np
 from classifier import evaluate, pipelines
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 
 
 class Experiment:
     def __init__(
-        self, dataset, labels, oos_dataset, oos_labels, dimensionality_reduction_name
+        self,
+        dataset,
+        labels,
+        oos_dataset,
+        oos_labels,
+        dimensionality_reduction_name,
+        comet_exp,
     ):
         self.dataset = dataset
         self.labels = labels
         self.oos_dataset = oos_dataset
         self.oos_labels = oos_labels
         self.dimensionality_reduction_name = dimensionality_reduction_name
+        self.comet_exp = comet_exp
 
     def run_experiment(self):
         """Testbed for running model training and evaluation."""
@@ -27,11 +34,11 @@ class Experiment:
             self.dimensionality_reduction_name
         )
 
-        # grid_params = self.get_random_grid()
-        # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
+        grid_params = self.get_random_grid()
+        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
         pipeline.fit(data_train, labels_train)
 
-        # log_hyperparameters_to_comet(pipeline)
+        log_hyperparameters_to_comet(pipeline, self.comet_exp)
         best_pipeline = pipeline  # .best_estimator_
 
         metrics = evaluate.evaluate_model(
@@ -59,12 +66,12 @@ class Experiment:
         bootstrap = [True]
         # Create the random grid
         random_grid = {
-            "classifier__n_estimators": n_estimators,
-            "classifier__max_depth": max_depth,
-            "classifier__min_samples_split": min_samples_split,
-            "classifier__min_samples_leaf": min_samples_leaf,
-            "classifier__max_features": max_features,
-            "classifier__bootstrap": bootstrap,
+            # "classifier__n_estimators": n_estimators,
+            "classifier__RF__max_depth": max_depth,
+            # "classifier__min_samples_split": min_samples_split,
+            # "classifier__min_samples_leaf": min_samples_leaf,
+            # "classifier__max_features": max_features,
+            # "classifier__bootstrap": bootstrap,
         }
         return random_grid
 
