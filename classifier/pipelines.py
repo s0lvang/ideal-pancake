@@ -34,7 +34,7 @@ def build_ensemble_regression_pipeline(dimensionality_reduction_name):
 
     models = [
         ("KNN", KNeighborsRegressor()),
-        ("SVM", SVR()),
+        ("SVR", SVR()),
         ("RF", RandomForestRegressor()),
     ]
     regressor = WeightedAverageEnsemble(estimators=models)

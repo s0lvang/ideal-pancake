@@ -65,7 +65,8 @@ class Experiment:
         # Method of selecting samples for training each tree
         bootstrap = [True]
         # Create the random grid
-        random_grid = {
+        alpha = [1]
+        random_forest_grid = {
             # "classifier__n_estimators": n_estimators,
             "classifier__RF__max_depth": max_depth,
             # "classifier__min_samples_split": min_samples_split,
@@ -73,7 +74,15 @@ class Experiment:
             # "classifier__max_features": max_features,
             # "classifier__bootstrap": bootstrap,
         }
-        return random_grid
+        knn_grid = {"classifier__KNN__n_neighbors": [1, 2, 3]}
+        SVC_grid = {"classifier__SVR__C": [1, 2, 3]}
+
+        if self.dimensionality_reduction_name == "lasso":
+            dim_grid = {"lasso__estimator__alpha": alpha}
+        else:
+            dim_grid = {"PCA__n_components": alpha}
+
+        return {**random_forest_grid, **knn_grid, **SVC_grid, **dim_grid}
 
     def __str__(self):
         return super().__str__()
