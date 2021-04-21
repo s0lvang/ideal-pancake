@@ -41,8 +41,7 @@ class Experiment:
             n_trials=50,
             cv=3,
             search_optimization="bayesian",
-            scoring="neg_root_mean_squared_error",
-            error_score=np.inf,
+            error_score=0,
         )
         tune_search.fit(data_train, labels_train)
 
