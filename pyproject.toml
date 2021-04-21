@@ -28,6 +28,8 @@ opencv-python = "^4.4.0"
 PyWavelets = "^1.1.1"
 comet-ml = "^3.3.2"
 hmmlearn = "^0.2.5"
+ray = {extras = ["tune"], version = "^1.2.0"}
+tune-sklearn = "^0.2.1"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

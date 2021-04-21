@@ -2,6 +2,7 @@ from classifier.utils import log_hyperparameters_to_comet
 import numpy as np
 from classifier import evaluate, pipelines
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from ray.tune.sklearn import TuneGridSearchCV
 
 
 class Experiment:
@@ -33,19 +34,18 @@ class Experiment:
         pipeline = pipelines.build_ensemble_regression_pipeline(
             self.dimensionality_reduction_name
         )
-        grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(
+        grid = self.get_random_grid()
+        tune_search = TuneGridSearchCV(
             pipeline,
-            grid_params,
-            n_iter=2,
-            cv=2,
-            error_score=np.inf,
+            grid,
+            max_iters=10,
             scoring="neg_root_mean_squared_error",
+            error_score=np.inf,
         )
-        pipeline.fit(data_train, labels_train)
+        tune_search.fit(data_train, labels_train)
 
         log_hyperparameters_to_comet(pipeline, self.comet_exp)
-        best_pipeline = pipeline  # .best_estimator_
+        best_pipeline = tune_search.best_estimator_
 
         metrics = evaluate.evaluate_model(
             best_pipeline,
@@ -66,10 +66,10 @@ class Experiment:
             "classifier__RF__n_estimators": n_estimators,
             "classifier__RF__max_depth": max_depth,
         }
-        knn_grid = {"classifier__KNN__n_neighbors": [2, 4, 6, 8]}
+        knn_grid = {"classifier__KNN__n_neighbors": [3, 5, 7, 9]}
         SVR_grid = {
             "classifier__SVR__C": [1, 3, 6, 9, 11],
-            "classifier__SVR__degree": [1, 2, 3, 4, 5, 6],
+            "classifier__SVR__degree": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             "classifier__SVR__gamma": [0.1, 0.5, 1, 1.5, 2, 2.5],
         }
         lasso_grid = {"lasso__estimator__alpha": [0, 0.20, 0.40, 0.60, 0.80, 1]}
