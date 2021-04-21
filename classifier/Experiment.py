@@ -34,7 +34,6 @@ class Experiment:
             self.dimensionality_reduction_name
         )
         grid_params = self.get_random_grid()
-        print(grid_params)
         pipeline = RandomizedSearchCV(
             pipeline,
             grid_params,
@@ -45,8 +44,6 @@ class Experiment:
         )
         pipeline.fit(data_train, labels_train)
 
-        print(pipeline.best_score_, "THIS IS THE BEST SCORE")
-        print(pipeline.get_params())
         log_hyperparameters_to_comet(pipeline, self.comet_exp)
         best_pipeline = pipeline  # .best_estimator_
 
@@ -60,38 +57,30 @@ class Experiment:
         return metrics
 
     def get_random_grid(self):
-        # Number of trees in random forest
+
         n_estimators = [int(x) for x in np.linspace(start=200, stop=1000, num=30)]
-        # Number of features to consider at every split
-        max_features = ["auto", "sqrt"]
-        # Maximum number of levels in tree
         max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
         max_depth.append(None)
-        # Minimum number of samples required to split a node
-        min_samples_split = [2, 5, 10]
-        # Minimum number of samples required at each leaf node
-        min_samples_leaf = [1, 2, 4]
-        # Method of selecting samples for training each tree
-        bootstrap = [True]
-        # Create the random grid
-        alpha = [1]
+
         random_forest_grid = {
-            # "classifier__n_estimators": n_estimators,
+            "classifier__RF__n_estimators": n_estimators,
             "classifier__RF__max_depth": max_depth,
-            # "classifier__min_samples_split": min_samples_split,
-            # "classifier__min_samples_leaf": min_samples_leaf,
-            # "classifier__max_features": max_features,
-            # "classifier__bootstrap": bootstrap,
         }
-        knn_grid = {"classifier__KNN__n_neighbors": [1, 2, 3]}
-        SVC_grid = {"classifier__SVR__C": [1, 2, 3]}
+        knn_grid = {"classifier__KNN__n_neighbors": [2, 4, 6, 8]}
+        SVR_grid = {
+            "classifier__SVR__C": [1, 3, 6, 9, 11],
+            "classifier__SVR__degree": [1, 2, 3, 4, 5, 6],
+            "classifier__SVR__gamma": [0.1, 0.5, 1, 1.5, 2, 2.5],
+        }
+        lasso_grid = {"lasso__estimator__alpha": [0, 0.20, 0.40, 0.60, 0.80, 1]}
+        PCA_grid = {"PCA__n_components": [None, 0.20, 0.40, 0.60, 0.80, 0.99]}
 
         if self.dimensionality_reduction_name == "lasso":
-            dim_grid = {"lasso__estimator__alpha": alpha}
+            dim_grid = lasso_grid
         else:
-            dim_grid = {"PCA__n_components": alpha}
+            dim_grid = PCA_grid
 
-        return {**random_forest_grid, **knn_grid, **SVC_grid, **dim_grid}
+        return {**random_forest_grid, **knn_grid, **SVR_grid, **dim_grid}
 
     def __str__(self):
         return super().__str__()
