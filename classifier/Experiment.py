@@ -33,11 +33,20 @@ class Experiment:
         pipeline = pipelines.build_ensemble_regression_pipeline(
             self.dimensionality_reduction_name
         )
-
         grid_params = self.get_random_grid()
-        pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
+        print(grid_params)
+        pipeline = RandomizedSearchCV(
+            pipeline,
+            grid_params,
+            n_iter=2,
+            cv=2,
+            error_score=np.inf,
+            scoring="neg_root_mean_squared_error",
+        )
         pipeline.fit(data_train, labels_train)
 
+        print(pipeline.best_score_, "THIS IS THE BEST SCORE")
+        print(pipeline.get_params())
         log_hyperparameters_to_comet(pipeline, self.comet_exp)
         best_pipeline = pipeline  # .best_estimator_
 
@@ -52,7 +61,7 @@ class Experiment:
 
     def get_random_grid(self):
         # Number of trees in random forest
-        n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
+        n_estimators = [int(x) for x in np.linspace(start=200, stop=1000, num=30)]
         # Number of features to consider at every split
         max_features = ["auto", "sqrt"]
         # Maximum number of levels in tree
