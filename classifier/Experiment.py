@@ -1,18 +1,26 @@
 from classifier.utils import log_hyperparameters_to_comet
 import numpy as np
 from classifier import evaluate, pipelines
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from ray.tune.sklearn import TuneSearchCV
 
 
 class Experiment:
     def __init__(
-        self, dataset, labels, oos_dataset, oos_labels, dimensionality_reduction_name
+        self,
+        dataset,
+        labels,
+        oos_dataset,
+        oos_labels,
+        dimensionality_reduction_name,
+        comet_exp,
     ):
         self.dataset = dataset
         self.labels = labels
         self.oos_dataset = oos_dataset
         self.oos_labels = oos_labels
         self.dimensionality_reduction_name = dimensionality_reduction_name
+        self.comet_exp = comet_exp
 
     def run_experiment(self):
         """Testbed for running model training and evaluation."""
@@ -26,13 +34,19 @@ class Experiment:
         pipeline = pipelines.build_ensemble_regression_pipeline(
             self.dimensionality_reduction_name
         )
+        grid = self.get_random_grid()
+        tune_search = TuneSearchCV(
+            pipeline,
+            grid,
+            n_trials=50,
+            cv=3,
+            search_optimization="bayesian",
+            error_score=0,
+        )
+        tune_search.fit(data_train, labels_train)
 
-        # grid_params = self.get_random_grid()
-        # pipeline = RandomizedSearchCV(pipeline, grid_params, n_iter=2, cv=2)
-        pipeline.fit(data_train, labels_train)
-
-        # log_hyperparameters_to_comet(pipeline)
-        best_pipeline = pipeline  # .best_estimator_
+        # log_hyperparameters_to_comet(tune_search, self.comet_exp)
+        best_pipeline = tune_search.best_estimator_
 
         metrics = evaluate.evaluate_model(
             best_pipeline,
@@ -44,29 +58,30 @@ class Experiment:
         return metrics
 
     def get_random_grid(self):
-        # Number of trees in random forest
-        n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
-        # Number of features to consider at every split
-        max_features = ["auto", "sqrt"]
-        # Maximum number of levels in tree
+
+        n_estimators = [int(x) for x in np.linspace(start=200, stop=1000, num=30)]
         max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
         max_depth.append(None)
-        # Minimum number of samples required to split a node
-        min_samples_split = [2, 5, 10]
-        # Minimum number of samples required at each leaf node
-        min_samples_leaf = [1, 2, 4]
-        # Method of selecting samples for training each tree
-        bootstrap = [True]
-        # Create the random grid
-        random_grid = {
-            "classifier__n_estimators": n_estimators,
-            "classifier__max_depth": max_depth,
-            "classifier__min_samples_split": min_samples_split,
-            "classifier__min_samples_leaf": min_samples_leaf,
-            "classifier__max_features": max_features,
-            "classifier__bootstrap": bootstrap,
+
+        random_forest_grid = {
+            "classifier__RF__n_estimators": (200, 1000),
+            "classifier__RF__max_depth": (10, 110),
         }
-        return random_grid
+        knn_grid = {"classifier__KNN__n_neighbors": (3, 9)}
+        SVR_grid = {
+            "classifier__SVR__C": (1, 10),
+            "classifier__SVR__degree": (1, 9),
+            "classifier__SVR__gamma": (0.1, 2.5),
+        }
+        lasso_grid = {"lasso__estimator__alpha": (0.0, 1.0)}
+        PCA_grid = {"PCA__n_components": (0.01, 0.99)}
+
+        if self.dimensionality_reduction_name == "lasso":
+            dim_grid = lasso_grid
+        else:
+            dim_grid = PCA_grid
+
+        return {**random_forest_grid, **knn_grid, **SVR_grid, **dim_grid}
 
     def __str__(self):
         return super().__str__()

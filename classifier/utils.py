@@ -44,11 +44,11 @@ def download_object(path):
     return obj
 
 
-def log_hyperparameters_to_comet(clf):
+def log_hyperparameters_to_comet(clf, experiment):
     for i in range(len(clf.cv_results_["params"])):
         exp = Experiment(
             workspace="s0lvang",
-            project_name="ideal-pancake",
+            project_name="ideal-pancake-hyperparameter",
             api_key=globals.flags.comet_api_key,
         )
         exp.add_tag("hp_tuning")
@@ -62,7 +62,7 @@ def log_hyperparameters_to_comet(clf):
 
     old_experiment = ExistingExperiment(
         api_key=globals.flags.comet_api_key,
-        previous_experiment=globals.comet_logger.get_key(),
+        previous_experiment=experiment.get_key(),
     )
     globals.comet_logger = old_experiment
 
