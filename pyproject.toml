@@ -31,6 +31,7 @@ hmmlearn = "^0.2.5"
 ray = {extras = ["tune"], version = "^1.2.0"}
 tune-sklearn = "^0.2.1"
 scikit-optimize = "^0.8.1"
+seaborn = "^0.11.1"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
