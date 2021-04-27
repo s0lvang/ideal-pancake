@@ -69,12 +69,13 @@ def rewrite_df(df):
 
 def get_fixations(df):
     df = df[df["Type"] == "SMP"]
+    df["Time"] = df["Time"]//1000
     fixations = detectors.fixation_detection(
         df["L POR X [px]"].to_numpy(),
         df["L POR Y [px]"].to_numpy(),
         df["Time"].to_numpy(),
-        maxdist=25,
-        mindur=500,
+        maxdist=45,
+        mindur=50,
     )
     entries = [create_dataframe_entry(*fixation, df) for fixation in fixations[1]]
     return pd.DataFrame(entries)
@@ -83,9 +84,9 @@ def get_fixations(df):
 def create_dataframe_entry(starttime, endtime, duration, endx, endy, df):
     df = df[df["Time"].between(starttime, endtime)]
     entry = {
-        "fixationStart": starttime // 1000,
-        "fixationEnd": endtime // 1000,
-        "duration": duration // 1000,
+        "fixationStart": starttime,
+        "fixationEnd": endtime,
+        "duration": duration,
         "x": df["L POR X [px]"].mean(),
         "y": df["L POR Y [px]"].mean(),
         "averagePupilSize": df["L Mapped Diameter [mm]"].mean(),

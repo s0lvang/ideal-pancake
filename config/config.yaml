@@ -1,6 +1,6 @@
 trainingInput:
   scaleTier: CUSTOM
-  masterType: n1-highmem-32
+  masterType: n1-highmem-64
   #masterConfig:
   #  acceleratorConfig:
   #    count: 1
