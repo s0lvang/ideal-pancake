@@ -35,7 +35,7 @@ JOB_NAME="${RUN_TYPE}_${NOW}_${COMMIT_MESSAGE_WITHOUT_NEWLINE////_}_${COMMIT_HAS
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=feature_generation
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
-REGION=europe-west1
+REGION=europe-west2
 CONFIG_FILE=config/config.yaml
 
 # Specify arguments for remote (AI Platform) or local (on-premise) execution
