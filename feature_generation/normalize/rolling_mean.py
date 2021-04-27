@@ -3,7 +3,7 @@ def rolling_mean(data):
 
 
 def take_rolling_mean(df):
-    window = 100
+    window = 20
     columns_to_take_rolling_mean = [
         "pupil_diameter",
         "saccade_duration",
