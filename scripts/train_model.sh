@@ -34,7 +34,7 @@ JOB_NAME="${JOB_PREFIX}_${RUN_TYPE}_${NOW}_${COMMIT_MESSAGE_WITHOUT_NEWLINE////_
 JOB_DIR="gs://$BUCKET_ID/models/$JOB_NAME"
 PACKAGE_PATH=classifier
 MAIN_TRAINER_MODULE=$PACKAGE_PATH.task
-REGION=europe-west1
+REGION=europe-west2
 CONFIG_FILE=config/config.yaml #TODO different configs
 
 echo -n "Enter the experiment-name: "
