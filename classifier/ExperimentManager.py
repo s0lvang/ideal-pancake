@@ -140,7 +140,7 @@ class ExperimentManager:
             ([dataset_combination[0]], dataset_combination[1])
             for dataset_combination in itertools.permutations(self.dataset_names, 2)
         ]
-        dataset_combinations = [(self.dataset_names, self.dataset_names[0])]
+        # dataset_combinations = [(self.dataset_names, self.dataset_names[0])]
         print(dataset_combinations)
         for dataset_combination in dataset_combinations:
             for feature_combination in feature_group_regexes:
