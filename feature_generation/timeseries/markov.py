@@ -36,10 +36,11 @@ def calculate_markov(timeseries, n_components_ceiling):
     )
     bins = [i / 100 for i in range(0, 100, 5)]
     discrete_timeseries = np.digitize(normalized_timeseries, bins)
-    transition_matrix = optimize_markov(
-        discrete_timeseries, n_components_ceiling
-    ).flatten()
+    transition_matrix = optimize_markov(discrete_timeseries, n_components_ceiling)
+    if transition_matrix is None:
+        return [np.nan for i in range(n_components_ceiling ** 2)]
     padded_trans_matrix = np.pad(
-        transition_matrix, (0, n_components_ceiling ** 2 - len(transition_matrix))
+        transition_matrix.flatten(),
+        (0, n_components_ceiling ** 2 - len(transition_matrix)),
     )
     return padded_trans_matrix
