@@ -46,7 +46,7 @@ class Experiment:
         pipeline.fit(data_train, labels_train)
 
         # log_hyperparameters_to_comet(tune_search, self.comet_exp)
-        best_pipeline = tune_search.best_estimator_
+        # best_pipeline = tune_search.best_estimator_
 
         metrics = evaluate.evaluate_model(
             pipeline,
