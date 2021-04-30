@@ -43,13 +43,13 @@ class Experiment:
             search_optimization="bayesian",
             error_score=0,
         )
-        pipeline.fit(data_train, labels_train)
+        tune_search.fit(data_train, labels_train)
 
         # log_hyperparameters_to_comet(tune_search, self.comet_exp)
-        # best_pipeline = tune_search.best_estimator_
+        best_pipeline = tune_search.best_estimator_
 
         metrics = evaluate.evaluate_model(
-            pipeline,
+            best_pipeline,
             data_test,
             labels_test,
             self.oos_dataset,
