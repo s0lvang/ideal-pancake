@@ -35,7 +35,8 @@ class Experiment:
             self.dimensionality_reduction_name
         )
         grid = self.get_random_grid()
-        tune_search = TuneSearchCV(
+
+        """ tune_search = TuneSearchCV(
             pipeline,
             grid,
             n_trials=50,
@@ -45,11 +46,11 @@ class Experiment:
         )
         tune_search.fit(data_train, labels_train)
 
-        # log_hyperparameters_to_comet(tune_search, self.comet_exp)
-        best_pipeline = tune_search.best_estimator_
-
+ """  # log_hyperparameters_to_comet(tune_search, self.comet_exp)
+        # best_pipeline = tune_search.best_estimator_
+        pipeline.fit(data_train, labels_train)
         metrics = evaluate.evaluate_model(
-            best_pipeline,
+            pipeline,
             data_test,
             labels_test,
             self.oos_dataset,
