@@ -154,16 +154,16 @@ class ExperimentManager:
 
     def run_experiments(self):
         results_list = []
-        dataset_combinations = [
-            (set(in_study), list(set(self.dataset_names) - set(in_study))[0])
-            for in_study in itertools.combinations(
-                self.dataset_names, len(self.dataset_names) - 1
-            )
-        ]
         # dataset_combinations = [
-        #    ([dataset_combination[0]], dataset_combination[1])
-        #    for dataset_combination in itertools.permutations(self.dataset_names, 2)
+        #    (set(in_study), list(set(self.dataset_names) - set(in_study))[0])
+        #    for in_study in itertools.combinations(
+        #        self.dataset_names, len(self.dataset_names) - 1
+        #    )
         # ]
+        dataset_combinations = [
+            ([dataset_combination[0]], dataset_combination[1])
+            for dataset_combination in itertools.permutations(self.dataset_names, 2)
+        ]
         # dataset_combinations = [(self.dataset_names, self.dataset_names[0])]
         print(dataset_combinations)
         for dataset_combination in dataset_combinations:
