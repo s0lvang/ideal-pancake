@@ -31,9 +31,6 @@ feature_group_regexes = [
     ],
     [
         "pupil_diameter_rolling__lhipa",
-        "saccade_length_rolling__lhipa",
-        "saccade_duration_rolling__lhipa",
-        "^duration_rolling__lhipa",
     ],
     [
         "^duration_rolling__markov",
@@ -62,21 +59,18 @@ feature_group_regexes = [
     ],
     [
         "^duration_rolling__fft_aggregated__*",
-        "^duration_rolling__lhipa",
         "^duration_rolling__markov",
         "^duration_rolling__arma__*",
         "^duration_rolling__garch",
     ],
     [
         "saccade_length_rolling__fft_aggregated__*",
-        "saccade_length_rolling__lhipa",
         "saccade_length_rolling__markov",
         "saccade_length_rolling__arma__*",
         "saccade_length_rolling__garch",
     ],
     [
         "saccade_duration_rolling__fft_aggregated__*",
-        "saccade_duration_rolling__lhipa",
         "saccade_duration_rolling__markov",
         "saccade_duration_rolling__arma__*",
         "saccade_duration_rolling__garch",
@@ -167,7 +161,7 @@ class ExperimentManager:
         # dataset_combinations = [(self.dataset_names, self.dataset_names[0])]
         print(dataset_combinations)
         for dataset_combination in dataset_combinations:
-            for feature_combination in new_feature_group_regexes:
+            for feature_combination in feature_group_regexes:
                 for dimensionality_reduction_name in dimensionality_reduction_names:
                     in_study_names, oos_name = dataset_combination
 
