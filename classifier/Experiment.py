@@ -34,22 +34,22 @@ class Experiment:
         pipeline = pipelines.build_ensemble_regression_pipeline(
             self.dimensionality_reduction_name
         )
-        grid = self.get_random_grid()
+        # grid = self.get_random_grid()
 
-        tune_search = TuneSearchCV(
-            pipeline,
-            grid,
-            n_trials=50,
-            cv=3,
-            search_optimization="bayesian",
-            error_score=0,
-        )
-        tune_search.fit(data_train, labels_train)
+        # tune_search = TuneSearchCV(
+        #    pipeline,
+        #    grid,
+        #    n_trials=50,
+        #    cv=3,
+        #    search_optimization="bayesian",
+        #    error_score=0,
+        # )
+        # tune_search.fit(data_train, labels_train)
 
-        best_pipeline = tune_search.best_estimator_
+        # best_pipeline = tune_search.best_estimator_
         pipeline.fit(data_train, labels_train)
         metrics = evaluate.evaluate_model(
-            best_pipeline,
+            pipeline,
             data_test,
             labels_test,
             self.oos_dataset,
